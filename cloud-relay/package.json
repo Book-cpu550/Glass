@@ -1,0 +1,15 @@
+{
+  "name": "glass-private-sharing-relay",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev --port 8787",
+    "deploy": "wrangler deploy",
+    "secret": "wrangler secret put GLASS_RELAY_CREATE_TOKEN"
+  },
+  "devDependencies": {
+    "@napi-rs/keyring": "^1.3.0",
+    "wrangler": "^4.0.0"
+  }
+}

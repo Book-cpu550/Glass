@@ -1,3 +1,4 @@
+const {chooseSymbol}=require('./symbol-helper.cjs');
 const {_electron:electron}=require('playwright');
 const fs=require('node:fs'),os=require('node:os'),path=require('node:path'),assert=require('node:assert/strict');
 const root=fs.mkdtempSync(path.join(os.tmpdir(),'mathdesk-bounds-'));
@@ -25,8 +26,8 @@ async function launch(){const app=await electron.launch({args:[path.resolve(__di
   await clickAtom('2',0,true);await page.keyboard.type('3');
   assert.match(await field().evaluate(f=>f.value),/\\int_3\^5/);
  }
- await page.getByRole('button',{name:/New note\b/}).click();await page.locator('[data-note-template="blank"]').click();await page.getByRole('textbox',{name:'Document editor'}).fill('An integral: ');
- await page.getByRole('combobox',{name:'Math templates'}).selectOption({label:'Integral'});
+ await page.getByRole('button',{name:/New note\b/}).click();await page.getByRole('textbox',{name:'Document editor'}).fill('An integral: ');
+ await chooseSymbol(page,'math','Integral');
  await page.waitForFunction(()=>document.activeElement.tagName==='MATH-FIELD');
  await page.keyboard.type('2');await page.keyboard.press('Tab');await page.keyboard.type('7');await page.keyboard.press('Tab');await page.keyboard.type('x');
  assert.match(await field().evaluate(f=>f.value),/\\int_2\^7/);

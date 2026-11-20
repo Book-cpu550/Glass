@@ -9,7 +9,9 @@ function writePDF(file,bytes){
   writer.once('spawn',()=>writer.postMessage({file,temp,bytes}));writer.once('message',message=>done(message.ok?null:message.error));writer.once('exit',()=>{if(!finished)done('The file writer stopped unexpectedly.');});writer.once('error',()=>done('The file writer could not start.'));
  });
 }
-async function createPDF(input){
+function noteStyle(note,settings){return note.printStyle==='mla'?{pageSize:'Letter',margin:25.4,...settings}:settings;}
+async function createPDF(input,settings={}){
+ const printOptions=require('./pdf-options.cjs').options(noteStyle(input,settings));
  const note=structuredClone(validateNote(input));if(note.doc&&!validDocument(note.doc))throw Error('The document structure is invalid. Your local note was not changed.');
  const printWindow=new BrowserWindow({show:false,width:1000,height:1000,webPreferences:{nodeIntegration:false,contextIsolation:true,sandbox:true,backgroundThrottling:false}});
  printWindow.webContents.setWindowOpenHandler(()=>({action:'deny'}));
@@ -18,9 +20,9 @@ async function createPDF(input){
  try{
   const operation=(async()=>{
   await printWindow.loadFile(path.join(__dirname,'pdf.html'));
-  const result=await printWindow.webContents.executeJavaScript('window.renderPDF('+JSON.stringify(note)+')');
+  const result=await printWindow.webContents.executeJavaScript('window.renderPDF('+JSON.stringify(note)+','+JSON.stringify(printOptions)+')');
   if(result.errors.length)throw Error('PDF export stopped because an equation could not be rendered: '+result.errors[0]);
-  return Buffer.from(await printWindow.webContents.printToPDF({printBackground:true,pageSize:'A4',preferCSSPageSize:true,displayHeaderFooter:true,headerTemplate:'<span></span>',footerTemplate:'<div style="width:100%;text-align:center;font:9px Arial;color:#777"><span class="pageNumber"></span> / <span class="totalPages"></span></div>'}));
+  return Buffer.from(await printWindow.webContents.printToPDF({printBackground:true,pageSize:printOptions.pageSize,landscape:printOptions.landscape,preferCSSPageSize:true,displayHeaderFooter:printOptions.pageNumbers,headerTemplate:note.printStyle==='mla'?'<div style="width:100%;text-align:right;margin-right:25.4mm;font:12pt Times New Roman">'+String(note.mlaSurname||'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]))+' <span class="pageNumber"></span></div>':'<span></span>',footerTemplate:note.printStyle==='mla'?'<span></span>':'<div style="width:100%;text-align:center;font:9px Arial;color:#777"><span class="pageNumber"></span> / <span class="totalPages"></span></div>'}));
   })();
   return await Promise.race([operation,new Promise((_,reject)=>{timeout=setTimeout(()=>reject(Error('PDF generation took too long. Try exporting a shorter document.')),45000);})]);
  }finally{clearTimeout(timeout);if(!printWindow.isDestroyed())printWindow.destroy();}

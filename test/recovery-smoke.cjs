@@ -6,7 +6,7 @@ async function launch(){const app=await electron.launch({args:[path.resolve(__di
   const note=await page.evaluate(()=>active());
   await page.getByRole('textbox',{name:'Document editor'}).fill('Saved locally during recovery testing.');
   await page.keyboard.press('Control+s');await page.waitForFunction(()=>document.getElementById('save-state').textContent==='Saved locally');
-  await page.getByRole('button',{name:/New note\b/}).click();await page.locator('[data-note-template="blank"]').click();await page.waitForFunction(()=>document.getElementById('title').value==='Untitled note');
+  await page.getByRole('button',{name:/New note\b/}).click();await page.waitForFunction(()=>document.getElementById('title').value==='Untitled note');
   await page.getByRole('textbox',{name:'Note title',exact:true}).fill('Offline note');
   await page.getByRole('textbox',{name:'Document editor'}).fill('This can still be saved and deleted.');
   await page.keyboard.press('Control+s');
@@ -19,7 +19,9 @@ async function launch(){const app=await electron.launch({args:[path.resolve(__di
   assert.ok((await page.locator('#load-warnings').innerText()).includes('broken.json'));
   const restored=await page.evaluate(()=>window.desk.load());assert.ok(restored.notes.some(n=>n.id===note.id));
   assert.ok(fs.existsSync(path.join(root,'notes','broken.json')));
-  assert.ok(restored.notes.some(n=>n.blocks.some(b=>b.value.includes('Saved locally during recovery testing.'))));
+  const recoveredBody=await page.evaluate(id=>desk.getNote(id),note.id);
+  assert.ok(recoveredBody.blocks.some(b=>b.value.includes('Saved locally during recovery testing.')));
+  assert.ok(restored.notes.every(n=>n._summary&&!n.blocks));
   // A failed recognition retry must not leave the earlier successful result insertable.
   await page.evaluate(()=>{photo={id:'missing'};photoResult={answer:'Old result',blocks:[{type:'text',value:'Old result'}]};document.getElementById('photo-dialog').showModal();document.getElementById('photo-insert').hidden=false;});
   await page.getByRole('button',{name:'Transcribe photo ✧',exact:true}).click();

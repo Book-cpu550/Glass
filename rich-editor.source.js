@@ -1,3 +1,5 @@
+import Collaboration from '@tiptap/extension-collaboration';
+import {Shared,cursorExtension} from './sharing-editor.source.js';
 import {Editor,Node,Mark,mergeAttributes,getSchema} from '@tiptap/core';
 import StarterKit from '@tiptap/starter-kit';
 import {TextStyle,FontFamily,FontSize} from '@tiptap/extension-text-style';
@@ -6,6 +8,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import {TextSelection} from '@tiptap/pm/state';
 import {escapeText,codeSpan,codeBlock} from './text-markdown.cjs';
 import {DOMSerializer} from '@tiptap/pm/model';
+import {ReferenceLabel,CrossReference,PageBreak,ScienceTools,setReview} from './science-editor.source.js';
 import {TableExtensions} from './table-editor.source.js';
 let serializationSchema;
 
@@ -31,7 +34,7 @@ function mathExtension(name,inline){return Node.create({
     field.title='Click a bound or box to edit. Tab: next box; Shift+Tab: previous box.';
     field.value=node.attrs.latex;
     field.addEventListener('mount',()=>{field.inlineShortcuts={...field.inlineShortcuts,root:'\\sqrt{#0}',integral:'\\int #0 \\, dx',summation:'\\sum_{n=1}^{\\infty} #0'};});
-    field.addEventListener('input',event=>{event.stopPropagation();const pos=getPos();if(typeof pos==='number')editor.view.dispatch(editor.state.tr.setNodeMarkup(pos,undefined,{...current.attrs,latex:field.value}));});
+    field.addEventListener('input',event=>{event.stopPropagation();const pos=getPos();if(typeof pos==='number'&&editor.state.doc.nodeAt(pos)?.type.name===name)editor.view.dispatch(editor.state.tr.setNodeMarkup(pos,undefined,{...current.attrs,latex:field.value}));});
     field.addEventListener('pointerdown',()=>{leaving=false;clearTimeout(leaveGuard);},true);
     field.addEventListener('focus',()=>{
       // MathLive finishes focus asynchronously. A queued focus from an earlier
@@ -42,16 +45,16 @@ function mathExtension(name,inline){return Node.create({
     const leave=event=>{
       event.preventDefault();event.stopPropagation();
       const pos=getPos();if(typeof pos!=='number')return;
-      const backward=event.shiftKey||event.detail?.direction==='backward'||event.detail?.direction==='upward';
+      const backward=event.key==='ArrowLeft'||event.shiftKey||event.detail?.direction==='backward'||event.detail?.direction==='upward';
       leaving=true;clearTimeout(leaveGuard);leaveGuard=setTimeout(()=>{leaving=false;},120);
       field.blur();
       let target=backward?pos:pos+current.nodeSize;
-      if(!inline){editor.commands.createParagraphNear();target=Math.min(editor.state.doc.content.size-1,target+1);}
+      if(!inline){const state=editor.state,at=backward?pos:pos+current.nodeSize;const tr=state.tr;if(at===0||at===state.doc.content.size||!state.doc.resolve(at).nodeAfter?.isTextblock)tr.insert(at,editor.schema.nodes.paragraph.create());const resolved=tr.doc.resolve(Math.max(0,Math.min(at,tr.doc.content.size)));tr.setSelection(TextSelection.near(resolved,backward?-1:1));editor.view.dispatch(tr);target=editor.state.selection.from;}
       editor.commands.setTextSelection(target);editor.view.focus();
       window.dispatchEvent(new CustomEvent('mathdesk-equation-leave'));
     };
     field.addEventListener('keydown',event=>{
-      if(event.key!=='Tab'||event.ctrlKey||event.altKey||event.metaKey)return;
+      if(event.key==='Escape'){leave(event);return;}if(event.key!=='Tab'||event.ctrlKey||event.altKey||event.metaKey)return;
       event.preventDefault();event.stopPropagation();
       if(!/\\placeholder(?:\[[^\]]*\])?\{|\{\s*\}|\[\s*\]/.test(field.value)){leave(event);return;}
       // Only leave the equation when MathLive reports no more editable boxes.
@@ -65,13 +68,13 @@ function mathExtension(name,inline){return Node.create({
 }});}
 const InlineMath=mathExtension('inlineMath',true),DisplayMath=mathExtension('displayMath',false);
 const Drawing=Node.create({name:'drawing',group:'block',atom:true,selectable:true,
- addAttributes(){return {png:{default:''},strokes:{default:[]},base:{default:''},graph:{default:null}};},
+ addAttributes(){return {width:{default:100},align:{default:'center'},caption:{default:''},png:{default:''},strokes:{default:[]},base:{default:''},graph:{default:null}};},
  parseHTML(){return [{tag:'div[data-type="drawing"]',getAttrs:node=>{const png=node.getAttribute('data-png');if(!/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(png||''))return false;const parse=(name,fallback)=>{try{return JSON.parse(node.getAttribute(name)||'null')??fallback;}catch{return fallback;}};const strokes=parse('data-strokes',[]),graph=parse('data-graph',null),base=node.getAttribute('data-base')||'';return {png,strokes:Array.isArray(strokes)?strokes:[],base:/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(base)?base:'',graph:graph&&typeof graph==='object'&&!Array.isArray(graph)?graph:null};}}];},
  renderHTML({node}){return ['div',{'data-type':'drawing','data-png':node.attrs.png,'data-strokes':JSON.stringify(node.attrs.strokes),'data-base':node.attrs.base,'data-graph':JSON.stringify(node.attrs.graph)},['img',{src:node.attrs.png,alt:'Drawing'}]];},
- addNodeView(){return ({node,editor,getPos})=>{let current=node;const dom=document.createElement('figure');dom.className='document-drawing';dom.contentEditable='false';const img=document.createElement('img');img.src=node.attrs.png;img.alt='Drawing';const edit=document.createElement('button');edit.textContent='Edit drawing';edit.type='button';edit.onclick=()=>{if(editor.isEditable)window.dispatchEvent(new CustomEvent('mathdesk-edit-drawing',{detail:{position:getPos(),attrs:current.attrs}}));};dom.append(img,edit);return {dom,stopEvent:event=>event.target===edit,update(next){if(next.type!==current.type)return false;current=next;img.src=next.attrs.png;return true;}};};}
+ addNodeView(){return ({node,editor,getPos})=>{let current=node;const dom=document.createElement('figure');dom.className='document-drawing';dom.contentEditable='false';const caption=document.createElement('figcaption');const layout=()=>{dom.style.width=Math.max(20,Math.min(100,Number(current.attrs.width)||100))+'%';dom.style.marginLeft=current.attrs.align==='left'?'0':'auto';dom.style.marginRight=current.attrs.align==='right'?'0':'auto';caption.textContent=current.attrs.caption||'';};layout();const img=document.createElement('img');img.src=node.attrs.png;img.alt='Drawing';img.ondblclick=()=>edit.click();const edit=document.createElement('button');edit.textContent='Edit drawing';edit.type='button';edit.onclick=()=>{if(editor.isEditable)window.dispatchEvent(new CustomEvent('mathdesk-edit-drawing',{detail:{position:getPos(),attrs:current.attrs}}));};dom.append(img,caption,edit);return {dom,stopEvent:event=>event.target===edit,update(next){if(next.type!==current.type)return false;current=next;img.src=next.attrs.png;layout();return true;}};};}
 });
 function textMarkdown(node){
-  if(node.type==='inlineMath')return '$'+node.attrs.latex+'$';
+  if(node.type==='inlineMath')return '$'+node.attrs.latex+'$';if(node.type==='crossReference')return node.attrs.label||'Missing reference';
   if(node.type==='hardBreak')return '  \n';
   if(node.type!=='text')return (node.content||[]).map(textMarkdown).join('');
   let value=escapeText(node.text);
@@ -83,7 +86,7 @@ function blockMarkdown(node){
   if(node.type==='displayMath')return '$$\n'+node.attrs.latex+'\n$$';
   if(node.type==='heading')return '#'.repeat(node.attrs.level)+' '+textMarkdown(node);
   if(node.type==='codeBlock')return codeBlock((node.content||[]).map(n=>n.text||'').join(''),node.attrs?.language||'');
-  if(node.type==='horizontalRule')return '---';
+  if(node.type==='horizontalRule')return '---';if(node.type==='pageBreak')return '<div data-page-break></div>';if(node.type==='referenceLabel')return node.attrs.label||'';
   if(node.type==='blockquote')return (node.content||[]).map(blockMarkdown).join('\n\n').split('\n').map(line=>'> '+line).join('\n');
   if(node.type==='bulletList'||node.type==='orderedList')return (node.content||[]).map((item,index)=>{const lines=(item.content||[]).map(blockMarkdown).join('\n\n').split('\n');const marker=node.type==='bulletList'?'- ':`${(node.attrs?.start||1)+index}. `;return marker+lines[0]+lines.slice(1).map(line=>'\n'+(' '.repeat(marker.length))+line).join('');}).join('\n');
   return textMarkdown(node);
@@ -101,12 +104,13 @@ function fromBlocks(blocks){
     return html.replace(new RegExp(prefix+'(\\d+)ENDTOKEN','g'),(_,i)=>{const item=math[Number(i)];return `<span data-type="inlineMath" data-latex="${escape(item.latex)}"></span>`;});
   }).join('')||'<p></p>';
 }
-function mount(parent,{doc,blocks,onChange,onSelection}){
+function mount(parent,{doc,blocks,onChange,onSelection,collaboration}){
   const extensions=[
-    StarterKit.configure({link:{openOnClick:false,autolink:false}}),TextStyle,FontFamily,FontSize,Subscript,TextAlign.configure({types:['heading','paragraph']}),Placeholder.configure({placeholder:'Start writing. Press Ctrl M when you want an equation.'}),InlineMath,DisplayMath,Drawing,...TableExtensions,
+    StarterKit.configure({...(collaboration?{undoRedo:false}:{}),link:{openOnClick:false,autolink:false}}),TextStyle,FontFamily,FontSize,Subscript,TextAlign.configure({types:['heading','paragraph']}),Placeholder.configure({placeholder:'Start writing. Press Ctrl M when you want an equation.'}),InlineMath,DisplayMath,Drawing,ReferenceLabel,CrossReference,PageBreak,ScienceTools,...TableExtensions,
   ];
+  if(collaboration)extensions.push(Collaboration.configure({document:collaboration.document}),cursorExtension(collaboration));
   serializationSchema=getSchema(extensions);if(doc){const parsed=serializationSchema.nodeFromJSON(doc);parsed.check();}
-  const editor=new Editor({element:parent,extensions,content:doc||fromBlocks(blocks),editorProps:{attributes:{'aria-label':'Document editor',role:'textbox','aria-multiline':'true',spellcheck:'true'}},
+  const editor=new Editor({element:parent,extensions,editable:collaboration?.role!=='view',content:collaboration?undefined:doc||fromBlocks(blocks),editorProps:{handleKeyDown(view,event){if(!view.state.selection.empty||!['ArrowLeft','ArrowRight'].includes(event.key))return false;const selection=view.state.selection,backward=event.key==='ArrowLeft',node=backward?selection.$from.nodeBefore:selection.$from.nodeAfter;if(!['inlineMath','displayMath'].includes(node?.type.name))return false;const position=backward?selection.from-node.nodeSize:selection.from;const field=[...parent.querySelectorAll('math-field')].find(f=>f.mathdeskGetPos?.()===position);if(!field)return false;event.preventDefault();field.focus();field.executeCommand(backward?'moveToMathfieldEnd':'moveToMathfieldStart');return true;},attributes:{'aria-label':'Document editor',role:'textbox','aria-multiline':'true',spellcheck:'false'}},
   onUpdate:({editor})=>onChange(editor.getJSON(),toBlocks(editor.getJSON())),onSelectionUpdate:()=>onSelection?.(),onTransaction:()=>onSelection?.()});
   function insertMath(latex='\\placeholder{}',display=false){
     latex=latex.replace(/#(?:0|\?)/g,'\\placeholder{}');
@@ -176,6 +180,6 @@ function mount(parent,{doc,blocks,onChange,onSelection}){
       dispose(){disposed=true;editor.off('transaction',map);}
     };
   }
-  return {editor,insertMath,drawingSession,grammarSegments,applyGrammarEdits,toBlocks:()=>toBlocks(editor.getJSON()),focus:()=>editor.commands.focus(),destroy:()=>editor.destroy(),setReadOnly:value=>{editor.setEditable(!value,false);for(const field of parent.querySelectorAll('math-field'))field.readOnly=value;},getHTML:()=>editor.getHTML(),appendBlocks:blocks=>editor.chain().focus('end').insertContent(fromBlocks(blocks)).run()};
+  return {editor,setReview:suggestions=>setReview(editor,suggestions),insertMath,drawingSession,grammarSegments,applyGrammarEdits,toBlocks:()=>toBlocks(editor.getJSON()),focus:()=>editor.commands.focus(),destroy:()=>editor.destroy(),setReadOnly:value=>{editor.setEditable(!value&&collaboration?.role!=='view',false);for(const field of parent.querySelectorAll('math-field'))field.readOnly=value||collaboration?.role==='view';},getHTML:()=>editor.getHTML(),appendBlocks:blocks=>editor.chain().focus('end').insertContent(fromBlocks(blocks)).run()};
 }
-window.RichDocument={mount,toBlocks,fromBlocks};
+window.RichDocument={mount,toBlocks,fromBlocks,shared:{...Shared,create:json=>Shared.create(serializationSchema,json)}};

@@ -12,11 +12,11 @@
       throw mod = 0, e;
     }
   };
-  var __copyProps = (to, from2, except, desc) => {
-    if (from2 && typeof from2 === "object" || typeof from2 === "function") {
-      for (let key of __getOwnPropNames(from2))
-        if (!__hasOwnProp.call(to, key) && key !== except)
-          __defProp(to, key, { get: () => from2[key], enumerable: !(desc = __getOwnPropDesc(from2, key)) || desc.enumerable });
+  var __copyProps = (to, from3, except, desc) => {
+    if (from3 && typeof from3 === "object" || typeof from3 === "function") {
+      for (let key2 of __getOwnPropNames(from3))
+        if (!__hasOwnProp.call(to, key2) && key2 !== except)
+          __defProp(to, key2, { get: () => from3[key2], enumerable: !(desc = __getOwnPropDesc(from3, key2)) || desc.enumerable });
     }
     return to;
   };
@@ -32,27 +32,56 @@
   // text-markdown.cjs
   var require_text_markdown = __commonJS({
     "text-markdown.cjs"(exports, module) {
-      function escapeText2(text) {
-        return text.replace(/[&<>\\`*_$\[\]#!~|=%^]/g, (char) => char === "&" ? "&amp;" : char === "<" ? "&lt;" : char === ">" ? "&gt;" : "\\" + char).replace(/^([ \t]*\d+)([.)])(?=\s|$)/gm, "$1\\$2").replace(/^([ \t]*)([-+])(?=\s|$|[-+]{2})/gm, "$1\\$2");
+      function escapeText2(text2) {
+        return text2.replace(/[&<>\\`*_$\[\]#!~|=%^]/g, (char) => char === "&" ? "&amp;" : char === "<" ? "&lt;" : char === ">" ? "&gt;" : "\\" + char).replace(/^([ \t]*\d+)([.)])(?=\s|$)/gm, "$1\\$2").replace(/^([ \t]*)([-+])(?=\s|$|[-+]{2})/gm, "$1\\$2");
       }
-      function codeSpan2(text) {
-        const runs = text.match(/`+/g) || [], fence = "`".repeat(Math.max(0, ...runs.map((run3) => run3.length)) + 1), pad = text.startsWith("`") || text.endsWith("`") || /^ .* $/.test(text) && text.trim() ? " " : "";
-        return fence + pad + text + pad + fence;
+      function codeSpan2(text2) {
+        const runs = text2.match(/`+/g) || [], fence = "`".repeat(Math.max(0, ...runs.map((run3) => run3.length)) + 1), pad = text2.startsWith("`") || text2.endsWith("`") || /^ .* $/.test(text2) && text2.trim() ? " " : "";
+        return fence + pad + text2 + pad + fence;
       }
-      function codeBlock2(text, language = "") {
-        const fence = "`".repeat(Math.max(2, ...(text.match(/`+/g) || []).map((run3) => run3.length)) + 1);
-        return fence + language + "\n" + text + "\n" + fence;
+      function codeBlock2(text2, language = "") {
+        const fence = "`".repeat(Math.max(2, ...(text2.match(/`+/g) || []).map((run3) => run3.length)) + 1);
+        return fence + language + "\n" + text2 + "\n" + fence;
       }
       module.exports = { escapeText: escapeText2, codeSpan: codeSpan2, codeBlock: codeBlock2 };
     }
   });
 
+  // science-references.js
+  var require_science_references = __commonJS({
+    "science-references.js"(exports, module) {
+      (function(root) {
+        const kinds = { equation: "Equation", figure: "Figure", table: "Table", theorem: "Theorem" };
+        function labels(doc4) {
+          const counts = {}, targets = /* @__PURE__ */ new Map();
+          function walk(node) {
+            if (node.type === "referenceLabel") {
+              const a = node.attrs || {}, kind = kinds[a.kind] ? a.kind : "equation";
+              counts[kind] = (counts[kind] || 0) + 1;
+              if (a.id && !targets.has(a.id)) targets.set(a.id, { id: a.id, kind, title: a.title || "", label: kinds[kind] + " " + counts[kind] });
+            }
+            for (const child of node.content || []) walk(child);
+          }
+          walk(doc4);
+          return [...targets.values()];
+        }
+        function labelFor(node, targets) {
+          const a = node.attrs || {}, target = targets.find((t) => t.id === (node.type === "crossReference" ? a.target : a.id));
+          return target ? node.type === "referenceLabel" ? target.label + (a.title ? " \u2014 " + a.title : "") : target.label : "Missing reference";
+        }
+        const api = { kinds, labels, labelFor };
+        if (typeof module !== "undefined" && module.exports) module.exports = api;
+        else root.GlassReferences = api;
+      })(typeof globalThis !== "undefined" ? globalThis : exports);
+    }
+  });
+
   // node_modules/@tiptap/core/dist/rolldown-runtime-D7D4PA-g.js
   var __defProp2 = Object.defineProperty;
-  var __exportAll = (all, no_symbols) => {
+  var __exportAll = (all2, no_symbols) => {
     let target = {};
-    for (var name in all) __defProp2(target, name, {
-      get: all[name],
+    for (var name in all2) __defProp2(target, name, {
+      get: all2[name],
       enumerable: true
     });
     if (!no_symbols) __defProp2(target, Symbol.toStringTag, { value: "Module" });
@@ -65,27 +94,27 @@
   }
   OrderedMap.prototype = {
     constructor: OrderedMap,
-    find: function(key) {
+    find: function(key2) {
       for (var i2 = 0; i2 < this.content.length; i2 += 2)
-        if (this.content[i2] === key) return i2;
+        if (this.content[i2] === key2) return i2;
       return -1;
     },
     // :: (string) → ?any
     // Retrieve the value stored under `key`, or return undefined when
     // no such key exists.
-    get: function(key) {
-      var found2 = this.find(key);
+    get: function(key2) {
+      var found2 = this.find(key2);
       return found2 == -1 ? void 0 : this.content[found2 + 1];
     },
     // :: (string, any, ?string) → OrderedMap
     // Create a new map by replacing the value of `key` with a new
     // value, or adding a binding to the end of the map. If `newKey` is
     // given, the key of the binding will be replaced with that key.
-    update: function(key, value, newKey) {
-      var self = newKey && newKey != key ? this.remove(newKey) : this;
-      var found2 = self.find(key), content = self.content.slice();
+    update: function(key2, value, newKey) {
+      var self = newKey && newKey != key2 ? this.remove(newKey) : this;
+      var found2 = self.find(key2), content = self.content.slice();
       if (found2 == -1) {
-        content.push(newKey || key, value);
+        content.push(newKey || key2, value);
       } else {
         content[found2 + 1] = value;
         if (newKey) content[found2] = newKey;
@@ -94,8 +123,8 @@
     },
     // :: (string) → OrderedMap
     // Return a map with the given key removed, if it existed.
-    remove: function(key) {
-      var found2 = this.find(key);
+    remove: function(key2) {
+      var found2 = this.find(key2);
       if (found2 == -1) return this;
       var content = this.content.slice();
       content.splice(found2, 2);
@@ -103,23 +132,23 @@
     },
     // :: (string, any) → OrderedMap
     // Add a new key to the start of the map.
-    addToStart: function(key, value) {
-      return new OrderedMap([key, value].concat(this.remove(key).content));
+    addToStart: function(key2, value) {
+      return new OrderedMap([key2, value].concat(this.remove(key2).content));
     },
     // :: (string, any) → OrderedMap
     // Add a new key to the end of the map.
-    addToEnd: function(key, value) {
-      var content = this.remove(key).content.slice();
-      content.push(key, value);
+    addToEnd: function(key2, value) {
+      var content = this.remove(key2).content.slice();
+      content.push(key2, value);
       return new OrderedMap(content);
     },
     // :: (string, string, any) → OrderedMap
     // Add a key after the given key. If `place` is not found, the new
     // key is added to the end.
-    addBefore: function(place, key, value) {
-      var without = this.remove(key), content = without.content.slice();
+    addBefore: function(place, key2, value) {
+      var without = this.remove(key2), content = without.content.slice();
       var found2 = without.find(place);
-      content.splice(found2 == -1 ? content.length : found2, 0, key, value);
+      content.splice(found2 == -1 ? content.length : found2, 0, key2, value);
       return new OrderedMap(content);
     },
     // :: ((key: string, value: any))
@@ -132,35 +161,35 @@
     // :: (union<Object, OrderedMap>) → OrderedMap
     // Create a new map by prepending the keys in this map that don't
     // appear in `map` before the keys in `map`.
-    prepend: function(map2) {
-      map2 = OrderedMap.from(map2);
-      if (!map2.size) return this;
-      return new OrderedMap(map2.content.concat(this.subtract(map2).content));
+    prepend: function(map3) {
+      map3 = OrderedMap.from(map3);
+      if (!map3.size) return this;
+      return new OrderedMap(map3.content.concat(this.subtract(map3).content));
     },
     // :: (union<Object, OrderedMap>) → OrderedMap
     // Create a new map by appending the keys in this map that don't
     // appear in `map` after the keys in `map`.
-    append: function(map2) {
-      map2 = OrderedMap.from(map2);
-      if (!map2.size) return this;
-      return new OrderedMap(this.subtract(map2).content.concat(map2.content));
+    append: function(map3) {
+      map3 = OrderedMap.from(map3);
+      if (!map3.size) return this;
+      return new OrderedMap(this.subtract(map3).content.concat(map3.content));
     },
     // :: (union<Object, OrderedMap>) → OrderedMap
     // Create a map containing all the keys in this map that don't
     // appear in `map`.
-    subtract: function(map2) {
+    subtract: function(map3) {
       var result = this;
-      map2 = OrderedMap.from(map2);
-      for (var i2 = 0; i2 < map2.content.length; i2 += 2)
-        result = result.remove(map2.content[i2]);
+      map3 = OrderedMap.from(map3);
+      for (var i2 = 0; i2 < map3.content.length; i2 += 2)
+        result = result.remove(map3.content[i2]);
       return result;
     },
     // :: () → Object
     // Turn ordered map into a plain object.
     toObject: function() {
       var result = {};
-      this.forEach(function(key, value) {
-        result[key] = value;
+      this.forEach(function(key2, value) {
+        result[key2] = value;
       });
       return result;
     },
@@ -210,10 +239,10 @@
     for (let iA = a.childCount, iB = b.childCount; ; ) {
       if (iA == 0 || iB == 0)
         return iA == iB ? null : { a: posA, b: posB };
-      let childA = a.child(--iA), childB = b.child(--iB), size = childA.nodeSize;
+      let childA = a.child(--iA), childB = b.child(--iB), size2 = childA.nodeSize;
       if (childA == childB) {
-        posA -= size;
-        posB -= size;
+        posA -= size2;
+        posB -= size2;
         continue;
       }
       if (!childA.sameMarkup(childB))
@@ -237,8 +266,8 @@
         if (inner)
           return inner;
       }
-      posA -= size;
-      posB -= size;
+      posA -= size2;
+      posB -= size2;
     }
   }
   function surrogateLow(ch) {
@@ -251,10 +280,10 @@
     /**
     @internal
     */
-    constructor(content, size) {
+    constructor(content, size2) {
       this.content = content;
-      this.size = size || 0;
-      if (size == null)
+      this.size = size2 || 0;
+      if (size2 == null)
         for (let i2 = 0; i2 < content.length; i2++)
           this.size += content[i2].nodeSize;
     }
@@ -263,12 +292,12 @@
     positions (relative to start of this fragment). Doesn't descend
     into a node when the callback returns `false`.
     */
-    nodesBetween(from2, to, f, nodeStart = 0, parent) {
+    nodesBetween(from3, to, f, nodeStart = 0, parent) {
       for (let i2 = 0, pos = 0; pos < to; i2++) {
         let child = this.content[i2], end = pos + child.nodeSize;
-        if (end > from2 && f(child, nodeStart + pos, parent || null, i2) !== false && child.content.size) {
+        if (end > from3 && f(child, nodeStart + pos, parent || null, i2) !== false && child.content.size) {
           let start = pos + 1;
-          child.nodesBetween(Math.max(0, from2 - start), Math.min(child.content.size, to - start), f, nodeStart + start);
+          child.nodesBetween(Math.max(0, from3 - start), Math.min(child.content.size, to - start), f, nodeStart + start);
         }
         pos = end;
       }
@@ -285,19 +314,19 @@
     Extract the text between `from` and `to`. See the same method on
     [`Node`](https://prosemirror.net/docs/ref/#model.Node.textBetween).
     */
-    textBetween(from2, to, blockSeparator, leafText) {
-      let text = "", first2 = true;
-      this.nodesBetween(from2, to, (node, pos) => {
-        let nodeText = node.isText ? node.text.slice(Math.max(from2, pos) - pos, to - pos) : !node.isLeaf ? "" : leafText ? typeof leafText === "function" ? leafText(node) : leafText : node.type.spec.leafText ? node.type.spec.leafText(node) : "";
+    textBetween(from3, to, blockSeparator, leafText) {
+      let text2 = "", first2 = true;
+      this.nodesBetween(from3, to, (node, pos) => {
+        let nodeText = node.isText ? node.text.slice(Math.max(from3, pos) - pos, to - pos) : !node.isLeaf ? "" : leafText ? typeof leafText === "function" ? leafText(node) : leafText : node.type.spec.leafText ? node.type.spec.leafText(node) : "";
         if (node.isBlock && (node.isLeaf && nodeText || node.isTextblock) && blockSeparator) {
           if (first2)
             first2 = false;
           else
-            text += blockSeparator;
+            text2 += blockSeparator;
         }
-        text += nodeText;
+        text2 += nodeText;
       }, 0);
-      return text;
+      return text2;
     }
     /**
     Create a new fragment containing the combined content of this
@@ -308,9 +337,9 @@
         return this;
       if (!this.size)
         return other;
-      let last = this.lastChild, first2 = other.firstChild, content = this.content.slice(), i2 = 0;
-      if (last.isText && last.sameMarkup(first2)) {
-        content[content.length - 1] = last.withText(last.text + first2.text);
+      let last2 = this.lastChild, first2 = other.firstChild, content = this.content.slice(), i2 = 0;
+      if (last2.isText && last2.sameMarkup(first2)) {
+        content[content.length - 1] = last2.withText(last2.text + first2.text);
         i2 = 1;
       }
       for (; i2 < other.content.length; i2++)
@@ -320,36 +349,36 @@
     /**
     Cut out the sub-fragment between the two given positions.
     */
-    cut(from2, to = this.size) {
-      if (from2 == 0 && to == this.size)
+    cut(from3, to = this.size) {
+      if (from3 == 0 && to == this.size)
         return this;
-      let result = [], size = 0;
-      if (to > from2)
+      let result = [], size2 = 0;
+      if (to > from3)
         for (let i2 = 0, pos = 0; pos < to; i2++) {
           let child = this.content[i2], end = pos + child.nodeSize;
-          if (end > from2) {
-            if (pos < from2 || end > to) {
+          if (end > from3) {
+            if (pos < from3 || end > to) {
               if (child.isText)
-                child = child.cut(Math.max(0, from2 - pos), Math.min(child.text.length, to - pos));
+                child = child.cut(Math.max(0, from3 - pos), Math.min(child.text.length, to - pos));
               else
-                child = child.cut(Math.max(0, from2 - pos - 1), Math.min(child.content.size, to - pos - 1));
+                child = child.cut(Math.max(0, from3 - pos - 1), Math.min(child.content.size, to - pos - 1));
             }
             result.push(child);
-            size += child.nodeSize;
+            size2 += child.nodeSize;
           }
           pos = end;
         }
-      return new _Fragment(result, size);
+      return new _Fragment(result, size2);
     }
     /**
     @internal
     */
-    cutByIndex(from2, to) {
-      if (from2 == to)
+    cutByIndex(from3, to) {
+      if (from3 == to)
         return _Fragment.empty;
-      if (from2 == 0 && to == this.content.length)
+      if (from3 == 0 && to == this.content.length)
         return this;
-      return new _Fragment(this.content.slice(from2, to));
+      return new _Fragment(this.content.slice(from3, to));
     }
     /**
     Create a new fragment in which the node at the given index is
@@ -359,10 +388,10 @@
       let current = this.content[index];
       if (current == node)
         return this;
-      let copy2 = this.content.slice();
-      let size = this.size + node.nodeSize - current.nodeSize;
-      copy2[index] = node;
-      return new _Fragment(copy2, size);
+      let copy3 = this.content.slice();
+      let size2 = this.size + node.nodeSize - current.nodeSize;
+      copy3[index] = node;
+      return new _Fragment(copy3, size2);
     }
     /**
     Create a new fragment by prepending the given node to this
@@ -507,10 +536,10 @@
     static fromArray(array) {
       if (!array.length)
         return _Fragment.empty;
-      let joined, size = 0;
+      let joined, size2 = 0;
       for (let i2 = 0; i2 < array.length; i2++) {
         let node = array[i2];
-        size += node.nodeSize;
+        size2 += node.nodeSize;
         if (i2 && node.isText && array[i2 - 1].sameMarkup(node)) {
           if (!joined)
             joined = array.slice(0, i2);
@@ -519,7 +548,7 @@
           joined.push(node);
         }
       }
-      return new _Fragment(joined || array, size);
+      return new _Fragment(joined || array, size2);
     }
     /**
     Create a fragment from something that can be interpreted as a
@@ -586,32 +615,32 @@
     those are replaced by this one.
     */
     addToSet(set) {
-      let copy2, placed = false;
+      let copy3, placed = false;
       for (let i2 = 0; i2 < set.length; i2++) {
         let other = set[i2];
         if (this.eq(other))
           return set;
         if (this.type.excludes(other.type)) {
-          if (!copy2)
-            copy2 = set.slice(0, i2);
+          if (!copy3)
+            copy3 = set.slice(0, i2);
         } else if (other.type.excludes(this.type)) {
           return set;
         } else {
           if (!placed && other.type.rank > this.type.rank) {
-            if (!copy2)
-              copy2 = set.slice(0, i2);
-            copy2.push(this);
+            if (!copy3)
+              copy3 = set.slice(0, i2);
+            copy3.push(this);
             placed = true;
           }
-          if (copy2)
-            copy2.push(other);
+          if (copy3)
+            copy3.push(other);
         }
       }
-      if (!copy2)
-        copy2 = set.slice();
+      if (!copy3)
+        copy3 = set.slice();
       if (!placed)
-        copy2.push(this);
-      return copy2;
+        copy3.push(this);
+      return copy3;
     }
     /**
     Remove this mark from the given set, returning a new set. If this
@@ -684,9 +713,9 @@
         return _Mark.none;
       if (marks instanceof _Mark)
         return [marks];
-      let copy2 = marks.slice();
-      copy2.sort((a, b) => a.type.rank - b.type.rank);
-      return copy2;
+      let copy3 = marks.slice();
+      copy3.sort((a, b) => a.type.rank - b.type.rank);
+      return copy3;
     }
   };
   Mark.none = [];
@@ -726,8 +755,8 @@
     /**
     @internal
     */
-    removeBetween(from2, to) {
-      return new _Slice(removeRange(this.content, from2 + this.openStart, to + this.openStart), this.openStart, this.openEnd);
+    removeBetween(from3, to) {
+      return new _Slice(removeRange(this.content, from3 + this.openStart, to + this.openStart), this.openStart, this.openEnd);
     }
     /**
     Tests whether this slice is equal to another slice.
@@ -779,17 +808,17 @@
     }
   };
   Slice.empty = new Slice(Fragment.empty, 0, 0);
-  function removeRange(content, from2, to) {
-    let { index, offset } = content.findIndex(from2), child = content.maybeChild(index);
+  function removeRange(content, from3, to) {
+    let { index, offset } = content.findIndex(from3), child = content.maybeChild(index);
     let { index: indexTo, offset: offsetTo } = content.findIndex(to);
-    if (offset == from2 || child.isText) {
+    if (offset == from3 || child.isText) {
       if (offsetTo != to && !content.child(indexTo).isText)
         throw new RangeError("Removing non-flat range");
-      return content.cut(0, from2).append(content.cut(to));
+      return content.cut(0, from3).append(content.cut(to));
     }
     if (index != indexTo)
       throw new RangeError("Removing non-flat range");
-    return content.replaceChild(index, child.copy(removeRange(child.content, from2 - offset - 1, to - offset - 1)));
+    return content.replaceChild(index, child.copy(removeRange(child.content, from3 - offset - 1, to - offset - 1)));
   }
   function insertInto(content, dist, insert, openStart, openEnd, parent) {
     let { index, offset } = content.findIndex(dist), child = content.maybeChild(index);
@@ -833,9 +862,9 @@
     return node;
   }
   function addNode(child, target) {
-    let last = target.length - 1;
-    if (last >= 0 && child.isText && child.sameMarkup(target[last]))
-      target[last] = child.withText(target[last].text + child.text);
+    let last2 = target.length - 1;
+    if (last2 >= 0 && child.isText && child.sameMarkup(target[last2]))
+      target[last2] = child.withText(target[last2].text + child.text);
     else
       target.push(child);
   }
@@ -1135,12 +1164,12 @@
     /**
     @internal
     */
-    static resolve(doc3, pos) {
-      if (!(pos >= 0 && pos <= doc3.content.size))
+    static resolve(doc4, pos) {
+      if (!(pos >= 0 && pos <= doc4.content.size))
         throw new RangeError("Position " + pos + " out of range");
       let path = [];
       let start = 0, parentOffset = pos;
-      for (let node = doc3; ; ) {
+      for (let node = doc4; ; ) {
         let { index, offset } = node.content.findIndex(parentOffset);
         let rem = parentOffset - offset;
         path.push(node, index, start + offset);
@@ -1157,8 +1186,8 @@
     /**
     @internal
     */
-    static resolveCached(doc3, pos) {
-      let cache = resolveCache.get(doc3);
+    static resolveCached(doc4, pos) {
+      let cache = resolveCache.get(doc4);
       if (cache) {
         for (let i2 = 0; i2 < cache.elts.length; i2++) {
           let elt = cache.elts[i2];
@@ -1166,9 +1195,9 @@
             return elt;
         }
       } else {
-        resolveCache.set(doc3, cache = new ResolveCache());
+        resolveCache.set(doc4, cache = new ResolveCache());
       }
-      let result = cache.elts[cache.i] = _ResolvedPos.resolve(doc3, pos);
+      let result = cache.elts[cache.i] = _ResolvedPos.resolve(doc4, pos);
       cache.i = (cache.i + 1) % resolveCacheSize;
       return result;
     }
@@ -1287,8 +1316,8 @@
     recursed over. The last parameter can be used to specify a
     starting position to count from.
     */
-    nodesBetween(from2, to, f, startPos = 0) {
-      this.content.nodesBetween(from2, to, f, startPos, this);
+    nodesBetween(from3, to, f, startPos = 0) {
+      this.content.nodesBetween(from3, to, f, startPos, this);
     }
     /**
     Call the given callback for every descendant node. Doesn't
@@ -1311,8 +1340,8 @@
     inserted for every non-text leaf node encountered, otherwise
     [`leafText`](https://prosemirror.net/docs/ref/#model.NodeSpec.leafText) will be used.
     */
-    textBetween(from2, to, blockSeparator, leafText) {
-      return this.content.textBetween(from2, to, blockSeparator, leafText);
+    textBetween(from3, to, blockSeparator, leafText) {
+      return this.content.textBetween(from3, to, blockSeparator, leafText);
     }
     /**
     Returns this node's first child, or `null` if there are no
@@ -1369,19 +1398,19 @@
     given positions. If `to` is not given, it defaults to the end of
     the node.
     */
-    cut(from2, to = this.content.size) {
-      if (from2 == 0 && to == this.content.size)
+    cut(from3, to = this.content.size) {
+      if (from3 == 0 && to == this.content.size)
         return this;
-      return this.copy(this.content.cut(from2, to));
+      return this.copy(this.content.cut(from3, to));
     }
     /**
     Cut out the part of the document between the given positions, and
     return it as a `Slice` object.
     */
-    slice(from2, to = this.content.size, includeParents = false) {
-      if (from2 == to)
+    slice(from3, to = this.content.size, includeParents = false) {
+      if (from3 == to)
         return Slice.empty;
-      let $from = this.resolve(from2), $to = this.resolve(to);
+      let $from = this.resolve(from3), $to = this.resolve(to);
       let depth = includeParents ? 0 : $from.sharedDepth(to);
       let start = $from.start(depth), node = $from.node(depth);
       let content = node.content.cut($from.pos - start, $to.pos - start);
@@ -1395,8 +1424,8 @@
     into. If any of this is violated, an error of type
     [`ReplaceError`](https://prosemirror.net/docs/ref/#model.ReplaceError) is thrown.
     */
-    replace(from2, to, slice2) {
-      return replace(this.resolve(from2), this.resolve(to), slice2);
+    replace(from3, to, slice2) {
+      return replace(this.resolve(from3), this.resolve(to), slice2);
     }
     /**
     Find the node directly after the given position.
@@ -1452,10 +1481,10 @@
     Test whether a given mark or mark type occurs in this document
     between the two given positions.
     */
-    rangeHasMark(from2, to, type) {
+    rangeHasMark(from3, to, type) {
       let found2 = false;
-      if (to > from2)
-        this.nodesBetween(from2, to, (node) => {
+      if (to > from3)
+        this.nodesBetween(from3, to, (node) => {
           if (type.isInSet(node.marks))
             found2 = true;
           return !found2;
@@ -1526,10 +1555,10 @@
     Get the content match in this node at the given index.
     */
     contentMatchAt(index) {
-      let match = this.type.contentMatch.matchFragment(this.content, 0, index);
-      if (!match)
+      let match2 = this.type.contentMatch.matchFragment(this.content, 0, index);
+      if (!match2)
         throw new Error("Called contentMatchAt on a node with invalid content");
-      return match;
+      return match2;
     }
     /**
     Test whether replacing the range between `from` and `to` (by
@@ -1538,8 +1567,8 @@
     can optionally pass `start` and `end` indices into the
     replacement fragment.
     */
-    canReplace(from2, to, replacement = Fragment.empty, start = 0, end = replacement.childCount) {
-      let one = this.contentMatchAt(from2).matchFragment(replacement, start, end);
+    canReplace(from3, to, replacement = Fragment.empty, start = 0, end = replacement.childCount) {
+      let one = this.contentMatchAt(from3).matchFragment(replacement, start, end);
       let two = one && one.matchFragment(this.content, to);
       if (!two || !two.validEnd)
         return false;
@@ -1552,10 +1581,10 @@
     Test whether replacing the range `from` to `to` (by index) with
     a node of the given type would leave the node's content valid.
     */
-    canReplaceWith(from2, to, type, marks) {
+    canReplaceWith(from3, to, type, marks) {
       if (marks && !this.type.allowsMarks(marks))
         return false;
-      let start = this.contentMatchAt(from2).matchType(type);
+      let start = this.contentMatchAt(from3).matchType(type);
       let end = start && start.matchFragment(this.content, to);
       return end ? end.validEnd : false;
     }
@@ -1578,13 +1607,13 @@
     check() {
       this.type.checkContent(this.content);
       checkAttrs(this.type.attrs, this.attrs, "node", this.type.name);
-      let copy2 = Mark.none;
+      let copy3 = Mark.none;
       for (let i2 = 0; i2 < this.marks.length; i2++) {
         let mark = this.marks[i2];
         checkAttrs(mark.type.attrs, mark.attrs, "mark", mark.type.name);
-        copy2 = mark.addToSet(copy2);
+        copy3 = mark.addToSet(copy3);
       }
-      if (!Mark.sameSet(copy2, this.marks))
+      if (!Mark.sameSet(copy3, this.marks))
         throw new RangeError(`Invalid collection of marks for node ${this.type.name}: ${this.marks.map((m) => m.type.name)}`);
       this.content.forEach((node) => node.check());
     }
@@ -1654,8 +1683,8 @@
     get textContent() {
       return this.text;
     }
-    textBetween(from2, to) {
-      return v8InternHack(this.text.slice(from2, to));
+    textBetween(from3, to) {
+      return v8InternHack(this.text.slice(from3, to));
     }
     get nodeSize() {
       return this.text.length;
@@ -1663,15 +1692,15 @@
     mark(marks) {
       return marks == this.marks ? this : new _TextNode(this.type, this.attrs, this.text, marks);
     }
-    withText(text) {
-      if (text == this.text)
+    withText(text2) {
+      if (text2 == this.text)
         return this;
-      return new _TextNode(this.type, this.attrs, text, this.marks);
+      return new _TextNode(this.type, this.attrs, text2, this.marks);
     }
-    cut(from2 = 0, to = this.text.length) {
-      if (from2 == 0 && to == this.text.length)
+    cut(from3 = 0, to = this.text.length) {
+      if (from3 == 0 && to == this.text.length)
         return this;
-      return this.withText(v8InternHack(this.text.slice(from2, to)));
+      return this.withText(v8InternHack(this.text.slice(from3, to)));
     }
     eq(other) {
       return this.sameMarkup(other) && this.text == other.text;
@@ -1715,9 +1744,9 @@
       let expr = parseExpr(stream);
       if (stream.next)
         stream.err("Unexpected trailing text");
-      let match = dfa(nfa(expr));
-      checkForDeadEnds(match, stream);
-      return match;
+      let match2 = dfa(nfa(expr));
+      checkForDeadEnds(match2, stream);
+      return match2;
     }
     /**
     Match a node type, returning a match after that node if
@@ -1777,12 +1806,12 @@
     */
     fillBefore(after, toEnd = false, startIndex = 0) {
       let seen = [this];
-      function search(match, types) {
-        let finished = match.matchFragment(after, startIndex);
+      function search(match2, types) {
+        let finished = match2.matchFragment(after, startIndex);
         if (finished && (!toEnd || finished.validEnd))
           return Fragment.from(types.map((tp) => tp.createAndFill()));
-        for (let i2 = 0; i2 < match.next.length; i2++) {
-          let { type, next } = match.next[i2];
+        for (let i2 = 0; i2 < match2.next.length; i2++) {
+          let { type, next } = match2.next[i2];
           if (!(type.isText || type.hasRequiredAttrs()) && seen.indexOf(next) == -1) {
             seen.push(next);
             let found2 = search(next, types.concat(type));
@@ -1814,15 +1843,15 @@
     computeWrapping(target) {
       let seen = /* @__PURE__ */ Object.create(null), active = [{ match: this, type: null, via: null }];
       while (active.length) {
-        let current = active.shift(), match = current.match;
-        if (match.matchType(target)) {
+        let current = active.shift(), match2 = current.match;
+        if (match2.matchType(target)) {
           let result = [];
           for (let obj = current; obj.type; obj = obj.via)
             result.push(obj.type);
           return result.reverse();
         }
-        for (let i2 = 0; i2 < match.next.length; i2++) {
-          let { type, next } = match.next[i2];
+        for (let i2 = 0; i2 < match2.next.length; i2++) {
+          let { type, next } = match2.next[i2];
           if (!type.isLeaf && !type.hasRequiredAttrs() && !(type.name in seen) && (!current.type || next.validEnd)) {
             active.push({ match: type.contentMatch, type, via: current });
             seen[type.name] = true;
@@ -1928,16 +1957,16 @@
     return result;
   }
   function parseExprRange(stream, expr) {
-    let min = parseNum(stream), max = min;
+    let min2 = parseNum(stream), max2 = min2;
     if (stream.eat(",")) {
       if (stream.next != "}")
-        max = parseNum(stream);
+        max2 = parseNum(stream);
       else
-        max = -1;
+        max2 = -1;
     }
     if (!stream.eat("}"))
       stream.err("Unclosed braced range");
-    return { type: "range", min, max, expr };
+    return { type: "range", min: min2, max: max2, expr };
   }
   function resolveName(stream, name) {
     let types = stream.nodeTypes, type = types[name];
@@ -1980,38 +2009,38 @@
     function node() {
       return nfa2.push([]) - 1;
     }
-    function edge(from2, to, term) {
+    function edge(from3, to, term) {
       let edge2 = { term, to };
-      nfa2[from2].push(edge2);
+      nfa2[from3].push(edge2);
       return edge2;
     }
     function connect(edges, to) {
       edges.forEach((edge2) => edge2.to = to);
     }
-    function compile(expr2, from2) {
+    function compile(expr2, from3) {
       if (expr2.type == "choice") {
-        return expr2.exprs.reduce((out, expr3) => out.concat(compile(expr3, from2)), []);
+        return expr2.exprs.reduce((out, expr3) => out.concat(compile(expr3, from3)), []);
       } else if (expr2.type == "seq") {
         for (let i2 = 0; ; i2++) {
-          let next = compile(expr2.exprs[i2], from2);
+          let next = compile(expr2.exprs[i2], from3);
           if (i2 == expr2.exprs.length - 1)
             return next;
-          connect(next, from2 = node());
+          connect(next, from3 = node());
         }
       } else if (expr2.type == "star") {
         let loop = node();
-        edge(from2, loop);
+        edge(from3, loop);
         connect(compile(expr2.expr, loop), loop);
         return [edge(loop)];
       } else if (expr2.type == "plus") {
         let loop = node();
-        connect(compile(expr2.expr, from2), loop);
+        connect(compile(expr2.expr, from3), loop);
         connect(compile(expr2.expr, loop), loop);
         return [edge(loop)];
       } else if (expr2.type == "opt") {
-        return [edge(from2)].concat(compile(expr2.expr, from2));
+        return [edge(from3)].concat(compile(expr2.expr, from3));
       } else if (expr2.type == "range") {
-        let cur = from2;
+        let cur = from3;
         for (let i2 = 0; i2 < expr2.min; i2++) {
           let next = node();
           connect(compile(expr2.expr, cur), next);
@@ -2029,7 +2058,7 @@
         }
         return [edge(cur)];
       } else if (expr2.type == "name") {
-        return [edge(from2, void 0, expr2.value)];
+        return [edge(from3, void 0, expr2.value)];
       } else {
         throw new Error("Unknown expr type");
       }
@@ -2083,8 +2112,8 @@
       return state;
     }
   }
-  function checkForDeadEnds(match, stream) {
-    for (let i2 = 0, work = [match]; i2 < work.length; i2++) {
+  function checkForDeadEnds(match2, stream) {
+    for (let i2 = 0, work = [match2]; i2 < work.length; i2++) {
       let state = work[i2], dead = !state.validEnd, nodes = [];
       for (let j = 0; j < state.next.length; j++) {
         let { type, next } = state.next[j];
@@ -2309,16 +2338,16 @@
     allowedMarks(marks) {
       if (this.markSet == null)
         return marks;
-      let copy2;
+      let copy3;
       for (let i2 = 0; i2 < marks.length; i2++) {
         if (!this.allowsMarkType(marks[i2].type)) {
-          if (!copy2)
-            copy2 = marks.slice(0, i2);
-        } else if (copy2) {
-          copy2.push(marks[i2]);
+          if (!copy3)
+            copy3 = marks.slice(0, i2);
+        } else if (copy3) {
+          copy3.push(marks[i2]);
         }
       }
-      return !copy2 ? marks : copy2.length ? copy2 : Mark.none;
+      return !copy3 ? marks : copy3.length ? copy3 : Mark.none;
     }
     /**
     @internal
@@ -2470,9 +2499,9 @@
     Create a text node in the schema. Empty text nodes are not
     allowed.
     */
-    text(text, marks) {
+    text(text2, marks) {
       let type = this.nodes.text;
-      return new TextNode(type, type.defaultAttrs, text, Mark.setFrom(marks));
+      return new TextNode(type, type.defaultAttrs, text2, Mark.setFrom(marks));
     }
     /**
     Create a mark with the given type and attributes.
@@ -2516,7 +2545,7 @@
   function isStyleRule(rule) {
     return rule.style != null;
   }
-  var DOMParser = class _DOMParser {
+  var DOMParser2 = class _DOMParser {
     /**
     Create a parser that targets the given schema, using the given
     parsing rules.
@@ -2698,7 +2727,7 @@
     return type && type.whitespace == "pre" ? OPT_PRESERVE_WS | OPT_PRESERVE_WS_FULL : base2 & ~OPT_OPEN_LEFT;
   }
   var NodeContext = class {
-    constructor(type, attrs, marks, solid, match, options) {
+    constructor(type, attrs, marks, solid, match2, options) {
       this.type = type;
       this.attrs = attrs;
       this.marks = marks;
@@ -2706,7 +2735,7 @@
       this.options = options;
       this.content = [];
       this.activeMarks = Mark.none;
-      this.match = match || (options & OPT_OPEN_LEFT ? null : type.contentMatch);
+      this.match = match2 || (options & OPT_OPEN_LEFT ? null : type.contentMatch);
     }
     findWrapping(node) {
       if (!this.match) {
@@ -2729,13 +2758,13 @@
     }
     finish(openEnd) {
       if (!(this.options & OPT_PRESERVE_WS)) {
-        let last = this.content[this.content.length - 1], m;
-        if (last && last.isText && (m = /[ \t\r\n\u000c]+$/.exec(last.text))) {
-          let text = last;
-          if (last.text.length == m[0].length)
+        let last2 = this.content[this.content.length - 1], m;
+        if (last2 && last2.isText && (m = /[ \t\r\n\u000c]+$/.exec(last2.text))) {
+          let text2 = last2;
+          if (last2.text.length == m[0].length)
             this.content.pop();
           else
-            this.content[this.content.length - 1] = text.withText(text.text.slice(0, text.text.length - m[0].length));
+            this.content[this.content.length - 1] = text2.withText(text2.text.slice(0, text2.text.length - m[0].length));
         }
       }
       let content = Fragment.from(this.content);
@@ -3105,14 +3134,14 @@
       let option = this.options.context;
       let useRoot = !this.isOpen && (!option || option.parent.type == this.nodes[0].type);
       let minDepth = -(option ? option.depth + 1 : 0) + (useRoot ? 0 : 1);
-      let match = (i2, depth) => {
+      let match2 = (i2, depth) => {
         for (; i2 >= 0; i2--) {
           let part = parts[i2];
           if (part == "") {
             if (i2 == parts.length - 1 || i2 == 0)
               continue;
             for (; depth >= minDepth; depth--)
-              if (match(i2 - 1, depth))
+              if (match2(i2 - 1, depth))
                 return true;
             return false;
           } else {
@@ -3124,7 +3153,7 @@
         }
         return true;
       };
-      return match(parts.length - 1, this.open);
+      return match2(parts.length - 1, this.open);
     }
     textblockFromContext() {
       let $context = this.options.context;
@@ -3158,10 +3187,10 @@
     return (dom.matches || dom.msMatchesSelector || dom.webkitMatchesSelector || dom.mozMatchesSelector).call(dom, selector);
   }
   function copy(obj) {
-    let copy2 = {};
+    let copy3 = {};
     for (let prop in obj)
-      copy2[prop] = obj[prop];
-    return copy2;
+      copy3[prop] = obj[prop];
+    return copy3;
   }
   function markMayApply(markType, nodeType) {
     let nodes = nodeType.schema.nodes;
@@ -3169,10 +3198,10 @@
       let parent = nodes[name];
       if (!parent.allowsMarkType(markType))
         continue;
-      let seen = [], scan = (match) => {
-        seen.push(match);
-        for (let i2 = 0; i2 < match.edgeCount; i2++) {
-          let { type, next } = match.edge(i2);
+      let seen = [], scan = (match2) => {
+        seen.push(match2);
+        for (let i2 = 0; i2 < match2.edgeCount; i2++) {
+          let { type, next } = match2.edge(i2);
           if (type == nodeType)
             return true;
           if (seen.indexOf(next) < 0 && scan(next))
@@ -3276,10 +3305,10 @@
       let toDOM = this.marks[mark.type.name];
       return toDOM && renderSpec(doc(options), toDOM(mark, inline), null, mark.attrs);
     }
-    static renderSpec(doc3, structure, xmlNS = null, blockArraysIn) {
+    static renderSpec(doc4, structure, xmlNS = null, blockArraysIn) {
       if (typeof structure == "string")
-        return { dom: doc3.createTextNode(structure) };
-      return renderSpec(doc3, structure, xmlNS, blockArraysIn);
+        return { dom: doc4.createTextNode(structure) };
+      return renderSpec(doc4, structure, xmlNS, blockArraysIn);
     }
     /**
     Build a serializer using the [`toDOM`](https://prosemirror.net/docs/ref/#model.NodeSpec.toDOM)
@@ -3346,7 +3375,7 @@
     scan(attrs);
     return result;
   }
-  function renderSpec(doc3, structure, xmlNS, blockArraysIn) {
+  function renderSpec(doc4, structure, xmlNS, blockArraysIn) {
     if (structure.nodeType == 1)
       return { dom: structure };
     if (structure.dom && structure.dom.nodeType == 1)
@@ -3362,7 +3391,7 @@
       tagName = tagName.slice(space + 1);
     }
     let contentDOM;
-    let dom = xmlNS ? doc3.createElementNS(xmlNS, tagName) : doc3.createElement(tagName);
+    let dom = xmlNS ? doc4.createElementNS(xmlNS, tagName) : doc4.createElement(tagName);
     let attrs = structure[1], start = 1;
     if (attrs && typeof attrs == "object" && attrs.nodeType == null && !Array.isArray(attrs)) {
       start = 2;
@@ -3384,9 +3413,9 @@
           throw new RangeError("Content hole must be the only child of its parent node");
         return { dom, contentDOM: dom };
       } else if (typeof child == "string") {
-        dom.appendChild(doc3.createTextNode(child));
+        dom.appendChild(doc4.createTextNode(child));
       } else {
-        let { dom: inner, contentDOM: innerContent } = renderSpec(doc3, child, xmlNS, blockArraysIn);
+        let { dom: inner, contentDOM: innerContent } = renderSpec(doc4, child, xmlNS, blockArraysIn);
         dom.appendChild(inner);
         if (innerContent) {
           if (contentDOM)
@@ -3565,9 +3594,9 @@
     /**
     Create a new mapping with the given position maps.
     */
-    constructor(maps, mirror, from2 = 0, to = maps ? maps.length : 0) {
+    constructor(maps, mirror, from3 = 0, to = maps ? maps.length : 0) {
       this.mirror = mirror;
-      this.from = from2;
+      this.from = from3;
       this.to = to;
       this._maps = maps || [];
       this.ownData = !(maps || mirror);
@@ -3581,21 +3610,21 @@
     /**
     Create a mapping that maps only through a part of this one.
     */
-    slice(from2 = 0, to = this.maps.length) {
-      return new _Mapping(this._maps, this.mirror, from2, to);
+    slice(from3 = 0, to = this.maps.length) {
+      return new _Mapping(this._maps, this.mirror, from3, to);
     }
     /**
     Add a step map to the end of this mapping. If `mirrors` is
     given, it should be the index of the step map that is the mirror
     image of this one.
     */
-    appendMap(map2, mirrors) {
+    appendMap(map3, mirrors) {
       if (!this.ownData) {
         this._maps = this._maps.slice();
         this.mirror = this.mirror && this.mirror.slice();
         this.ownData = true;
       }
-      this.to = this._maps.push(map2);
+      this.to = this._maps.push(map3);
       if (mirrors != null)
         this.setMirror(this._maps.length - 1, mirrors);
     }
@@ -3673,7 +3702,7 @@
     _map(pos, assoc, simple) {
       let delInfo = 0;
       for (let i2 = this.from; i2 < this.to; i2++) {
-        let map2 = this._maps[i2], result = map2.mapResult(pos, assoc);
+        let map3 = this._maps[i2], result = map3.mapResult(pos, assoc);
         if (result.recover != null) {
           let corr = this.getMirror(i2);
           if (corr != null && corr > i2 && corr < this.to) {
@@ -3724,11 +3753,11 @@
     register an ID for your step classes. Try to pick something
     that's unlikely to clash with steps from other modules.
     */
-    static jsonID(id, stepClass) {
-      if (id in stepsByID)
-        throw new RangeError("Duplicate use of step JSON ID " + id);
-      stepsByID[id] = stepClass;
-      stepClass.prototype.jsonID = id;
+    static jsonID(id2, stepClass) {
+      if (id2 in stepsByID)
+        throw new RangeError("Duplicate use of step JSON ID " + id2);
+      stepsByID[id2] = stepClass;
+      stepClass.prototype.jsonID = id2;
       return stepClass;
     }
   };
@@ -3736,15 +3765,15 @@
     /**
     @internal
     */
-    constructor(doc3, failed) {
-      this.doc = doc3;
+    constructor(doc4, failed) {
+      this.doc = doc4;
       this.failed = failed;
     }
     /**
     Create a successful step result.
     */
-    static ok(doc3) {
-      return new _StepResult(doc3, null);
+    static ok(doc4) {
+      return new _StepResult(doc4, null);
     }
     /**
     Create a failed step result.
@@ -3757,9 +3786,9 @@
     arguments. Create a successful result if it succeeds, and a
     failed one if it throws a `ReplaceError`.
     */
-    static fromReplace(doc3, from2, to, slice2) {
+    static fromReplace(doc4, from3, to, slice2) {
       try {
-        return _StepResult.ok(doc3.replace(from2, to, slice2));
+        return _StepResult.ok(doc4.replace(from3, to, slice2));
       } catch (e) {
         if (e instanceof ReplaceError)
           return _StepResult.fail(e.message);
@@ -3783,43 +3812,43 @@
     /**
     Create a mark step.
     */
-    constructor(from2, to, mark) {
+    constructor(from3, to, mark) {
       super();
-      this.from = from2;
+      this.from = from3;
       this.to = to;
       this.mark = mark;
     }
-    apply(doc3) {
-      let oldSlice = doc3.slice(this.from, this.to), $from = doc3.resolve(this.from);
+    apply(doc4) {
+      let oldSlice = doc4.slice(this.from, this.to), $from = doc4.resolve(this.from);
       let parent = $from.node($from.sharedDepth(this.to));
       let slice2 = new Slice(mapFragment(oldSlice.content, (node, parent2) => {
         if (!node.isAtom || !parent2.type.allowsMarkType(this.mark.type))
           return node;
         return node.mark(this.mark.addToSet(node.marks));
       }, parent), oldSlice.openStart, oldSlice.openEnd);
-      return StepResult.fromReplace(doc3, this.from, this.to, slice2);
+      return StepResult.fromReplace(doc4, this.from, this.to, slice2);
     }
-    invert(doc3) {
+    invert(doc4) {
       let steps = [];
-      doc3.nodesBetween(this.from, this.to, (node, pos) => {
+      doc4.nodesBetween(this.from, this.to, (node, pos) => {
         if (node.isInline && node.isAtom) {
           let added = this.mark.addToSet(node.marks);
           if (!Mark.sameSet(added, node.marks)) {
-            let from2 = Math.max(this.from, pos), to = Math.min(this.to, pos + node.nodeSize);
-            pushMarkStep(RemoveMarkStep, from2, to, this.mark, steps);
+            let from3 = Math.max(this.from, pos), to = Math.min(this.to, pos + node.nodeSize);
+            pushMarkStep(RemoveMarkStep, from3, to, this.mark, steps);
             for (let mark of node.marks)
               if (!mark.isInSet(added))
-                pushMarkStep(_AddMarkStep, from2, to, mark, steps);
+                pushMarkStep(_AddMarkStep, from3, to, mark, steps);
           }
         }
       });
       return steps.length == 1 ? steps[0] : new MarkSetStep(steps);
     }
     map(mapping) {
-      let from2 = mapping.map(this.from, 1), to = mapping.map(this.to, -1);
-      if (from2 >= to)
+      let from3 = mapping.map(this.from, 1), to = mapping.map(this.to, -1);
+      if (from3 >= to)
         return null;
-      return new _AddMarkStep(from2, to, this.mark);
+      return new _AddMarkStep(from3, to, this.mark);
     }
     merge(other) {
       if (other instanceof _AddMarkStep && other.mark.eq(this.mark) && this.from <= other.to && this.to >= other.from)
@@ -3848,32 +3877,32 @@
     /**
     Create a mark-removing step.
     */
-    constructor(from2, to, mark) {
+    constructor(from3, to, mark) {
       super();
-      this.from = from2;
+      this.from = from3;
       this.to = to;
       this.mark = mark;
     }
-    apply(doc3) {
-      let oldSlice = doc3.slice(this.from, this.to);
+    apply(doc4) {
+      let oldSlice = doc4.slice(this.from, this.to);
       let slice2 = new Slice(mapFragment(oldSlice.content, (node) => {
         return node.mark(this.mark.removeFromSet(node.marks));
-      }, doc3), oldSlice.openStart, oldSlice.openEnd);
-      return StepResult.fromReplace(doc3, this.from, this.to, slice2);
+      }, doc4), oldSlice.openStart, oldSlice.openEnd);
+      return StepResult.fromReplace(doc4, this.from, this.to, slice2);
     }
-    invert(doc3) {
+    invert(doc4) {
       let steps = [];
-      doc3.nodesBetween(this.from, this.to, (node, pos) => {
+      doc4.nodesBetween(this.from, this.to, (node, pos) => {
         if (node.isInline && node.isAtom && this.mark.isInSet(node.marks))
           pushMarkStep(AddMarkStep, Math.max(this.from, pos), Math.min(this.to, pos + node.nodeSize), this.mark, steps);
       });
       return steps.length == 1 ? steps[0] : new MarkSetStep(steps);
     }
     map(mapping) {
-      let from2 = mapping.map(this.from, 1), to = mapping.map(this.to, -1);
-      if (from2 >= to)
+      let from3 = mapping.map(this.from, 1), to = mapping.map(this.to, -1);
+      if (from3 >= to)
         return null;
-      return new _RemoveMarkStep(from2, to, this.mark);
+      return new _RemoveMarkStep(from3, to, this.mark);
     }
     merge(other) {
       if (other instanceof _RemoveMarkStep && other.mark.eq(this.mark) && this.from <= other.to && this.to >= other.from)
@@ -3898,12 +3927,12 @@
     }
   };
   Step.jsonID("removeMark", RemoveMarkStep);
-  function pushMarkStep(cls, from2, to, mark, target) {
-    let last = target.length ? target[target.length - 1] : null;
-    if (last && last instanceof cls && last.to == from2 && last.mark.eq(mark)) {
-      target[target.length - 1] = new cls(last.from, to, mark);
+  function pushMarkStep(cls, from3, to, mark, target) {
+    let last2 = target.length ? target[target.length - 1] : null;
+    if (last2 && last2 instanceof cls && last2.to == from3 && last2.mark.eq(mark)) {
+      target[target.length - 1] = new cls(last2.from, to, mark);
     } else {
-      target.push(new cls(from2, to, mark));
+      target.push(new cls(from3, to, mark));
     }
   }
   var MarkSetStep = class _MarkSetStep extends Step {
@@ -3911,17 +3940,17 @@
       super();
       this.steps = steps;
     }
-    apply(doc3) {
+    apply(doc4) {
       for (let step of this.steps) {
-        let result = step.apply(doc3);
+        let result = step.apply(doc4);
         if (!result.doc)
           return result;
-        doc3 = result.doc;
+        doc4 = result.doc;
       }
-      return new StepResult(doc3, null);
+      return new StepResult(doc4, null);
     }
-    invert(doc3) {
-      return new _MarkSetStep(this.steps.map((s) => s.invert(doc3)));
+    invert(doc4) {
+      return new _MarkSetStep(this.steps.map((s) => s.invert(doc4)));
     }
     map(mapping) {
       let result = [];
@@ -3951,15 +3980,15 @@
       this.pos = pos;
       this.mark = mark;
     }
-    apply(doc3) {
-      let node = doc3.nodeAt(this.pos);
+    apply(doc4) {
+      let node = doc4.nodeAt(this.pos);
       if (!node)
         return StepResult.fail("No node at mark step's position");
       let updated = node.type.create(node.attrs, null, this.mark.addToSet(node.marks));
-      return StepResult.fromReplace(doc3, this.pos, this.pos + 1, new Slice(Fragment.from(updated), 0, node.isLeaf ? 0 : 1));
+      return StepResult.fromReplace(doc4, this.pos, this.pos + 1, new Slice(Fragment.from(updated), 0, node.isLeaf ? 0 : 1));
     }
-    invert(doc3) {
-      let node = doc3.nodeAt(this.pos);
+    invert(doc4) {
+      let node = doc4.nodeAt(this.pos);
       if (node) {
         let newSet = this.mark.addToSet(node.marks);
         if (newSet.length == node.marks.length) {
@@ -3997,15 +4026,15 @@
       this.pos = pos;
       this.mark = mark;
     }
-    apply(doc3) {
-      let node = doc3.nodeAt(this.pos);
+    apply(doc4) {
+      let node = doc4.nodeAt(this.pos);
       if (!node)
         return StepResult.fail("No node at mark step's position");
       let updated = node.type.create(node.attrs, null, this.mark.removeFromSet(node.marks));
-      return StepResult.fromReplace(doc3, this.pos, this.pos + 1, new Slice(Fragment.from(updated), 0, node.isLeaf ? 0 : 1));
+      return StepResult.fromReplace(doc4, this.pos, this.pos + 1, new Slice(Fragment.from(updated), 0, node.isLeaf ? 0 : 1));
     }
-    invert(doc3) {
-      let node = doc3.nodeAt(this.pos);
+    invert(doc4) {
+      let node = doc4.nodeAt(this.pos);
       if (!node || !this.mark.isInSet(node.marks))
         return this;
       return new AddNodeMarkStep(this.pos, this.mark);
@@ -4037,30 +4066,30 @@
     tokens (this is to guard against rebased replace steps
     overwriting something they weren't supposed to).
     */
-    constructor(from2, to, slice2, structure = false) {
+    constructor(from3, to, slice2, structure = false) {
       super();
-      this.from = from2;
+      this.from = from3;
       this.to = to;
       this.slice = slice2;
       this.structure = structure;
     }
-    apply(doc3) {
-      if (this.structure && contentBetween(doc3, this.from, this.to))
+    apply(doc4) {
+      if (this.structure && contentBetween(doc4, this.from, this.to))
         return StepResult.fail("Structure replace would overwrite content");
-      return StepResult.fromReplace(doc3, this.from, this.to, this.slice);
+      return StepResult.fromReplace(doc4, this.from, this.to, this.slice);
     }
     getMap() {
       return new StepMap([this.from, this.to - this.from, this.slice.size]);
     }
-    invert(doc3) {
-      return new _ReplaceStep(this.from, this.from + this.slice.size, doc3.slice(this.from, this.to));
+    invert(doc4) {
+      return new _ReplaceStep(this.from, this.from + this.slice.size, doc4.slice(this.from, this.to));
     }
     map(mapping) {
       let to = mapping.mapResult(this.to, -1);
-      let from2 = this.from == this.to && _ReplaceStep.MAP_BIAS < 0 ? to : mapping.mapResult(this.from, 1);
-      if (from2.deletedAcross && to.deletedAcross)
+      let from3 = this.from == this.to && _ReplaceStep.MAP_BIAS < 0 ? to : mapping.mapResult(this.from, 1);
+      if (from3.deletedAcross && to.deletedAcross)
         return null;
-      return new _ReplaceStep(from2.pos, Math.max(from2.pos, to.pos), this.slice, this.structure);
+      return new _ReplaceStep(from3.pos, Math.max(from3.pos, to.pos), this.slice, this.structure);
     }
     merge(other) {
       if (!(other instanceof _ReplaceStep) || other.structure || this.structure)
@@ -4101,9 +4130,9 @@
     of the gap should be moved. `structure` has the same meaning as
     it has in the [`ReplaceStep`](https://prosemirror.net/docs/ref/#transform.ReplaceStep) class.
     */
-    constructor(from2, to, gapFrom, gapTo, slice2, insert, structure = false) {
+    constructor(from3, to, gapFrom, gapTo, slice2, insert, structure = false) {
       super();
-      this.from = from2;
+      this.from = from3;
       this.to = to;
       this.gapFrom = gapFrom;
       this.gapTo = gapTo;
@@ -4111,16 +4140,16 @@
       this.insert = insert;
       this.structure = structure;
     }
-    apply(doc3) {
-      if (this.structure && (contentBetween(doc3, this.from, this.gapFrom) || contentBetween(doc3, this.gapTo, this.to)))
+    apply(doc4) {
+      if (this.structure && (contentBetween(doc4, this.from, this.gapFrom) || contentBetween(doc4, this.gapTo, this.to)))
         return StepResult.fail("Structure gap-replace would overwrite content");
-      let gap = doc3.slice(this.gapFrom, this.gapTo);
+      let gap = doc4.slice(this.gapFrom, this.gapTo);
       if (gap.openStart || gap.openEnd)
         return StepResult.fail("Gap is not a flat range");
       let inserted = this.slice.insertAt(this.insert, gap.content);
       if (!inserted)
         return StepResult.fail("Content does not fit in gap");
-      return StepResult.fromReplace(doc3, this.from, this.to, inserted);
+      return StepResult.fromReplace(doc4, this.from, this.to, inserted);
     }
     getMap() {
       return new StepMap([
@@ -4132,17 +4161,17 @@
         this.slice.size - this.insert
       ]);
     }
-    invert(doc3) {
+    invert(doc4) {
       let gap = this.gapTo - this.gapFrom;
-      return new _ReplaceAroundStep(this.from, this.from + this.slice.size + gap, this.from + this.insert, this.from + this.insert + gap, doc3.slice(this.from, this.to).removeBetween(this.gapFrom - this.from, this.gapTo - this.from), this.gapFrom - this.from, this.structure);
+      return new _ReplaceAroundStep(this.from, this.from + this.slice.size + gap, this.from + this.insert, this.from + this.insert + gap, doc4.slice(this.from, this.to).removeBetween(this.gapFrom - this.from, this.gapTo - this.from), this.gapFrom - this.from, this.structure);
     }
     map(mapping) {
-      let from2 = mapping.mapResult(this.from, 1), to = mapping.mapResult(this.to, -1);
-      let gapFrom = this.from == this.gapFrom ? from2.pos : mapping.map(this.gapFrom, -1);
+      let from3 = mapping.mapResult(this.from, 1), to = mapping.mapResult(this.to, -1);
+      let gapFrom = this.from == this.gapFrom ? from3.pos : mapping.map(this.gapFrom, -1);
       let gapTo = this.to == this.gapTo ? to.pos : mapping.map(this.gapTo, 1);
-      if (from2.deletedAcross && to.deletedAcross || gapFrom < from2.pos || gapTo > to.pos || gapFrom > gapTo)
+      if (from3.deletedAcross && to.deletedAcross || gapFrom < from3.pos || gapTo > to.pos || gapFrom > gapTo)
         return null;
-      return new _ReplaceAroundStep(from2.pos, to.pos, gapFrom, gapTo, this.slice, this.insert, this.structure);
+      return new _ReplaceAroundStep(from3.pos, to.pos, gapFrom, gapTo, this.slice, this.insert, this.structure);
     }
     toJSON() {
       let json = {
@@ -4169,8 +4198,8 @@
     }
   };
   Step.jsonID("replaceAround", ReplaceAroundStep);
-  function contentBetween(doc3, from2, to) {
-    let $from = doc3.resolve(from2), dist = to - from2, depth = $from.depth;
+  function contentBetween(doc4, from3, to) {
+    let $from = doc4.resolve(from3), dist = to - from3, depth = $from.depth;
     while (dist > 0 && depth > 0 && $from.indexAfter(depth) == $from.node(depth).childCount) {
       depth--;
       dist--;
@@ -4186,22 +4215,22 @@
     }
     return false;
   }
-  function addMark(tr2, from2, to, mark) {
+  function addMark(tr2, from3, to, mark) {
     let added = [];
-    tr2.doc.nodesBetween(from2, to, (node, pos, parent) => {
+    tr2.doc.nodesBetween(from3, to, (node, pos, parent) => {
       if (!node.isInline)
         return;
       let marks = node.marks;
       if (!mark.isInSet(marks) && parent.type.allowsMarkType(mark.type)) {
-        let start = Math.max(pos, from2), end = Math.min(pos + node.nodeSize, to);
+        let start = Math.max(pos, from3), end = Math.min(pos + node.nodeSize, to);
         pushMarkStep(AddMarkStep, start, end, mark, added);
       }
     });
     added.forEach((s) => tr2.step(s));
   }
-  function removeMark(tr2, from2, to, mark) {
+  function removeMark(tr2, from3, to, mark) {
     let matched = [], step = 0;
-    tr2.doc.nodesBetween(from2, to, (node, pos) => {
+    tr2.doc.nodesBetween(from3, to, (node, pos) => {
       if (!node.isInline || !node.isAtom)
         return;
       step++;
@@ -4231,23 +4260,23 @@
             found2.to = end;
             found2.step = step;
           } else {
-            matched.push({ style: style2, from: Math.max(pos, from2), to: end, step });
+            matched.push({ style: style2, from: Math.max(pos, from3), to: end, step });
           }
         }
       }
     });
     matched.forEach((m) => tr2.step(new RemoveMarkStep(m.from, m.to, m.style)));
   }
-  function clearIncompatible(tr2, pos, parentType, match = parentType.contentMatch, clearNewlines = true) {
+  function clearIncompatible(tr2, pos, parentType, match2 = parentType.contentMatch, clearNewlines = true) {
     let node = tr2.doc.nodeAt(pos);
     let replSteps = [], cur = pos + 1;
     for (let i2 = 0; i2 < node.childCount; i2++) {
       let child = node.child(i2), end = cur + child.nodeSize;
-      let allowed = match.matchType(child.type);
+      let allowed = match2.matchType(child.type);
       if (!allowed) {
         replSteps.push(new ReplaceStep(cur, end, Slice.empty));
       } else {
-        match = allowed;
+        match2 = allowed;
         for (let j = 0; j < child.marks.length; j++)
           if (!parentType.allowsMarkType(child.marks[j].type))
             tr2.step(new RemoveMarkStep(cur, end, child.marks[j]));
@@ -4262,8 +4291,8 @@
       }
       cur = end;
     }
-    if (!match.validEnd) {
-      let fill = match.fillBefore(Fragment.empty, true);
+    if (!match2.validEnd) {
+      let fill = match2.fillBefore(Fragment.empty, true);
       tr2.replace(cur, cur, new Slice(fill, 0, 0));
     }
     for (let i2 = replSteps.length - 1; i2 >= 0; i2--)
@@ -4349,8 +4378,8 @@
     let content = Fragment.empty;
     for (let i2 = wrappers.length - 1; i2 >= 0; i2--) {
       if (content.size) {
-        let match = wrappers[i2].type.contentMatch.matchFragment(content);
-        if (!match || !match.validEnd)
+        let match2 = wrappers[i2].type.contentMatch.matchFragment(content);
+        if (!match2 || !match2.validEnd)
           throw new RangeError("Wrapper type given to Transform.wrap does not form valid content of its parent wrapper");
       }
       content = Fragment.from(wrappers[i2].type.create(wrappers[i2].attrs, content));
@@ -4358,11 +4387,11 @@
     let start = range.start, end = range.end;
     tr2.step(new ReplaceAroundStep(start, end, start, end, new Slice(content, 0, 0), wrappers.length, true));
   }
-  function setBlockType(tr2, from2, to, type, attrs) {
+  function setBlockType(tr2, from3, to, type, attrs) {
     if (!type.isTextblock)
       throw new RangeError("Type given to setBlockType should be a textblock");
     let mapFrom = tr2.steps.length;
-    tr2.doc.nodesBetween(from2, to, (node, pos) => {
+    tr2.doc.nodesBetween(from3, to, (node, pos) => {
       let attrsHere = typeof attrs == "function" ? attrs(node) : attrs;
       if (node.isTextblock && !node.hasMarkup(type, attrsHere) && canChangeType(tr2.doc, tr2.mapping.slice(mapFrom).map(pos), type)) {
         let convertNewlines = null;
@@ -4404,8 +4433,8 @@
       }
     });
   }
-  function canChangeType(doc3, pos, type) {
-    let $pos = doc3.resolve(pos), index = $pos.index();
+  function canChangeType(doc4, pos, type) {
+    let $pos = doc4.resolve(pos), index = $pos.index();
     return $pos.parent.canReplaceWith(index, index + 1, type);
   }
   function setNodeMarkup(tr2, pos, type, attrs, marks) {
@@ -4421,8 +4450,8 @@
       throw new RangeError("Invalid content for node type " + type.name);
     tr2.step(new ReplaceAroundStep(pos, pos + node.nodeSize, pos + 1, pos + node.nodeSize - 1, new Slice(Fragment.from(newNode), 0, 0), 1, true));
   }
-  function canSplit(doc3, pos, depth = 1, typesAfter) {
-    let $pos = doc3.resolve(pos), base2 = $pos.depth - depth;
+  function canSplit(doc4, pos, depth = 1, typesAfter) {
+    let $pos = doc4.resolve(pos), base2 = $pos.depth - depth;
     let innerType = typesAfter && typesAfter[typesAfter.length - 1] || $pos.parent;
     if (base2 < 0 || $pos.parent.type.spec.isolating || !$pos.parent.canReplace($pos.index(), $pos.parent.childCount) || !innerType.type.validContent($pos.parent.content.cutByIndex($pos.index(), $pos.parent.childCount)))
       return false;
@@ -4451,31 +4480,31 @@
     }
     tr2.step(new ReplaceStep(pos, pos, new Slice(before.append(after), depth, depth), true));
   }
-  function canJoin(doc3, pos) {
-    let $pos = doc3.resolve(pos), index = $pos.index();
+  function canJoin(doc4, pos) {
+    let $pos = doc4.resolve(pos), index = $pos.index();
     return joinable2($pos.nodeBefore, $pos.nodeAfter) && $pos.parent.canReplace(index, index + 1);
   }
   function canAppendWithSubstitutedLinebreaks(a, b) {
     if (!b.content.size)
       a.type.compatibleContent(b.type);
-    let match = a.contentMatchAt(a.childCount);
+    let match2 = a.contentMatchAt(a.childCount);
     let { linebreakReplacement } = a.type.schema;
     for (let i2 = 0; i2 < b.childCount; i2++) {
       let child = b.child(i2);
       let type = child.type == linebreakReplacement ? a.type.schema.nodes.text : child.type;
-      match = match.matchType(type);
-      if (!match)
+      match2 = match2.matchType(type);
+      if (!match2)
         return false;
       if (!a.type.allowsMarks(child.marks))
         return false;
     }
-    return match.validEnd;
+    return match2.validEnd;
   }
   function joinable2(a, b) {
     return !!(a && b && !a.isLeaf && canAppendWithSubstitutedLinebreaks(a, b));
   }
-  function joinPoint(doc3, pos, dir = -1) {
-    let $pos = doc3.resolve(pos);
+  function joinPoint(doc4, pos, dir = -1) {
+    let $pos = doc4.resolve(pos);
     for (let d = $pos.depth; ; d--) {
       let before, after, index = $pos.index(d);
       if (d == $pos.depth) {
@@ -4523,8 +4552,8 @@
     }
     return tr2;
   }
-  function insertPoint(doc3, pos, nodeType) {
-    let $pos = doc3.resolve(pos);
+  function insertPoint(doc4, pos, nodeType) {
+    let $pos = doc4.resolve(pos);
     if ($pos.parent.canReplaceWith($pos.index(), $pos.index(), nodeType))
       return pos;
     if ($pos.parentOffset == 0)
@@ -4545,8 +4574,8 @@
       }
     return null;
   }
-  function dropPoint(doc3, pos, slice2) {
-    let $pos = doc3.resolve(pos);
+  function dropPoint(doc4, pos, slice2) {
+    let $pos = doc4.resolve(pos);
     if (!slice2.content.size)
       return pos;
     let content = slice2.content;
@@ -4576,12 +4605,12 @@
     }
     return null;
   }
-  function replaceStep(doc3, from2, to = from2, slice2 = Slice.empty) {
-    if (from2 == to && !slice2.size)
+  function replaceStep(doc4, from3, to = from3, slice2 = Slice.empty) {
+    if (from3 == to && !slice2.size)
       return null;
-    let $from = doc3.resolve(from2), $to = doc3.resolve(to);
+    let $from = doc4.resolve(from3), $to = doc4.resolve(to);
     if (fitsTrivially($from, $to, slice2))
-      return new ReplaceStep(from2, to, slice2);
+      return new ReplaceStep(from3, to, slice2);
     return new Fitter($from, $to, slice2).fit();
   }
   function fitsTrivially($from, $to, slice2) {
@@ -4658,12 +4687,12 @@
           }
           let first2 = fragment.firstChild;
           for (let frontierDepth = this.depth; frontierDepth >= 0; frontierDepth--) {
-            let { type, match } = this.frontier[frontierDepth], wrap2, inject = null;
-            if (pass == 1 && (first2 ? match.matchType(first2.type) || (inject = match.fillBefore(Fragment.from(first2), false)) : parent && type.compatibleContent(parent.type)))
+            let { type, match: match2 } = this.frontier[frontierDepth], wrap2, inject = null;
+            if (pass == 1 && (first2 ? match2.matchType(first2.type) || (inject = match2.fillBefore(Fragment.from(first2), false)) : parent && type.compatibleContent(parent.type)))
               return { sliceDepth, frontierDepth, parent, inject };
-            else if (pass == 2 && first2 && (wrap2 = match.findWrapping(first2.type)))
+            else if (pass == 2 && first2 && (wrap2 = match2.findWrapping(first2.type)))
               return { sliceDepth, frontierDepth, parent, wrap: wrap2 };
-            if (parent && match.matchType(parent.type))
+            if (parent && match2.matchType(parent.type))
               break;
           }
         }
@@ -4700,20 +4729,20 @@
       let slice2 = this.unplaced, fragment = parent ? parent.content : slice2.content;
       let openStart = slice2.openStart - sliceDepth;
       let taken = 0, add = [];
-      let { match, type } = this.frontier[frontierDepth];
+      let { match: match2, type } = this.frontier[frontierDepth];
       if (inject) {
         for (let i2 = 0; i2 < inject.childCount; i2++)
           add.push(inject.child(i2));
-        match = match.matchFragment(inject);
+        match2 = match2.matchFragment(inject);
       }
       let openEndCount = fragment.size + sliceDepth - (slice2.content.size - slice2.openEnd);
       while (taken < fragment.childCount) {
-        let next = fragment.child(taken), matches2 = match.matchType(next.type);
+        let next = fragment.child(taken), matches2 = match2.matchType(next.type);
         if (!matches2)
           break;
         taken++;
         if (taken > 1 || openStart == 0 || next.content.size) {
-          match = matches2;
+          match2 = matches2;
           add.push(closeNodeStart(next.mark(type.allowedMarks(next.marks)), taken == 1 ? openStart : 0, taken == fragment.childCount ? openEndCount : -1));
         }
       }
@@ -4721,7 +4750,7 @@
       if (!toEnd)
         openEndCount = -1;
       this.placed = addToFragment(this.placed, frontierDepth, Fragment.from(add));
-      this.frontier[frontierDepth].match = match;
+      this.frontier[frontierDepth].match = match2;
       if (toEnd && openEndCount < 0 && parent && parent.type == this.frontier[this.depth].type && this.frontier.length > 1)
         this.closeFrontierNode();
       for (let i2 = 0, cur = add[add.length - 1]; cur && i2 < openEndCount; i2++) {
@@ -4743,14 +4772,14 @@
     }
     findCloseLevel($to) {
       scan: for (let i2 = Math.min(this.depth, $to.depth); i2 >= 0; i2--) {
-        let { match, type } = this.frontier[i2];
+        let { match: match2, type } = this.frontier[i2];
         let dropInner = i2 < $to.depth && $to.end(i2 + 1) == $to.pos + ($to.depth - (i2 + 1));
-        let fit = contentAfterFits($to, i2, type, match, dropInner);
+        let fit = contentAfterFits($to, i2, type, match2, dropInner);
         if (!fit)
           continue;
         for (let d = i2 - 1; d >= 0; d--) {
-          let { match: match2, type: type2 } = this.frontier[d];
-          let matches2 = contentAfterFits($to, d, type2, match2, true);
+          let { match: match3, type: type2 } = this.frontier[d];
+          let matches2 = contentAfterFits($to, d, type2, match3, true);
           if (!matches2 || matches2.childCount)
             continue scan;
         }
@@ -4813,11 +4842,11 @@
     }
     return node.copy(frag);
   }
-  function contentAfterFits($to, depth, type, match, open) {
+  function contentAfterFits($to, depth, type, match2, open) {
     let node = $to.node(depth), index = open ? $to.indexAfter(depth) : $to.index(depth);
     if (index == node.childCount && !type.compatibleContent(node.type))
       return null;
-    let fit = match.fillBefore(node.content, true, index);
+    let fit = match2.fillBefore(node.content, true, index);
     return fit && !invalidMarks(type, node.content, index) ? fit : null;
   }
   function invalidMarks(type, fragment, start) {
@@ -4837,12 +4866,12 @@
       frag = ch.content;
     }
   }
-  function replaceRange(tr2, from2, to, slice2) {
+  function replaceRange(tr2, from3, to, slice2) {
     if (!slice2.size)
-      return tr2.deleteRange(from2, to);
-    let $from = tr2.doc.resolve(from2), $to = tr2.doc.resolve(to);
+      return tr2.deleteRange(from3, to);
+    let $from = tr2.doc.resolve(from3), $to = tr2.doc.resolve(to);
     if (fitsTrivially($from, $to, slice2))
-      return tr2.step(new ReplaceStep(from2, to, slice2));
+      return tr2.step(new ReplaceStep(from3, to, slice2));
     let targetDepths = coveredDepths($from, $to);
     if (targetDepths[targetDepths.length - 1] == 0)
       targetDepths.pop();
@@ -4891,13 +4920,13 @@
     }
     let startSteps = tr2.steps.length;
     for (let i2 = targetDepths.length - 1; i2 >= 0; i2--) {
-      tr2.replace(from2, to, slice2);
+      tr2.replace(from3, to, slice2);
       if (tr2.steps.length > startSteps)
         break;
       let depth = targetDepths[i2];
       if (depth < 0)
         continue;
-      from2 = $from.before(depth);
+      from3 = $from.before(depth);
       to = $to.after(depth);
     }
   }
@@ -4907,22 +4936,22 @@
       fragment = fragment.replaceChild(0, first2.copy(closeFragment(first2.content, depth + 1, oldOpen, newOpen, first2)));
     }
     if (depth > newOpen) {
-      let match = parent.contentMatchAt(0);
-      let start = match.fillBefore(fragment).append(fragment);
-      fragment = start.append(match.matchFragment(start).fillBefore(Fragment.empty, true));
+      let match2 = parent.contentMatchAt(0);
+      let start = match2.fillBefore(fragment).append(fragment);
+      fragment = start.append(match2.matchFragment(start).fillBefore(Fragment.empty, true));
     }
     return fragment;
   }
-  function replaceRangeWith(tr2, from2, to, node) {
-    if (!node.isInline && from2 == to && tr2.doc.resolve(from2).parent.content.size) {
-      let point = insertPoint(tr2.doc, from2, node.type);
+  function replaceRangeWith(tr2, from3, to, node) {
+    if (!node.isInline && from3 == to && tr2.doc.resolve(from3).parent.content.size) {
+      let point = insertPoint(tr2.doc, from3, node.type);
       if (point != null)
-        from2 = to = point;
+        from3 = to = point;
     }
-    tr2.replaceRange(from2, to, new Slice(Fragment.from(node), 0, 0));
+    tr2.replaceRange(from3, to, new Slice(Fragment.from(node), 0, 0));
   }
-  function deleteRange(tr2, from2, to) {
-    let $from = tr2.doc.resolve(from2), $to = tr2.doc.resolve(to);
+  function deleteRange(tr2, from3, to) {
+    let $from = tr2.doc.resolve(from3), $to = tr2.doc.resolve(to);
     if ($from.parent.isTextblock && $to.parent.isTextblock && $from.start() != $to.start() && $from.parentOffset == 0 && $to.parentOffset == 0) {
       let shared = $from.sharedDepth(to), isolated = false;
       for (let d = $from.depth; d > shared; d--)
@@ -4932,27 +4961,27 @@
         if ($to.node(d).type.spec.isolating)
           isolated = true;
       if (!isolated) {
-        for (let d = $from.depth; d > 0 && from2 == $from.start(d); d--)
-          from2 = $from.before(d);
+        for (let d = $from.depth; d > 0 && from3 == $from.start(d); d--)
+          from3 = $from.before(d);
         for (let d = $to.depth; d > 0 && to == $to.start(d); d--)
           to = $to.before(d);
-        $from = tr2.doc.resolve(from2);
+        $from = tr2.doc.resolve(from3);
         $to = tr2.doc.resolve(to);
       }
     }
     let covered = coveredDepths($from, $to);
     for (let i2 = 0; i2 < covered.length; i2++) {
-      let depth = covered[i2], last = i2 == covered.length - 1;
-      if (last && depth == 0 || $from.node(depth).type.contentMatch.validEnd)
+      let depth = covered[i2], last2 = i2 == covered.length - 1;
+      if (last2 && depth == 0 || $from.node(depth).type.contentMatch.validEnd)
         return tr2.delete($from.start(depth), $to.end(depth));
-      if (depth > 0 && (last || $from.node(depth - 1).canReplace($from.index(depth - 1), $to.indexAfter(depth - 1))))
+      if (depth > 0 && (last2 || $from.node(depth - 1).canReplace($from.index(depth - 1), $to.indexAfter(depth - 1))))
         return tr2.delete($from.before(depth), $to.after(depth));
     }
     for (let d = 1; d <= $from.depth && d <= $to.depth; d++) {
-      if (from2 - $from.start(d) == $from.depth - d && to > $from.end(d) && $to.end(d) - to != $to.depth - d && $from.start(d - 1) == $to.start(d - 1) && $from.node(d - 1).canReplace($from.index(d - 1), $to.index(d - 1)))
+      if (from3 - $from.start(d) == $from.depth - d && to > $from.end(d) && $to.end(d) - to != $to.depth - d && $from.start(d - 1) == $to.start(d - 1) && $from.node(d - 1).canReplace($from.index(d - 1), $to.index(d - 1)))
         return tr2.delete($from.before(d), to);
     }
-    tr2.delete(from2, to);
+    tr2.delete(from3, to);
   }
   function coveredDepths($from, $to) {
     let result = [], minDepth = Math.min($from.depth, $to.depth);
@@ -4975,8 +5004,8 @@
       this.attr = attr;
       this.value = value;
     }
-    apply(doc3) {
-      let node = doc3.nodeAt(this.pos);
+    apply(doc4) {
+      let node = doc4.nodeAt(this.pos);
       if (!node)
         return StepResult.fail("No node at attribute step's position");
       let attrs = /* @__PURE__ */ Object.create(null);
@@ -4984,13 +5013,13 @@
         attrs[name] = node.attrs[name];
       attrs[this.attr] = this.value;
       let updated = node.type.create(attrs, null, node.marks);
-      return StepResult.fromReplace(doc3, this.pos, this.pos + 1, new Slice(Fragment.from(updated), 0, node.isLeaf ? 0 : 1));
+      return StepResult.fromReplace(doc4, this.pos, this.pos + 1, new Slice(Fragment.from(updated), 0, node.isLeaf ? 0 : 1));
     }
     getMap() {
       return StepMap.empty;
     }
-    invert(doc3) {
-      return new _AttrStep(this.pos, this.attr, doc3.nodeAt(this.pos).attrs[this.attr]);
+    invert(doc4) {
+      return new _AttrStep(this.pos, this.attr, doc4.nodeAt(this.pos).attrs[this.attr]);
     }
     map(mapping) {
       let pos = mapping.mapResult(this.pos, 1);
@@ -5015,19 +5044,19 @@
       this.attr = attr;
       this.value = value;
     }
-    apply(doc3) {
+    apply(doc4) {
       let attrs = /* @__PURE__ */ Object.create(null);
-      for (let name in doc3.attrs)
-        attrs[name] = doc3.attrs[name];
+      for (let name in doc4.attrs)
+        attrs[name] = doc4.attrs[name];
       attrs[this.attr] = this.value;
-      let updated = doc3.type.create(attrs, doc3.content, doc3.marks);
+      let updated = doc4.type.create(attrs, doc4.content, doc4.marks);
       return StepResult.ok(updated);
     }
     getMap() {
       return StepMap.empty;
     }
-    invert(doc3) {
-      return new _DocAttrStep(this.attr, doc3.attrs[this.attr]);
+    invert(doc4) {
+      return new _DocAttrStep(this.attr, doc4.attrs[this.attr]);
     }
     map(mapping) {
       return this;
@@ -5056,8 +5085,8 @@
     /**
     Create a transform that starts with the given document.
     */
-    constructor(doc3) {
-      this.doc = doc3;
+    constructor(doc4) {
+      this.doc = doc4;
       this.steps = [];
       this.docs = [];
       this.mapping = new Mapping();
@@ -5102,35 +5131,35 @@
     that add/remove marks without replacing the underlying content.
     */
     changedRange() {
-      let from2 = 1e9, to = -1e9;
+      let from3 = 1e9, to = -1e9;
       for (let i2 = 0; i2 < this.mapping.maps.length; i2++) {
-        let map2 = this.mapping.maps[i2];
+        let map3 = this.mapping.maps[i2];
         if (i2) {
-          from2 = map2.map(from2, 1);
-          to = map2.map(to, -1);
+          from3 = map3.map(from3, 1);
+          to = map3.map(to, -1);
         }
-        map2.forEach((_f, _t, fromB, toB) => {
-          from2 = Math.min(from2, fromB);
+        map3.forEach((_f, _t2, fromB, toB) => {
+          from3 = Math.min(from3, fromB);
           to = Math.max(to, toB);
         });
       }
-      return from2 == 1e9 ? null : { from: from2, to };
+      return from3 == 1e9 ? null : { from: from3, to };
     }
     /**
     @internal
     */
-    addStep(step, doc3) {
+    addStep(step, doc4) {
       this.docs.push(this.doc);
       this.steps.push(step);
       this.mapping.appendMap(step.getMap());
-      this.doc = doc3;
+      this.doc = doc4;
     }
     /**
     Replace the part of the document between `from` and `to` with the
     given `slice`.
     */
-    replace(from2, to = from2, slice2 = Slice.empty) {
-      let step = replaceStep(this.doc, from2, to, slice2);
+    replace(from3, to = from3, slice2 = Slice.empty) {
+      let step = replaceStep(this.doc, from3, to, slice2);
       if (step)
         this.step(step);
       return this;
@@ -5139,14 +5168,14 @@
     Replace the given range with the given content, which may be a
     fragment, node, or array of nodes.
     */
-    replaceWith(from2, to, content) {
-      return this.replace(from2, to, new Slice(Fragment.from(content), 0, 0));
+    replaceWith(from3, to, content) {
+      return this.replace(from3, to, new Slice(Fragment.from(content), 0, 0));
     }
     /**
     Delete the content between the given positions.
     */
-    delete(from2, to) {
-      return this.replace(from2, to, Slice.empty);
+    delete(from3, to) {
+      return this.replace(from3, to, Slice.empty);
     }
     /**
     Insert the given content at the given position.
@@ -5173,8 +5202,8 @@
     range, and is useful in situations where you need more precise
     control over what happens.
     */
-    replaceRange(from2, to, slice2) {
-      replaceRange(this, from2, to, slice2);
+    replaceRange(from3, to, slice2) {
+      replaceRange(this, from3, to, slice2);
       return this;
     }
     /**
@@ -5186,16 +5215,16 @@
     completely covers a parent node, this method may completely replace
     that parent node.
     */
-    replaceRangeWith(from2, to, node) {
-      replaceRangeWith(this, from2, to, node);
+    replaceRangeWith(from3, to, node) {
+      replaceRangeWith(this, from3, to, node);
       return this;
     }
     /**
     Delete the given range, expanding it to cover fully covered
     parent nodes until a valid replace is found.
     */
-    deleteRange(from2, to) {
-      deleteRange(this, from2, to);
+    deleteRange(from3, to) {
+      deleteRange(this, from3, to);
       return this;
     }
     /**
@@ -5230,8 +5259,8 @@
     Set the type of all textblocks (partly) between `from` and `to` to
     the given node type with the given attributes.
     */
-    setBlockType(from2, to = from2, type, attrs = null) {
-      setBlockType(this, from2, to, type, attrs);
+    setBlockType(from3, to = from3, type, attrs = null) {
+      setBlockType(this, from3, to, type, attrs);
       return this;
     }
     /**
@@ -5301,8 +5330,8 @@
     /**
     Add the given mark to the inline content between `from` and `to`.
     */
-    addMark(from2, to, mark) {
-      addMark(this, from2, to, mark);
+    addMark(from3, to, mark) {
+      addMark(this, from3, to, mark);
       return this;
     }
     /**
@@ -5311,8 +5340,8 @@
     a mark type, remove all marks of that type. When it is null,
     remove all marks of any type.
     */
-    removeMark(from2, to, mark) {
-      removeMark(this, from2, to, mark);
+    removeMark(from3, to, mark) {
+      removeMark(this, from3, to, mark);
       return this;
     }
     /**
@@ -5321,8 +5350,8 @@
     an optional starting [content match](https://prosemirror.net/docs/ref/#model.ContentMatch) as
     third argument.
     */
-    clearIncompatible(pos, parentType, match) {
-      clearIncompatible(this, pos, parentType, match);
+    clearIncompatible(pos, parentType, match2) {
+      clearIncompatible(this, pos, parentType, match2);
       return this;
     }
   };
@@ -5418,11 +5447,11 @@
       let mapFrom = tr2.steps.length, ranges = this.ranges;
       for (let i2 = 0; i2 < ranges.length; i2++) {
         let { $from, $to } = ranges[i2], mapping = tr2.mapping.slice(mapFrom);
-        let from2 = mapping.map($from.pos), to = mapping.map($to.pos);
+        let from3 = mapping.map($from.pos), to = mapping.map($to.pos);
         if (i2) {
-          tr2.deleteRange(from2, to);
+          tr2.deleteRange(from3, to);
         } else {
-          tr2.replaceRangeWith(from2, to, node);
+          tr2.replaceRangeWith(from3, to, node);
           selectionToInsertionEnd(tr2, mapFrom, node.isInline ? -1 : 1);
         }
       }
@@ -5459,27 +5488,27 @@
     [`AllSelection`](https://prosemirror.net/docs/ref/#state.AllSelection) if no valid position
     exists.
     */
-    static atStart(doc3) {
-      return findSelectionIn(doc3, doc3, 0, 0, 1) || new AllSelection(doc3);
+    static atStart(doc4) {
+      return findSelectionIn(doc4, doc4, 0, 0, 1) || new AllSelection(doc4);
     }
     /**
     Find the cursor or leaf node selection closest to the end of the
     given document.
     */
-    static atEnd(doc3) {
-      return findSelectionIn(doc3, doc3, doc3.content.size, doc3.childCount, -1) || new AllSelection(doc3);
+    static atEnd(doc4) {
+      return findSelectionIn(doc4, doc4, doc4.content.size, doc4.childCount, -1) || new AllSelection(doc4);
     }
     /**
     Deserialize the JSON representation of a selection. Must be
     implemented for custom classes (as a static class method).
     */
-    static fromJSON(doc3, json) {
+    static fromJSON(doc4, json) {
       if (!json || !json.type)
         throw new RangeError("Invalid input for Selection.fromJSON");
       let cls = classesById[json.type];
       if (!cls)
         throw new RangeError(`No selection type ${json.type} defined`);
-      return cls.fromJSON(doc3, json);
+      return cls.fromJSON(doc4, json);
     }
     /**
     To be able to deserialize selections from JSON, custom selection
@@ -5487,11 +5516,11 @@
     can be disambiguated. Try to pick something that's unlikely to
     clash with classes from other modules.
     */
-    static jsonID(id, selectionClass) {
-      if (id in classesById)
-        throw new RangeError("Duplicate use of selection JSON ID " + id);
-      classesById[id] = selectionClass;
-      selectionClass.prototype.jsonID = id;
+    static jsonID(id2, selectionClass) {
+      if (id2 in classesById)
+        throw new RangeError("Duplicate use of selection JSON ID " + id2);
+      classesById[id2] = selectionClass;
+      selectionClass.prototype.jsonID = id2;
       return selectionClass;
     }
     /**
@@ -5540,11 +5569,11 @@
     get $cursor() {
       return this.$anchor.pos == this.$head.pos ? this.$head : null;
     }
-    map(doc3, mapping) {
-      let $head = doc3.resolve(mapping.map(this.head));
+    map(doc4, mapping) {
+      let $head = doc4.resolve(mapping.map(this.head));
       if (!$head.parent.inlineContent)
         return Selection.near($head);
-      let $anchor = doc3.resolve(mapping.map(this.anchor));
+      let $anchor = doc4.resolve(mapping.map(this.anchor));
       return new _TextSelection($anchor.parent.inlineContent ? $anchor : $head, $head);
     }
     replace(tr2, content = Slice.empty) {
@@ -5567,17 +5596,17 @@
     /**
     @internal
     */
-    static fromJSON(doc3, json) {
+    static fromJSON(doc4, json) {
       if (typeof json.anchor != "number" || typeof json.head != "number")
         throw new RangeError("Invalid input for TextSelection.fromJSON");
-      return new _TextSelection(doc3.resolve(json.anchor), doc3.resolve(json.head));
+      return new _TextSelection(doc4.resolve(json.anchor), doc4.resolve(json.head));
     }
     /**
     Create a text selection from non-resolved positions.
     */
-    static create(doc3, anchor, head = anchor) {
-      let $anchor = doc3.resolve(anchor);
-      return new this($anchor, head == anchor ? $anchor : doc3.resolve(head));
+    static create(doc4, anchor, head = anchor) {
+      let $anchor = doc4.resolve(anchor);
+      return new this($anchor, head == anchor ? $anchor : doc4.resolve(head));
     }
     /**
     Return a text selection that spans the given positions or, if
@@ -5619,8 +5648,8 @@
     map(mapping) {
       return new _TextBookmark(mapping.map(this.anchor), mapping.map(this.head));
     }
-    resolve(doc3) {
-      return TextSelection.between(doc3.resolve(this.anchor), doc3.resolve(this.head));
+    resolve(doc4) {
+      return TextSelection.between(doc4.resolve(this.anchor), doc4.resolve(this.head));
     }
   };
   var NodeSelection = class _NodeSelection extends Selection {
@@ -5634,9 +5663,9 @@
       super($pos, $end);
       this.node = node;
     }
-    map(doc3, mapping) {
+    map(doc4, mapping) {
       let { deleted, pos } = mapping.mapResult(this.anchor);
-      let $pos = doc3.resolve(pos);
+      let $pos = doc4.resolve(pos);
       if (deleted)
         return Selection.near($pos);
       return new _NodeSelection($pos);
@@ -5656,16 +5685,16 @@
     /**
     @internal
     */
-    static fromJSON(doc3, json) {
+    static fromJSON(doc4, json) {
       if (typeof json.anchor != "number")
         throw new RangeError("Invalid input for NodeSelection.fromJSON");
-      return new _NodeSelection(doc3.resolve(json.anchor));
+      return new _NodeSelection(doc4.resolve(json.anchor));
     }
     /**
     Create a node selection from non-resolved positions.
     */
-    static create(doc3, from2) {
-      return new _NodeSelection(doc3.resolve(from2));
+    static create(doc4, from3) {
+      return new _NodeSelection(doc4.resolve(from3));
     }
     /**
     Determines whether the given node may be selected as a node
@@ -5685,8 +5714,8 @@
       let { deleted, pos } = mapping.mapResult(this.anchor);
       return deleted ? new TextBookmark(pos, pos) : new _NodeBookmark(pos);
     }
-    resolve(doc3) {
-      let $pos = doc3.resolve(this.anchor), node = $pos.nodeAfter;
+    resolve(doc4) {
+      let $pos = doc4.resolve(this.anchor), node = $pos.nodeAfter;
       if (node && NodeSelection.isSelectable(node))
         return new NodeSelection($pos);
       return Selection.near($pos);
@@ -5696,8 +5725,8 @@
     /**
     Create an all-selection over the given document.
     */
-    constructor(doc3) {
-      super(doc3.resolve(0), doc3.resolve(doc3.content.size));
+    constructor(doc4) {
+      super(doc4.resolve(0), doc4.resolve(doc4.content.size));
     }
     replace(tr2, content = Slice.empty) {
       if (content == Slice.empty) {
@@ -5715,11 +5744,11 @@
     /**
     @internal
     */
-    static fromJSON(doc3) {
-      return new _AllSelection(doc3);
+    static fromJSON(doc4) {
+      return new _AllSelection(doc4);
     }
-    map(doc3) {
-      return new _AllSelection(doc3);
+    map(doc4) {
+      return new _AllSelection(doc4);
     }
     eq(other) {
       return other instanceof _AllSelection;
@@ -5733,35 +5762,35 @@
     map() {
       return this;
     },
-    resolve(doc3) {
-      return new AllSelection(doc3);
+    resolve(doc4) {
+      return new AllSelection(doc4);
     }
   };
-  function findSelectionIn(doc3, node, pos, index, dir, text = false) {
+  function findSelectionIn(doc4, node, pos, index, dir, text2 = false) {
     if (node.inlineContent)
-      return TextSelection.create(doc3, pos);
+      return TextSelection.create(doc4, pos);
     for (let i2 = index - (dir > 0 ? 0 : 1); dir > 0 ? i2 < node.childCount : i2 >= 0; i2 += dir) {
       let child = node.child(i2);
       if (!child.isAtom) {
-        let inner = findSelectionIn(doc3, child, pos + dir, dir < 0 ? child.childCount : 0, dir, text);
+        let inner = findSelectionIn(doc4, child, pos + dir, dir < 0 ? child.childCount : 0, dir, text2);
         if (inner)
           return inner;
-      } else if (!text && NodeSelection.isSelectable(child)) {
-        return NodeSelection.create(doc3, pos - (dir < 0 ? child.nodeSize : 0));
+      } else if (!text2 && NodeSelection.isSelectable(child)) {
+        return NodeSelection.create(doc4, pos - (dir < 0 ? child.nodeSize : 0));
       }
       pos += child.nodeSize * dir;
     }
     return null;
   }
   function selectionToInsertionEnd(tr2, startLen, bias) {
-    let last = tr2.steps.length - 1;
-    if (last < startLen)
+    let last2 = tr2.steps.length - 1;
+    if (last2 < startLen)
       return;
-    let step = tr2.steps[last];
+    let step = tr2.steps[last2];
     if (!(step instanceof ReplaceStep || step instanceof ReplaceAroundStep))
       return;
-    let map2 = tr2.mapping.maps[last], end;
-    map2.forEach((_from, _to, _newFrom, newTo) => {
+    let map3 = tr2.mapping.maps[last2], end;
+    map3.forEach((_from, _to, _newFrom, newTo) => {
       if (end == null)
         end = newTo;
     });
@@ -5854,8 +5883,8 @@
     /**
     @internal
     */
-    addStep(step, doc3) {
-      super.addStep(step, doc3);
+    addStep(step, doc4) {
+      super.addStep(step, doc4);
       this.updated = this.updated & ~UPDATED_MARKS;
       this.storedMarks = null;
     }
@@ -5896,24 +5925,24 @@
     Replace the given range, or the selection if no range is given,
     with a text node containing the given string.
     */
-    insertText(text, from2, to) {
+    insertText(text2, from3, to) {
       let schema = this.doc.type.schema;
-      if (from2 == null) {
-        if (!text)
+      if (from3 == null) {
+        if (!text2)
           return this.deleteSelection();
-        return this.replaceSelectionWith(schema.text(text), true);
+        return this.replaceSelectionWith(schema.text(text2), true);
       } else {
         if (to == null)
-          to = from2;
-        if (!text)
-          return this.deleteRange(from2, to);
+          to = from3;
+        if (!text2)
+          return this.deleteRange(from3, to);
         let marks = this.storedMarks;
         if (!marks) {
-          let $from = this.doc.resolve(from2);
-          marks = to == from2 ? $from.marks() : $from.marksAcross(this.doc.resolve(to));
+          let $from = this.doc.resolve(from3);
+          marks = to == from3 ? $from.marks() : $from.marksAcross(this.doc.resolve(to));
         }
-        this.replaceRangeWith(from2, to, schema.text(text, marks));
-        if (!this.selection.empty && this.selection.to == from2 + text.length)
+        this.replaceRangeWith(from3, to, schema.text(text2, marks));
+        if (!this.selection.empty && this.selection.to == from3 + text2.length)
           this.setSelection(Selection.near(this.selection.$to));
         return this;
       }
@@ -5922,15 +5951,15 @@
     Store a metadata property in this transaction, keyed either by
     name or by plugin.
     */
-    setMeta(key, value) {
-      this.meta[typeof key == "string" ? key : key.key] = value;
+    setMeta(key2, value) {
+      this.meta[typeof key2 == "string" ? key2 : key2.key] = value;
       return this;
     }
     /**
     Retrieve a metadata property for a given name or plugin.
     */
-    getMeta(key) {
-      return this.meta[typeof key == "string" ? key : key.key];
+    getMeta(key2) {
+      return this.meta[typeof key2 == "string" ? key2 : key2.key];
     }
     /**
     Returns true if this transaction doesn't contain any metadata,
@@ -6495,9 +6524,9 @@
       dispatch(state.tr.insertText("\n").scrollIntoView());
     return true;
   };
-  function defaultBlockAt(match) {
-    for (let i2 = 0; i2 < match.edgeCount; i2++) {
-      let { type } = match.edge(i2);
+  function defaultBlockAt(match2) {
+    for (let i2 = 0; i2 < match2.edgeCount; i2++) {
+      let { type } = match2.edge(i2);
       if (type.isTextblock && !type.hasRequiredAttrs())
         return type;
     }
@@ -6637,12 +6666,12 @@
     return true;
   }
   function deleteBarrier(state, $cut, dispatch, dir) {
-    let before = $cut.nodeBefore, after = $cut.nodeAfter, conn, match;
+    let before = $cut.nodeBefore, after = $cut.nodeAfter, conn, match2;
     let isolated = before.type.spec.isolating || after.type.spec.isolating;
     if (!isolated && joinMaybeClear(state, $cut, dispatch))
       return true;
     let canDelAfter = !isolated && $cut.parent.canReplace($cut.index(), $cut.index() + 1);
-    if (canDelAfter && (conn = (match = before.contentMatchAt(before.childCount)).findWrapping(after.type)) && match.matchType(conn[0] || after.type).validEnd) {
+    if (canDelAfter && (conn = (match2 = before.contentMatchAt(before.childCount)).findWrapping(after.type)) && match2.matchType(conn[0] || after.type).validEnd) {
       if (dispatch) {
         let end = $cut.pos + after.nodeSize, wrap2 = Fragment.empty;
         for (let i2 = conn.length - 1; i2 >= 0; i2--)
@@ -6720,8 +6749,8 @@
     return function(state, dispatch) {
       let applicable = false;
       for (let i2 = 0; i2 < state.selection.ranges.length && !applicable; i2++) {
-        let { $from: { pos: from2 }, $to: { pos: to } } = state.selection.ranges[i2];
-        state.doc.nodesBetween(from2, to, (node, pos) => {
+        let { $from: { pos: from3 }, $to: { pos: to } } = state.selection.ranges[i2];
+        state.doc.nodesBetween(from3, to, (node, pos) => {
           if (applicable)
             return false;
           if (!node.isTextblock || node.hasMarkup(nodeType, attrs))
@@ -6739,8 +6768,8 @@
       if (dispatch) {
         let tr2 = state.tr;
         for (let i2 = 0; i2 < state.selection.ranges.length; i2++) {
-          let { $from: { pos: from2 }, $to: { pos: to } } = state.selection.ranges[i2];
-          tr2.setBlockType(from2, to, nodeType, attrs);
+          let { $from: { pos: from3 }, $to: { pos: to } } = state.selection.ranges[i2];
+          tr2.setBlockType(from3, to, nodeType, attrs);
         }
         dispatch(tr2.scrollIntoView());
       }
@@ -6777,8 +6806,8 @@
     "Ctrl-a": selectTextblockStart,
     "Ctrl-e": selectTextblockEnd
   };
-  for (let key in pcBaseKeymap)
-    macBaseKeymap[key] = pcBaseKeymap[key];
+  for (let key2 in pcBaseKeymap)
+    macBaseKeymap[key2] = pcBaseKeymap[key2];
   var mac = typeof navigator != "undefined" ? /Mac|iP(hone|[oa]d)/.test(navigator.platform) : typeof os != "undefined" && os.platform ? os.platform() == "darwin" : false;
 
   // node_modules/prosemirror-schema-list/dist/index.js
@@ -6797,14 +6826,14 @@
     };
   }
   function wrapRangeInList(tr2, range, listType, attrs = null) {
-    let doJoin = false, outerRange = range, doc3 = range.$from.doc;
+    let doJoin = false, outerRange = range, doc4 = range.$from.doc;
     if (range.depth >= 2 && range.$from.node(range.depth - 1).type.compatibleContent(listType) && range.startIndex == 0) {
       if (range.$from.index(range.depth - 1) == 0)
         return false;
-      let $insert = doc3.resolve(range.start - 2);
+      let $insert = doc4.resolve(range.start - 2);
       outerRange = new NodeRange($insert, $insert, range.depth);
       if (range.endIndex < range.parent.childCount)
-        range = new NodeRange(range.$from, doc3.resolve(range.$to.end(range.depth)), range.depth);
+        range = new NodeRange(range.$from, doc4.resolve(range.$to.end(range.depth)), range.depth);
       doJoin = true;
     }
     let wrap2 = findWrapping(outerRange, listType, attrs, range);
@@ -6922,10 +6951,10 @@
     return parent && parent.nodeType == 11 ? parent.host : parent;
   }
   var reusedRange = null;
-  function textRange(node, from2, to) {
+  function textRange(node, from3, to) {
     let range = reusedRange || (reusedRange = document.createRange());
     range.setEnd(node, to == null ? node.nodeValue.length : to);
-    range.setStart(node, from2 || 0);
+    range.setStart(node, from3 || 0);
     return range;
   }
   function clearReusedRange() {
@@ -7035,30 +7064,30 @@
     if (range.focusNode != range.anchorNode || range.focusOffset != range.anchorOffset)
       sel.extend(range.focusNode, range.focusOffset);
   }
-  function keyEvent(keyCode, key) {
+  function keyEvent(keyCode, key2) {
     let event = document.createEvent("Event");
     event.initEvent("keydown", true, true);
     event.keyCode = keyCode;
-    event.key = event.code = key;
+    event.key = event.code = key2;
     return event;
   }
-  function deepActiveElement(doc3) {
-    let elt = doc3.activeElement;
+  function deepActiveElement(doc4) {
+    let elt = doc4.activeElement;
     while (elt && elt.shadowRoot)
       elt = elt.shadowRoot.activeElement;
     return elt;
   }
-  function caretFromPoint(doc3, x, y) {
-    if (doc3.caretPositionFromPoint) {
+  function caretFromPoint(doc4, x, y) {
+    if (doc4.caretPositionFromPoint) {
       try {
-        let pos = doc3.caretPositionFromPoint(x, y);
+        let pos = doc4.caretPositionFromPoint(x, y);
         if (pos)
           return { node: pos.offsetNode, offset: Math.min(nodeSize(pos.offsetNode), pos.offset) };
       } catch (_) {
       }
     }
-    if (doc3.caretRangeFromPoint) {
-      let range = doc3.caretRangeFromPoint(x, y);
+    if (doc4.caretRangeFromPoint) {
+      let range = doc4.caretRangeFromPoint(x, y);
       if (range)
         return { node: range.startContainer, offset: Math.min(nodeSize(range.startContainer), range.startOffset) };
     }
@@ -7078,8 +7107,8 @@
   var android = /Android \d/.test(agent);
   var webkit = !!doc2 && "webkitFontSmoothing" in doc2.documentElement.style;
   var webkit_version = webkit ? +(/\bAppleWebKit\/(\d+)/.exec(navigator.userAgent) || [0, 0])[1] : 0;
-  function windowRect(doc3) {
-    let vp = doc3.defaultView && doc3.defaultView.visualViewport;
+  function windowRect(doc4) {
+    let vp = doc4.defaultView && doc4.defaultView.visualViewport;
     if (vp)
       return {
         left: 0,
@@ -7089,9 +7118,9 @@
       };
     return {
       left: 0,
-      right: doc3.documentElement.clientWidth,
+      right: doc4.documentElement.clientWidth,
       top: 0,
-      bottom: doc3.documentElement.clientHeight
+      bottom: doc4.documentElement.clientHeight
     };
   }
   function getSide(value, side) {
@@ -7112,7 +7141,7 @@
     if (!nonZero(rect) && rect.left == 0)
       return;
     let scrollThreshold = view.someProp("scrollThreshold") || 0, scrollMargin = view.someProp("scrollMargin") || 5;
-    let doc3 = view.dom.ownerDocument;
+    let doc4 = view.dom.ownerDocument;
     for (let parent = startDOM || view.dom; ; ) {
       if (!parent)
         break;
@@ -7120,8 +7149,8 @@
         parent = parentNode(parent);
         continue;
       }
-      let atTop = parent == doc3.body;
-      let bounding = atTop ? windowRect(doc3) : clientRect(parent);
+      let atTop = parent == doc4.body;
+      let bounding = atTop ? windowRect(doc4) : clientRect(parent);
       let moveX = 0, moveY = 0;
       if (rect.top < bounding.top + getSide(scrollThreshold, "top"))
         moveY = -(bounding.top - rect.top + getSide(scrollMargin, "top"));
@@ -7133,7 +7162,7 @@
         moveX = rect.right - bounding.right + getSide(scrollMargin, "right");
       if (moveX || moveY) {
         if (atTop) {
-          doc3.defaultView.scrollBy(moveX, moveY);
+          doc4.defaultView.scrollBy(moveX, moveY);
         } else {
           let startX = parent.scrollLeft, startY = parent.scrollTop;
           if (moveY)
@@ -7167,10 +7196,10 @@
     return { refDOM, refTop, stack: scrollStack(view.dom) };
   }
   function scrollStack(dom) {
-    let stack = [], doc3 = dom.ownerDocument;
+    let stack = [], doc4 = dom.ownerDocument;
     for (let cur = dom; cur; cur = parentNode(cur)) {
       stack.push({ dom: cur, top: cur.scrollTop, left: cur.scrollLeft });
-      if (dom == doc3)
+      if (dom == doc4)
         break;
     }
     return stack;
@@ -7315,11 +7344,11 @@
     }
     return outsideBlock > -1 ? outsideBlock : view.docView.posFromDOM(node, offset, -1);
   }
-  function elementFromPoint(element, coords, box) {
-    let len = element.childNodes.length;
+  function elementFromPoint(element2, coords, box) {
+    let len = element2.childNodes.length;
     if (len && box.top < box.bottom) {
       for (let startI = Math.max(0, Math.min(len - 1, Math.floor(len * (coords.top - box.top) / (box.bottom - box.top)) - 2)), i2 = startI; ; ) {
-        let child = element.childNodes[i2];
+        let child = element2.childNodes[i2];
         if (isElt(child)) {
           let rects = child.getClientRects();
           for (let j = 0; j < rects.length; j++) {
@@ -7332,14 +7361,14 @@
           break;
       }
     }
-    return element;
+    return element2;
   }
   function posAtCoords(view, coords) {
-    let doc3 = view.dom.ownerDocument, node, offset = 0;
-    let caret = caretFromPoint(doc3, coords.left, coords.top);
+    let doc4 = view.dom.ownerDocument, node, offset = 0;
+    let caret = caretFromPoint(doc4, coords.left, coords.top);
     if (caret)
       ({ node, offset } = caret);
-    let elt = (view.root.elementFromPoint ? view.root : doc3).elementFromPoint(coords.left, coords.top);
+    let elt = (view.root.elementFromPoint ? view.root : doc4).elementFromPoint(coords.left, coords.top);
     let pos;
     if (!elt || !view.dom.contains(elt)) {
       let box = view.dom.getBoundingClientRect();
@@ -7406,19 +7435,19 @@
         }
         return rect;
       } else {
-        let from2 = offset, to = offset, takeSide = side < 0 ? 1 : -1;
+        let from3 = offset, to = offset, takeSide = side < 0 ? 1 : -1;
         if (side < 0 && !offset) {
           to++;
           takeSide = -1;
         } else if (side >= 0 && offset == node.nodeValue.length) {
-          from2--;
+          from3--;
           takeSide = 1;
         } else if (side < 0) {
-          from2--;
+          from3--;
         } else {
           to++;
         }
-        return flattenV(singleRect(textRange(node, from2, to), takeSide), takeSide < 0);
+        return flattenV(singleRect(textRange(node, from3, to), takeSide), takeSide < 0);
       }
     }
     let $dom = view.state.doc.resolve(pos - (atom || 0));
@@ -7581,10 +7610,10 @@
     }
     // The size of the content represented by this desc.
     get size() {
-      let size = 0;
+      let size2 = 0;
       for (let i2 = 0; i2 < this.children.length; i2++)
-        size += this.children[i2].size;
-      return size;
+        size2 += this.children[i2].size;
+      return size2;
     }
     // For block nodes, this represents the space taken up by their
     // start/end tokens.
@@ -7768,24 +7797,24 @@
     }
     // Used to find a DOM range in a single parent for a given changed
     // range.
-    parseRange(from2, to, base2 = 0) {
+    parseRange(from3, to, base2 = 0) {
       if (this.children.length == 0)
-        return { node: this.contentDOM, from: from2, to, fromOffset: 0, toOffset: this.contentDOM.childNodes.length };
+        return { node: this.contentDOM, from: from3, to, fromOffset: 0, toOffset: this.contentDOM.childNodes.length };
       let fromOffset = -1, toOffset = -1;
       for (let offset = base2, i2 = 0; ; i2++) {
         let child = this.children[i2], end = offset + child.size;
-        if (fromOffset == -1 && from2 <= end) {
+        if (fromOffset == -1 && from3 <= end) {
           let childBase = offset + child.border;
-          if (from2 >= childBase && to <= end - child.border && child.node && child.contentDOM && this.contentDOM.contains(child.contentDOM))
-            return child.parseRange(from2, to, childBase);
-          from2 = offset;
+          if (from3 >= childBase && to <= end - child.border && child.node && child.contentDOM && this.contentDOM.contains(child.contentDOM))
+            return child.parseRange(from3, to, childBase);
+          from3 = offset;
           for (let j = i2; j > 0; j--) {
             let prev = this.children[j - 1];
             if (prev.size && prev.dom.parentNode == this.contentDOM && !prev.emptyChildAt(1)) {
               fromOffset = domIndex(prev.dom) + 1;
               break;
             }
-            from2 -= prev.size;
+            from3 -= prev.size;
           }
           if (fromOffset == -1)
             fromOffset = 0;
@@ -7806,7 +7835,7 @@
         }
         offset = end;
       }
-      return { node: this.contentDOM, from: from2, to, fromOffset, toOffset };
+      return { node: this.contentDOM, from: from3, to, fromOffset, toOffset };
     }
     emptyChildAt(side) {
       if (this.border || !this.contentDOM || !this.children.length)
@@ -7850,7 +7879,7 @@
     get ignoreForSelection() {
       return false;
     }
-    isText(text) {
+    isText(text2) {
       return false;
     }
   };
@@ -7907,10 +7936,10 @@
     }
   };
   var CompositionViewDesc = class extends ViewDesc {
-    constructor(parent, dom, textDOM, text) {
+    constructor(parent, dom, textDOM, text2) {
       super(parent, [], dom, null);
       this.textDOM = textDOM;
-      this.text = text;
+      this.text = text2;
     }
     get size() {
       return this.text.length;
@@ -7956,17 +7985,17 @@
         /* Damage.ChildList */
       );
     }
-    slice(from2, to, view) {
-      let copy2 = _MarkViewDesc.create(this.parent, this.mark, true, view);
-      let nodes = this.children, size = this.size;
-      if (to < size)
-        nodes = replaceNodes(nodes, to, size, view);
-      if (from2 > 0)
-        nodes = replaceNodes(nodes, 0, from2, view);
+    slice(from3, to, view) {
+      let copy3 = _MarkViewDesc.create(this.parent, this.mark, true, view);
+      let nodes = this.children, size2 = this.size;
+      if (to < size2)
+        nodes = replaceNodes(nodes, to, size2, view);
+      if (from3 > 0)
+        nodes = replaceNodes(nodes, 0, from3, view);
       for (let i2 = 0; i2 < nodes.length; i2++)
-        nodes[i2].parent = copy2;
-      copy2.children = nodes;
-      return copy2;
+        nodes[i2].parent = copy3;
+      copy3.children = nodes;
+      return copy3;
     }
     ignoreMutation(mutation) {
       return this.spec.ignoreMutation ? this.spec.ignoreMutation(mutation) : super.ignoreMutation(mutation);
@@ -8109,21 +8138,21 @@
       }
     }
     localCompositionInfo(view, pos) {
-      let { from: from2, to } = view.state.selection;
-      if (!(view.state.selection instanceof TextSelection) || from2 < pos || to > pos + this.node.content.size)
+      let { from: from3, to } = view.state.selection;
+      if (!(view.state.selection instanceof TextSelection) || from3 < pos || to > pos + this.node.content.size)
         return null;
       let textNode = view.input.compositionNode;
       if (!textNode || !this.dom.contains(textNode.parentNode))
         return null;
       if (this.node.inlineContent) {
-        let text = textNode.nodeValue;
-        let textPos = findTextInFragment(this.node.content, text, from2 - pos, to - pos);
-        return textPos < 0 ? null : { node: textNode, pos: textPos, text };
+        let text2 = textNode.nodeValue;
+        let textPos = findTextInFragment(this.node.content, text2, from3 - pos, to - pos);
+        return textPos < 0 ? null : { node: textNode, pos: textPos, text: text2 };
       } else {
         return { node: textNode, pos: -1, text: "" };
       }
     }
-    protectLocalComposition(view, { node, pos, text }) {
+    protectLocalComposition(view, { node, pos, text: text2 }) {
       if (this.getDesc(node))
         return;
       let topNode = node;
@@ -8137,9 +8166,9 @@
         if (topNode.pmViewDesc)
           topNode.pmViewDesc = void 0;
       }
-      let desc = new CompositionViewDesc(this, topNode, node, text);
+      let desc = new CompositionViewDesc(this, topNode, node, text2);
       view.input.compositionNodes.push(desc);
-      this.children = replaceNodes(this.children, pos, pos + text.length, view, desc);
+      this.children = replaceNodes(this.children, pos, pos + text2.length, view, desc);
     }
     // If this desc must be updated to match the given node decoration,
     // do so and return true. pos is the position before the node, or -1
@@ -8190,12 +8219,12 @@
       return this.node.isAtom;
     }
   };
-  function docViewDesc(doc3, outerDeco, innerDeco, dom, view, prevOuterDeco) {
+  function docViewDesc(doc4, outerDeco, innerDeco, dom, view, prevOuterDeco) {
     if (!prevOuterDeco)
-      applyOuterDeco(dom, outerDeco, doc3);
+      applyOuterDeco(dom, outerDeco, doc4);
     else
-      patchOuterDeco(dom, dom, computeOuterDeco(prevOuterDeco, doc3, false), computeOuterDeco(outerDeco, doc3, false));
-    let docView = new NodeViewDesc(void 0, doc3, outerDeco, innerDeco, dom, dom, dom);
+      patchOuterDeco(dom, dom, computeOuterDeco(prevOuterDeco, doc4, false), computeOuterDeco(outerDeco, doc4, false));
+    let docView = new NodeViewDesc(void 0, doc4, outerDeco, innerDeco, dom, dom, dom);
     if (docView.contentDOM)
       docView.updateChildren(view, 0);
     return docView;
@@ -8241,15 +8270,15 @@
     ignoreMutation(mutation) {
       return false;
     }
-    slice(from2, to, _view) {
-      let node = this.node.cut(from2, to), dom = document.createTextNode(node.text);
+    slice(from3, to, _view) {
+      let node = this.node.cut(from3, to), dom = document.createTextNode(node.text);
       return new _TextViewDesc(this.parent, node, this.outerDeco, this.innerDeco, dom, dom);
     }
     get domAtom() {
       return false;
     }
-    isText(text) {
-      return this.node.text == text;
+    isText(text2) {
+      return this.node.text == text2;
     }
   };
   var BufferHackViewDesc = class extends ViewDesc {
@@ -8775,7 +8804,7 @@
       dom.style.cssText = oldCSS;
     }
   }
-  function findTextInFragment(frag, text, from2, to) {
+  function findTextInFragment(frag, text2, from3, to) {
     for (let i2 = 0, pos = 0; i2 < frag.childCount && pos <= to; ) {
       let child = frag.child(i2++), childStart = pos;
       pos += child.nodeSize;
@@ -8789,27 +8818,27 @@
           break;
         str += next.text;
       }
-      if (pos >= from2) {
-        if (pos >= to && str.slice(to - text.length - childStart, to - childStart) == text)
-          return to - text.length;
-        let found2 = childStart < to ? str.lastIndexOf(text, to - childStart - 1) : -1;
-        if (found2 >= 0 && found2 + text.length + childStart >= from2)
+      if (pos >= from3) {
+        if (pos >= to && str.slice(to - text2.length - childStart, to - childStart) == text2)
+          return to - text2.length;
+        let found2 = childStart < to ? str.lastIndexOf(text2, to - childStart - 1) : -1;
+        if (found2 >= 0 && found2 + text2.length + childStart >= from3)
           return childStart + found2;
-        if (from2 == to && str.length >= to + text.length - childStart && str.slice(to - childStart, to - childStart + text.length) == text)
+        if (from3 == to && str.length >= to + text2.length - childStart && str.slice(to - childStart, to - childStart + text2.length) == text2)
           return to;
       }
     }
     return -1;
   }
-  function replaceNodes(nodes, from2, to, view, replacement) {
+  function replaceNodes(nodes, from3, to, view, replacement) {
     let result = [];
     for (let i2 = 0, off = 0; i2 < nodes.length; i2++) {
       let child = nodes[i2], start = off, end = off += child.size;
-      if (start >= to || end <= from2) {
+      if (start >= to || end <= from3) {
         result.push(child);
       } else {
-        if (start < from2)
-          result.push(child.slice(0, from2 - start, view));
+        if (start < from3)
+          result.push(child.slice(0, from3 - start, view));
         if (replacement) {
           result.push(replacement);
           replacement = void 0;
@@ -9158,12 +9187,12 @@
       content = node.content;
     }
     let serializer = view.someProp("clipboardSerializer") || DOMSerializer.fromSchema(view.state.schema);
-    let doc3 = detachedDoc(), wrap2 = doc3.createElement("div");
-    wrap2.appendChild(serializer.serializeFragment(content, { document: doc3 }));
+    let doc4 = detachedDoc(), wrap2 = doc4.createElement("div");
+    wrap2.appendChild(serializer.serializeFragment(content, { document: doc4 }));
     let firstChild = wrap2.firstChild, needsWrap, wrappers = 0;
     while (firstChild && isElt(firstChild) && (needsWrap = wrapMap[firstChild.nodeName.toLowerCase()])) {
       for (let i2 = needsWrap.length - 1; i2 >= 0; i2--) {
-        let wrapper = doc3.createElement(needsWrap[i2]);
+        let wrapper = doc4.createElement(needsWrap[i2]);
         while (wrap2.firstChild)
           wrapper.appendChild(wrap2.firstChild);
         wrap2.appendChild(wrapper);
@@ -9173,34 +9202,34 @@
     }
     if (firstChild && isElt(firstChild))
       firstChild.setAttribute("data-pm-slice", `${openStart} ${openEnd}${wrappers ? ` -${wrappers}` : ""} ${JSON.stringify(context)}`);
-    let text = view.someProp("clipboardTextSerializer", (f) => f(slice2, view)) || slice2.content.textBetween(0, slice2.content.size, "\n\n");
-    return { dom: wrap2, text, slice: slice2 };
+    let text2 = view.someProp("clipboardTextSerializer", (f) => f(slice2, view)) || slice2.content.textBetween(0, slice2.content.size, "\n\n");
+    return { dom: wrap2, text: text2, slice: slice2 };
   }
-  function parseFromClipboard(view, text, html, plainText, $context) {
+  function parseFromClipboard(view, text2, html, plainText, $context) {
     let inCode = $context.parent.type.spec.code;
     let dom, slice2;
-    if (!html && !text)
+    if (!html && !text2)
       return null;
-    let asText = !!text && (plainText || inCode || !html);
+    let asText = !!text2 && (plainText || inCode || !html);
     if (asText) {
       view.someProp("transformPastedText", (f) => {
-        text = f(text, inCode || plainText, view);
+        text2 = f(text2, inCode || plainText, view);
       });
       if (inCode) {
-        slice2 = new Slice(Fragment.from(view.state.schema.text(text.replace(/\r\n?/g, "\n"))), 0, 0);
+        slice2 = new Slice(Fragment.from(view.state.schema.text(text2.replace(/\r\n?/g, "\n"))), 0, 0);
         view.someProp("transformPasted", (f) => {
           slice2 = f(slice2, view, true);
         });
         return slice2;
       }
-      let parsed = view.someProp("clipboardTextParser", (f) => f(text, $context, plainText, view));
+      let parsed = view.someProp("clipboardTextParser", (f) => f(text2, $context, plainText, view));
       if (parsed) {
         slice2 = parsed;
       } else {
         let marks = $context.marks();
         let { schema } = view.state, serializer = DOMSerializer.fromSchema(schema);
         dom = document.createElement("div");
-        text.split(/(?:\r\n?|\n)+/).forEach((block) => {
+        text2.split(/(?:\r\n?|\n)+/).forEach((block) => {
           let p = dom.appendChild(document.createElement("p"));
           if (block)
             p.appendChild(serializer.serializeNode(schema.text(block, marks)));
@@ -9226,7 +9255,7 @@
         dom = child;
       }
     if (!slice2) {
-      let parser = view.someProp("clipboardParser") || view.someProp("domParser") || DOMParser.fromSchema(view.state.schema);
+      let parser = view.someProp("clipboardParser") || view.someProp("domParser") || DOMParser2.fromSchema(view.state.schema);
       slice2 = parser.parseSlice(dom, {
         preserveWhitespace: !!(asText || sliceData),
         context: $context,
@@ -9261,12 +9290,12 @@
       return fragment;
     for (let d = $context.depth; d >= 0; d--) {
       let parent = $context.node(d);
-      let match = parent.contentMatchAt($context.index(d));
+      let match2 = parent.contentMatchAt($context.index(d));
       let lastWrap, result = [];
       fragment.forEach((node) => {
         if (!result)
           return;
-        let wrap2 = match.findWrapping(node.type), inLast;
+        let wrap2 = match2.findWrapping(node.type), inLast;
         if (!wrap2)
           return result = null;
         if (inLast = result.length && lastWrap.length && addToSibling(wrap2, lastWrap, node, result[result.length - 1], 0)) {
@@ -9276,7 +9305,7 @@
             result[result.length - 1] = closeRight(result[result.length - 1], lastWrap.length);
           let wrapped = withWrappers(node, wrap2);
           result.push(wrapped);
-          match = match.matchType(wrapped.type);
+          match2 = match2.matchType(wrapped.type);
           lastWrap = wrap2;
         }
       });
@@ -9285,8 +9314,8 @@
     }
     return fragment;
   }
-  function withWrappers(node, wrap2, from2 = 0) {
-    for (let i2 = wrap2.length - 1; i2 >= from2; i2--)
+  function withWrappers(node, wrap2, from3 = 0) {
+    for (let i2 = wrap2.length - 1; i2 >= from3; i2--)
       node = wrap2[i2].create(null, Fragment.from(node));
     return node;
   }
@@ -9295,8 +9324,8 @@
       let inner = addToSibling(wrap2, lastWrap, node, sibling.lastChild, depth + 1);
       if (inner)
         return sibling.copy(sibling.content.replaceChild(sibling.childCount - 1, inner));
-      let match = sibling.contentMatchAt(sibling.childCount);
-      if (match.matchType(depth == wrap2.length - 1 ? node.type : wrap2[depth + 1]))
+      let match2 = sibling.contentMatchAt(sibling.childCount);
+      if (match2.matchType(depth == wrap2.length - 1 ? node.type : wrap2[depth + 1]))
         return sibling.copy(sibling.content.append(Fragment.from(withWrappers(node, wrap2, depth + 1))));
     }
   }
@@ -9307,13 +9336,13 @@
     let fill = node.contentMatchAt(node.childCount).fillBefore(Fragment.empty, true);
     return node.copy(fragment.append(fill));
   }
-  function closeRange(fragment, side, from2, to, depth, openEnd) {
+  function closeRange(fragment, side, from3, to, depth, openEnd) {
     let node = side < 0 ? fragment.firstChild : fragment.lastChild, inner = node.content;
     if (fragment.childCount > 1)
       openEnd = 0;
     if (depth < to - 1)
-      inner = closeRange(inner, side, from2, to, depth + 1, openEnd);
-    if (depth >= from2)
+      inner = closeRange(inner, side, from3, to, depth + 1, openEnd);
+    if (depth >= from3)
       inner = side < 0 ? node.contentMatchAt(0).fillBefore(inner, openEnd <= depth).append(inner) : inner.append(node.contentMatchAt(node.childCount).fillBefore(Fragment.empty, true));
     return fragment.replaceChild(side < 0 ? 0 : fragment.childCount - 1, node.copy(inner));
   }
@@ -9357,7 +9386,7 @@
     let metas = /^(\s*<meta [^>]*>)*/.exec(html);
     if (metas)
       html = html.slice(metas[0].length);
-    let doc3 = detachedDoc(), elt = doc3.body;
+    let doc4 = detachedDoc(), elt = doc4.body;
     let firstTag = /<([a-z][^>\s]+)/i.exec(html), wrap2;
     if (wrap2 = firstTag && wrapMap[firstTag[1].toLowerCase()])
       html = wrap2.map((n) => "<" + n + ">").join("") + html + wrap2.map((n) => "</" + n + ">").reverse().join("");
@@ -9365,8 +9394,8 @@
     if (wrap2)
       for (let i2 = 0; i2 < wrap2.length; i2++)
         elt = elt.querySelector(wrap2[i2]) || elt;
-    for (let i2 = 0; i2 < doc3.styleSheets.length; i2++) {
-      let style2 = doc3.styleSheets[i2];
+    for (let i2 = 0; i2 < doc4.styleSheets.length; i2++) {
+      let style2 = doc4.styleSheets[i2];
       for (let j = 0; j < style2.rules.length; j++) {
         let rule = style2.rules[j];
         if (rule instanceof CSSStyleRule) {
@@ -9438,12 +9467,12 @@
       this.onSelectionChange = this.onSelectionChange.bind(this);
     }
     ensureListener() {
-      let doc3 = this.view.dom.ownerDocument;
-      if (doc3 != this.currentDocument) {
+      let doc4 = this.view.dom.ownerDocument;
+      if (doc4 != this.currentDocument) {
         if (this.currentDocument)
           this.currentDocument.removeEventListener("selectionchange", this.onSelectionChange);
-        this.currentDocument = doc3;
-        doc3.addEventListener("selectionchange", this.onSelectionChange);
+        this.currentDocument = doc4;
+        doc4.addEventListener("selectionchange", this.onSelectionChange);
       }
     }
     destroy() {
@@ -9556,25 +9585,25 @@
     return new StoredDOMSel(anchorNode, anchorOffset, focusNode, focusOffset);
   }
   function selectionFromDOM(view, domSel, origin = null) {
-    let doc3 = view.state.doc;
+    let doc4 = view.state.doc;
     if (!domSel.focusNode)
       return null;
     let nearestDesc = view.docView.nearestDesc(domSel.focusNode), inWidget = nearestDesc && nearestDesc.size == 0;
     let head = view.docView.posFromDOM(domSel.focusNode, domSel.focusOffset, 1);
     if (head < 0)
       return null;
-    let $head = doc3.resolve(head), anchor, selection;
+    let $head = doc4.resolve(head), anchor, selection;
     if (selectionCollapsed(domSel)) {
       anchor = head;
       while (nearestDesc && !nearestDesc.node)
         nearestDesc = nearestDesc.parent;
       if (nearestDesc && nearestDesc.node.isAtom && NodeSelection.isSelectable(nearestDesc.node) && nearestDesc.parent && !(nearestDesc.node.isInline && isOnEdge(domSel.focusNode, domSel.focusOffset, nearestDesc.dom))) {
         let pos = nearestDesc.posBefore;
-        selection = new NodeSelection(head == pos ? $head : doc3.resolve(pos));
+        selection = new NodeSelection(head == pos ? $head : doc4.resolve(pos));
       } else if (gecko && origin == "key" && head > view.state.selection.to && isElt(domSel.focusNode) && domSel.focusOffset == domSel.focusNode.childNodes.length && nearestDesc && nearestDesc.posAtStart > view.state.selection.to) {
         for (let scan = domSel.focusNode; ; scan = scan.parentNode) {
           if (getComputedStyle(scan).overflow != "visible") {
-            selection = Selection.findFrom(doc3.resolve(nearestDesc.posAtStart), 1);
+            selection = Selection.findFrom(doc4.resolve(nearestDesc.posAtStart), 1);
             break;
           }
           if (scan == nearestDesc.dom || scan.nextSibling || !scan.parentNode || !isElt(scan.parentNode))
@@ -9583,23 +9612,23 @@
       }
     } else {
       if (domSel instanceof view.dom.ownerDocument.defaultView.Selection && domSel.rangeCount > 1) {
-        let min = head, max = head;
+        let min2 = head, max2 = head;
         for (let i2 = 0; i2 < domSel.rangeCount; i2++) {
           let range = domSel.getRangeAt(i2);
-          min = Math.min(min, view.docView.posFromDOM(range.startContainer, range.startOffset, 1));
-          max = Math.max(max, view.docView.posFromDOM(range.endContainer, range.endOffset, -1));
+          min2 = Math.min(min2, view.docView.posFromDOM(range.startContainer, range.startOffset, 1));
+          max2 = Math.max(max2, view.docView.posFromDOM(range.endContainer, range.endOffset, -1));
         }
-        if (min < 0)
+        if (min2 < 0)
           return null;
-        [anchor, head] = max == view.state.selection.anchor ? [max, min] : [min, max];
-        $head = doc3.resolve(head);
+        [anchor, head] = max2 == view.state.selection.anchor ? [max2, min2] : [min2, max2];
+        $head = doc4.resolve(head);
       } else {
         anchor = view.docView.posFromDOM(domSel.anchorNode, domSel.anchorOffset, 1);
       }
       if (anchor < 0)
         return null;
     }
-    let $anchor = doc3.resolve(anchor);
+    let $anchor = doc4.resolve(anchor);
     if (!selection) {
       let bias = origin == "pointer" || view.state.selection.head < $head.pos && !inWidget ? 1 : -1;
       selection = selectionBetween(view, $anchor, $head, bias);
@@ -9628,11 +9657,11 @@
         resetEditable(resetEditableTo);
     }
   }
-  function innerViewDesc(desc, from2, to, start = 0) {
+  function innerViewDesc(desc, from3, to, start = 0) {
     for (let i2 = 0, off = start; i2 < desc.children.length; i2++) {
       let child = desc.children[i2], end = off + child.size;
-      if (from2 > off && to < end)
-        return innerViewDesc(child, from2, to, off + child.border);
+      if (from3 > off && to < end)
+        return innerViewDesc(child, from3, to, off + child.border);
       off = end;
     }
     return { desc, start };
@@ -9689,29 +9718,29 @@
         return setEditable(before);
     }
   }
-  function setEditable(element) {
-    element.contentEditable = "true";
-    if (safari && element.draggable) {
-      element.draggable = false;
-      element.wasDraggable = true;
+  function setEditable(element2) {
+    element2.contentEditable = "true";
+    if (safari && element2.draggable) {
+      element2.draggable = false;
+      element2.wasDraggable = true;
     }
-    return element;
+    return element2;
   }
-  function resetEditable(element) {
-    element.contentEditable = "false";
-    if (element.wasDraggable) {
-      element.draggable = true;
-      element.wasDraggable = null;
+  function resetEditable(element2) {
+    element2.contentEditable = "false";
+    if (element2.wasDraggable) {
+      element2.draggable = true;
+      element2.wasDraggable = null;
     }
   }
   function removeClassOnSelectionChange(view) {
-    let doc3 = view.dom.ownerDocument;
-    doc3.removeEventListener("selectionchange", view.input.hideSelectionGuard);
+    let doc4 = view.dom.ownerDocument;
+    doc4.removeEventListener("selectionchange", view.input.hideSelectionGuard);
     let domSel = view.domSel.readRange();
     let node = domSel.anchorNode, offset = domSel.anchorOffset;
-    doc3.addEventListener("selectionchange", view.input.hideSelectionGuard = () => {
+    doc4.addEventListener("selectionchange", view.input.hideSelectionGuard = () => {
       if (domSel.anchorNode != node || domSel.anchorOffset != offset) {
-        doc3.removeEventListener("selectionchange", view.input.hideSelectionGuard);
+        doc4.removeEventListener("selectionchange", view.input.hideSelectionGuard);
         setTimeout(() => {
           if (!editorOwnsSelection(view) || view.state.selection.visible)
             view.dom.classList.remove("ProseMirror-hideselection");
@@ -9907,9 +9936,9 @@
     }
     let sel = view.state.selection;
     if (!(sel instanceof TextSelection) || !sel.$from.sameParent(sel.$to)) {
-      let text = String.fromCharCode(event.charCode);
-      let deflt = () => view.state.tr.insertText(text).scrollIntoView();
-      if (!/[\r\n]/.test(text) && !view.someProp("handleTextInput", (f) => f(view, sel.$from.pos, sel.$to.pos, text, deflt)))
+      let text2 = String.fromCharCode(event.charCode);
+      let deflt = () => view.state.tr.insertText(text2).scrollIntoView();
+      if (!/[\r\n]/.test(text2) && !view.someProp("handleTextInput", (f) => f(view, sel.$from.pos, sel.$to.pos, text2, deflt)))
         view.dispatch(deflt());
       event.preventDefault();
     }
@@ -9983,17 +10012,17 @@
   function handleTripleClick(view, pos, inside, event) {
     return runHandlerOnContext(view, "handleTripleClickOn", pos, inside, event) || view.someProp("handleTripleClick", (f) => f(view, pos, event));
   }
-  function selectionForTripleClick(doc3, inside, selectNodes) {
+  function selectionForTripleClick(doc4, inside, selectNodes) {
     if (inside == -1)
-      return doc3.inlineContent ? TextSelection.create(doc3, 0, doc3.content.size) : null;
-    let $pos = doc3.resolve(inside);
+      return doc4.inlineContent ? TextSelection.create(doc4, 0, doc4.content.size) : null;
+    let $pos = doc4.resolve(inside);
     for (let i2 = $pos.depth + 1; i2 > 0; i2--) {
       let node = i2 > $pos.depth ? $pos.nodeAfter : $pos.node(i2);
       let nodePos = $pos.before(i2);
       if (node.inlineContent)
-        return TextSelection.create(doc3, nodePos + 1, nodePos + 1 + node.content.size);
+        return TextSelection.create(doc4, nodePos + 1, nodePos + 1 + node.content.size);
       else if (selectNodes && NodeSelection.isSelectable(node))
-        return NodeSelection.create(doc3, nodePos);
+        return NodeSelection.create(doc4, nodePos);
     }
     return null;
   }
@@ -10002,14 +10031,14 @@
     wordRE = new RegExp("[\\p{L}\\p{N}_]+", "gu");
   } catch (_a) {
   }
-  function getWordAt(doc3, pos) {
-    let $pos = doc3.resolve(pos), parent = $pos.node();
-    let context = "", from2 = pos, to = pos;
+  function getWordAt(doc4, pos) {
+    let $pos = doc4.resolve(pos), parent = $pos.node();
+    let context = "", from3 = pos, to = pos;
     for (let i2 = $pos.indexAfter(), sawNonWS = false; i2 > 0; i2--) {
       let prev = parent.child(i2 - 1);
       if (!prev.text)
         break;
-      let end = from2 == pos ? pos - $pos.posAtIndex(i2 - 1) : prev.text.length, start = end;
+      let end = from3 == pos ? pos - $pos.posAtIndex(i2 - 1) : prev.text.length, start = end;
       for (; start > 0; start--) {
         if (/\S/.test(prev.text[start - 1]))
           sawNonWS = true;
@@ -10017,8 +10046,8 @@
           break;
       }
       context = prev.text.slice(start, end) + context;
-      from2 -= end - start;
-      if (start || from2 < pos - 50)
+      from3 -= end - start;
+      if (start || from3 < pos - 50)
         break;
     }
     for (let i2 = $pos.index(), sawNonWS = false; i2 < parent.childCount; i2++) {
@@ -10037,39 +10066,39 @@
       if (end < next.text.length || to > pos + 50)
         break;
     }
-    let lastBefore = from2, firstAfter = to;
+    let lastBefore = from3, firstAfter = to;
     if (Intl.Segmenter) {
       for (let segment of new Intl.Segmenter(void 0, { granularity: "word" }).segment(context)) {
         if (segment.isWordLike) {
-          let start = segment.index + from2, end = start + segment.segment.length;
+          let start = segment.index + from3, end = start + segment.segment.length;
           if (end < pos)
             lastBefore = end;
           else if (start > pos) {
             firstAfter = start;
             break;
           } else
-            return TextSelection.create(doc3, start, end);
+            return TextSelection.create(doc4, start, end);
         }
       }
     } else {
       wordRE.lastIndex = 0;
       for (let m; m = wordRE.exec(context); ) {
-        let start = m.index + from2, end = start + m[0].length;
+        let start = m.index + from3, end = start + m[0].length;
         if (end < pos)
           lastBefore = end;
         else if (start > pos) {
           firstAfter = start;
           break;
         } else
-          return TextSelection.create(doc3, start, end);
+          return TextSelection.create(doc4, start, end);
       }
     }
-    let before = context.slice(lastBefore - from2, pos - from2), after = context.slice(pos - from2, firstAfter - from2);
+    let before = context.slice(lastBefore - from3, pos - from3), after = context.slice(pos - from3, firstAfter - from3);
     let nonSpaceBefore = /\S*$/.exec(before)[0].length, nonSpaceAfter = /^\S*/.exec(after)[0].length;
     if (nonSpaceBefore || nonSpaceAfter)
-      return TextSelection.create(doc3, pos - nonSpaceBefore, pos + nonSpaceAfter);
+      return TextSelection.create(doc4, pos - nonSpaceBefore, pos + nonSpaceAfter);
     let spaceBefore = /\s*$/.exec(before)[0].length, spaceAfter = /^\s*/.exec(after)[0].length;
-    return TextSelection.create(doc3, pos - spaceBefore, pos + spaceAfter);
+    return TextSelection.create(doc4, pos - spaceBefore, pos + spaceAfter);
   }
   var selectNodeModifier = mac2 ? "metaKey" : "ctrlKey";
   handlers.mousedown = (view, _event) => {
@@ -10216,19 +10245,19 @@
       if (pos.pos == this.lastPos)
         return;
       this.lastPos = pos.pos;
-      let { view } = this, { doc: doc3 } = view.state;
-      let selection = this.type == "singleClick" ? clickedRange(view, doc3, pos) : this.type == "doubleClick" ? getWordAt(doc3, pos.pos) : selectionForTripleClick(doc3, pos.inside, first2);
+      let { view } = this, { doc: doc4 } = view.state;
+      let selection = this.type == "singleClick" ? clickedRange(view, doc4, pos) : this.type == "doubleClick" ? getWordAt(doc4, pos.pos) : selectionForTripleClick(doc4, pos.inside, first2);
       if (!selection)
         return;
       if (first2 && !this.extend) {
         this.anchorRange = selection;
       } else if (!first2 || this.extend) {
-        if (!doc3.eq(this.anchorDoc))
+        if (!doc4.eq(this.anchorDoc))
           this.restoreAnchor();
         if (this.anchorRange && this.anchorRange.from < selection.from)
-          selection = selectionBetween(view, doc3.resolve(this.anchorRange.from), doc3.resolve(selection.to));
+          selection = selectionBetween(view, doc4.resolve(this.anchorRange.from), doc4.resolve(selection.to));
         else if (this.anchorRange && this.anchorRange.to > selection.to)
-          selection = selectionBetween(view, doc3.resolve(this.anchorRange.to), doc3.resolve(selection.from));
+          selection = selectionBetween(view, doc4.resolve(this.anchorRange.to), doc4.resolve(selection.from));
       }
       if (!selection.eq(view.state.selection))
         view.dispatch(view.state.tr.setSelection(selection).setMeta("pointer", true).scrollIntoView());
@@ -10239,8 +10268,8 @@
       if (!pos) {
         this.anchorRange = null;
       } else {
-        let { doc: doc3 } = this.view.state;
-        this.anchorRange = this.type == "singleClick" ? clickedRange(this.view, doc3, pos) : this.type == "doubleClick" ? getWordAt(doc3, pos.pos) : selectionForTripleClick(doc3, pos.inside, false);
+        let { doc: doc4 } = this.view.state;
+        this.anchorRange = this.type == "singleClick" ? clickedRange(this.view, doc4, pos) : this.type == "doubleClick" ? getWordAt(doc4, pos.pos) : selectionForTripleClick(doc4, pos.inside, false);
         this.anchorDoc = this.view.state.doc;
       }
     }
@@ -10249,13 +10278,13 @@
     let rect = view.dom.getBoundingClientRect();
     return { x: rect.left - view.dom.scrollLeft, y: rect.top - view.dom.scrollTop };
   }
-  function clickedRange(view, doc3, pos) {
+  function clickedRange(view, doc4, pos) {
     if (pos.inside > -1) {
-      let target = doc3.nodeAt(pos.inside);
+      let target = doc4.nodeAt(pos.inside);
       if (target.isAtom && NodeSelection.isSelectable(target))
-        return NodeSelection.create(doc3, pos.inside);
+        return NodeSelection.create(doc4, pos.inside);
     }
-    let $pos = doc3.resolve(pos.pos);
+    let $pos = doc4.resolve(pos.pos);
     return selectionBetween(view, $pos, $pos);
   }
   function isInSelection(view, event) {
@@ -10422,12 +10451,12 @@
     if (sel.empty)
       return;
     let data = brokenClipboardAPI ? null : event.clipboardData;
-    let slice2 = sel.content(), { dom, text } = serializeForClipboard(view, slice2);
+    let slice2 = sel.content(), { dom, text: text2 } = serializeForClipboard(view, slice2);
     if (data) {
       event.preventDefault();
       data.clearData();
       data.setData("text/html", dom.innerHTML);
-      data.setData("text/plain", text);
+      data.setData("text/plain", text2);
     } else {
       captureCopy(view, dom);
     }
@@ -10457,8 +10486,8 @@
         doPaste(view, target.textContent, target.innerHTML, plain, event);
     }, 50);
   }
-  function doPaste(view, text, html, preferPlain, event) {
-    let slice2 = parseFromClipboard(view, text, html, preferPlain, view.state.selection.$from);
+  function doPaste(view, text2, html, preferPlain, event) {
+    let slice2 = parseFromClipboard(view, text2, html, preferPlain, view.state.selection.$from);
     if (view.someProp("handlePaste", (f) => f(view, event, slice2 || Slice.empty)))
       return true;
     if (!slice2)
@@ -10469,9 +10498,9 @@
     return true;
   }
   function getText(clipboardData) {
-    let text = clipboardData.getData("text/plain") || clipboardData.getData("Text");
-    if (text)
-      return text;
+    let text2 = clipboardData.getData("text/plain") || clipboardData.getData("Text");
+    if (text2)
+      return text2;
     let uris = clipboardData.getData("text/uri-list");
     return uris ? uris.replace(/\r?\n/g, " ") : "";
   }
@@ -10495,11 +10524,11 @@
   };
   var dragCopyModifier = mac2 ? "altKey" : "ctrlKey";
   function dragMoves(view, event) {
-    let copy2;
+    let copy3;
     view.someProp("dragCopies", (test) => {
-      copy2 = copy2 || test(event);
+      copy3 = copy3 || test(event);
     });
-    return copy2 != null ? !copy2 : !event[dragCopyModifier];
+    return copy3 != null ? !copy3 : !event[dragCopyModifier];
   }
   handlers.dragstart = (view, _event) => {
     let event = _event;
@@ -10520,13 +10549,13 @@
         node = NodeSelection.create(view.state.doc, desc.posBefore);
     }
     let draggedSlice = (node || view.state.selection).content();
-    let { dom, text, slice: slice2 } = serializeForClipboard(view, draggedSlice);
+    let { dom, text: text2, slice: slice2 } = serializeForClipboard(view, draggedSlice);
     if (!event.dataTransfer.files.length || !chrome || chrome_version > 120)
       event.dataTransfer.clearData();
     event.dataTransfer.setData(brokenClipboardAPI ? "Text" : "text/html", dom.innerHTML);
     event.dataTransfer.effectAllowed = "copyMove";
     if (!brokenClipboardAPI)
-      event.dataTransfer.setData("text/plain", text);
+      event.dataTransfer.setData("text/plain", text2);
     view.dragging = new Dragging(slice2, dragMoves(view, event), node);
   };
   handlers.dragend = (view) => {
@@ -10579,16 +10608,16 @@
         tr2.deleteSelection();
     }
     let pos = tr2.mapping.map(insertPos);
-    let isNode = slice2.openStart == 0 && slice2.openEnd == 0 && slice2.content.childCount == 1;
+    let isNode2 = slice2.openStart == 0 && slice2.openEnd == 0 && slice2.content.childCount == 1;
     let beforeInsert = tr2.doc;
-    if (isNode)
+    if (isNode2)
       tr2.replaceRangeWith(pos, pos, slice2.content.firstChild);
     else
       tr2.replaceRange(pos, pos, slice2);
     if (tr2.doc.eq(beforeInsert))
       return;
     let $pos = tr2.doc.resolve(pos);
-    if (isNode && NodeSelection.isSelectable(slice2.content.firstChild) && $pos.nodeAfter && $pos.nodeAfter.sameMarkup(slice2.content.firstChild)) {
+    if (isNode2 && NodeSelection.isSelectable(slice2.content.firstChild) && $pos.nodeAfter && $pos.nodeAfter.sameMarkup(slice2.content.firstChild)) {
       tr2.setSelection(new NodeSelection($pos));
     } else {
       let end = tr2.mapping.map(insertPos);
@@ -10698,9 +10727,9 @@
       this.spec = spec || noSpec;
     }
     map(mapping, span, offset, oldOffset) {
-      let from2 = mapping.map(span.from + oldOffset, this.spec.inclusiveStart ? -1 : 1) - offset;
+      let from3 = mapping.map(span.from + oldOffset, this.spec.inclusiveStart ? -1 : 1) - offset;
       let to = mapping.map(span.to + oldOffset, this.spec.inclusiveEnd ? 1 : -1) - offset;
-      return from2 >= to ? null : new Decoration(from2, to, this);
+      return from3 >= to ? null : new Decoration(from3, to, this);
     }
     valid(_, span) {
       return span.from < span.to;
@@ -10720,13 +10749,13 @@
       this.spec = spec || noSpec;
     }
     map(mapping, span, offset, oldOffset) {
-      let from2 = mapping.mapResult(span.from + oldOffset, 1);
-      if (from2.deleted)
+      let from3 = mapping.mapResult(span.from + oldOffset, 1);
+      if (from3.deleted)
         return null;
       let to = mapping.mapResult(span.to + oldOffset, -1);
-      if (to.deleted || to.pos <= from2.pos)
+      if (to.deleted || to.pos <= from3.pos)
         return null;
-      return new Decoration(from2.pos - offset, to.pos - offset, this);
+      return new Decoration(from3.pos - offset, to.pos - offset, this);
     }
     valid(node, span, cursor) {
       let found2 = cursor.nodeAt(span.from);
@@ -10742,16 +10771,16 @@
     /**
     @internal
     */
-    constructor(from2, to, type) {
-      this.from = from2;
+    constructor(from3, to, type) {
+      this.from = from3;
       this.to = to;
       this.type = type;
     }
     /**
     @internal
     */
-    copy(from2, to) {
-      return new _Decoration(from2, to, this.type);
+    copy(from3, to) {
+      return new _Decoration(from3, to, this.type);
     }
     /**
     @internal
@@ -10780,16 +10809,16 @@
     Creates an inline decoration, which adds the given attributes to
     each inline node between `from` and `to`.
     */
-    static inline(from2, to, attrs, spec) {
-      return new _Decoration(from2, to, new InlineType(attrs, spec));
+    static inline(from3, to, attrs, spec) {
+      return new _Decoration(from3, to, new InlineType(attrs, spec));
     }
     /**
     Creates a node decoration. `from` and `to` should point precisely
     before and after a node in the document. That node, and only that
     node, will receive the given attributes.
     */
-    static node(from2, to, attrs, spec) {
-      return new _Decoration(from2, to, new NodeType2(attrs, spec));
+    static node(from3, to, attrs, spec) {
+      return new _Decoration(from3, to, new NodeType2(attrs, spec));
     }
     /**
     The spec provided when creating this decoration. Can be useful
@@ -10826,8 +10855,8 @@
     document. This will consume (modify) the `decorations` array, so
     you must make a copy if you want need to preserve that.
     */
-    static create(doc3, decorations) {
-      return decorations.length ? buildTree(decorations, doc3, 0, noSpec) : empty;
+    static create(doc4, decorations) {
+      return decorations.length ? buildTree(decorations, doc4, 0, noSpec) : empty;
     }
     /**
     Find all decorations in this set which touch the given range
@@ -10863,10 +10892,10 @@
     Map the set of decorations in response to a change in the
     document.
     */
-    map(mapping, doc3, options) {
+    map(mapping, doc4, options) {
       if (this == empty || mapping.maps.length == 0)
         return this;
-      return this.mapInner(mapping, doc3, 0, 0, options || noSpec);
+      return this.mapInner(mapping, doc4, 0, 0, options || noSpec);
     }
     /**
     @internal
@@ -10894,16 +10923,16 @@
     access to the current document to create the appropriate tree
     structure.
     */
-    add(doc3, decorations) {
+    add(doc4, decorations) {
       if (!decorations.length)
         return this;
       if (this == empty)
-        return _DecorationSet.create(doc3, decorations);
-      return this.addInner(doc3, decorations, 0);
+        return _DecorationSet.create(doc4, decorations);
+      return this.addInner(doc4, decorations, 0);
     }
-    addInner(doc3, decorations, offset) {
+    addInner(doc4, decorations, offset) {
       let children, childIndex = 0;
-      doc3.forEach((childNode, childOffset) => {
+      doc4.forEach((childNode, childOffset) => {
         let baseOffset = childOffset + offset, found2;
         if (!(found2 = takeSpansForNode(decorations, childNode, baseOffset)))
           return;
@@ -10919,9 +10948,9 @@
       });
       let local = moveSpans(childIndex ? withoutNulls(decorations) : decorations, -offset).sort(byPos);
       if (local.length) {
-        let cur = new FragmentCursor(doc3.content);
+        let cur = new FragmentCursor(doc4.content);
         for (let i2 = 0; i2 < local.length; i2++)
-          if (!local[i2].type.valid(doc3, local[i2], cur))
+          if (!local[i2].type.valid(doc4, local[i2], cur))
             local.splice(i2--, 1);
       }
       return new _DecorationSet(local.length ? this.local.concat(local).sort(byPos) : this.local, children || this.children);
@@ -10939,10 +10968,10 @@
       let children = this.children, local = this.local;
       for (let i2 = 0; i2 < children.length; i2 += 3) {
         let found2;
-        let from2 = children[i2] + offset, to = children[i2 + 1] + offset;
+        let from3 = children[i2] + offset, to = children[i2 + 1] + offset;
         for (let j = 0, span; j < decorations.length; j++)
           if (span = decorations[j]) {
-            if (span.from > from2 && span.to < to) {
+            if (span.from > from3 && span.to < to) {
               decorations[j] = null;
               (found2 || (found2 = [])).push(span);
             }
@@ -10951,7 +10980,7 @@
           continue;
         if (children == this.children)
           children = this.children.slice();
-        let removed = children[i2 + 2].removeInner(found2, from2 + 1);
+        let removed = children[i2 + 2].removeInner(found2, from3 + 1);
         if (removed != empty) {
           children[i2 + 2] = removed;
         } else {
@@ -10996,9 +11025,9 @@
       for (let i2 = 0; i2 < this.local.length; i2++) {
         let dec = this.local[i2];
         if (dec.from < end && dec.to > start && dec.type instanceof InlineType) {
-          let from2 = Math.max(start, dec.from) - start, to = Math.min(end, dec.to) - start;
-          if (from2 < to)
-            (local || (local = [])).push(dec.copy(from2, to));
+          let from3 = Math.max(start, dec.from) - start, to = Math.min(end, dec.to) - start;
+          if (from3 < to)
+            (local || (local = [])).push(dec.copy(from3, to));
         }
       }
       if (local) {
@@ -11055,8 +11084,8 @@
     constructor(members) {
       this.members = members;
     }
-    map(mapping, doc3) {
-      const mappedDecos = this.members.map((member) => member.map(mapping, doc3, noSpec));
+    map(mapping, doc4) {
+      const mappedDecos = this.members.map((member) => member.map(mapping, doc4, noSpec));
       return _DecorationGroup.from(mappedDecos);
     }
     forChild(offset, child) {
@@ -11148,7 +11177,7 @@
           children[i2 + 1] = -1;
           continue;
         }
-        let from2 = mapping.map(oldChildren[i2] + oldOffset), fromLocal = from2 - offset;
+        let from3 = mapping.map(oldChildren[i2] + oldOffset), fromLocal = from3 - offset;
         if (fromLocal < 0 || fromLocal >= node.content.size) {
           mustRebuild = true;
           continue;
@@ -11157,7 +11186,7 @@
         let { index, offset: childOffset } = node.content.findIndex(fromLocal);
         let childNode = node.maybeChild(index);
         if (childNode && childOffset == fromLocal && childOffset + childNode.nodeSize == toLocal) {
-          let mapped = children[i2 + 2].mapInner(mapping, childNode, from2 + 1, oldChildren[i2] + oldOffset + 1, options);
+          let mapped = children[i2 + 2].mapInner(mapping, childNode, from3 + 1, oldChildren[i2] + oldOffset + 1, options);
           if (mapped != empty) {
             children[i2] = fromLocal;
             children[i2 + 1] = toLocal;
@@ -11180,8 +11209,8 @@
           i2 -= 3;
         }
       for (let i2 = 0, j = 0; i2 < built.children.length; i2 += 3) {
-        let from2 = built.children[i2];
-        while (j < children.length && children[j] < from2)
+        let from3 = built.children[i2];
+        while (j < children.length && children[j] < from3)
           j += 3;
         children.splice(j, 0, built.children[i2], built.children[i2 + 1], built.children[i2 + 2]);
       }
@@ -11305,14 +11334,14 @@
     return DecorationGroup.from(found2);
   }
   function parseBetween(view, from_, to_, addedNodes) {
-    let { node: parent, fromOffset, toOffset, from: from2, to } = view.docView.parseRange(from_, to_);
+    let { node: parent, fromOffset, toOffset, from: from3, to } = view.docView.parseRange(from_, to_);
     let domSel = view.domSel.range;
-    let find2;
+    let find3;
     let anchor = domSel.anchorNode;
     if (anchor && contains(view.dom, anchor)) {
-      find2 = [{ node: anchor, offset: domSel.anchorOffset }];
+      find3 = [{ node: anchor, offset: domSel.anchorOffset }];
       if (!selectionCollapsed(domSel))
-        find2.push({ node: domSel.focusNode, offset: domSel.focusOffset });
+        find3.push({ node: domSel.focusNode, offset: domSel.focusOffset });
     }
     if (chrome && view.input.lastKeyCode === 8) {
       for (let off = toOffset; off > fromOffset; off--) {
@@ -11326,26 +11355,26 @@
       }
     }
     let startDoc = view.state.doc;
-    let parser = view.someProp("domParser") || DOMParser.fromSchema(view.state.schema);
-    let $from = startDoc.resolve(from2);
-    let sel = null, doc3 = parser.parse(parent, {
+    let parser = view.someProp("domParser") || DOMParser2.fromSchema(view.state.schema);
+    let $from = startDoc.resolve(from3);
+    let sel = null, doc4 = parser.parse(parent, {
       topNode: $from.parent,
       topMatch: $from.parent.contentMatchAt($from.index()),
       topOpen: true,
       from: fromOffset,
       to: toOffset,
       preserveWhitespace: $from.parent.type.whitespace == "pre" ? "full" : true,
-      findPositions: find2,
+      findPositions: find3,
       ruleFromNode: ruleFromNode(addedNodes),
       context: $from
     });
-    if (find2 && find2[0].pos != null) {
-      let anchor2 = find2[0].pos, head = find2[1] && find2[1].pos;
+    if (find3 && find3[0].pos != null) {
+      let anchor2 = find3[0].pos, head = find3[1] && find3[1].pos;
       if (head == null)
         head = anchor2;
-      sel = { anchor: anchor2 + from2, head: head + from2 };
+      sel = { anchor: anchor2 + from3, head: head + from3 };
     }
-    return { doc: doc3, sel, from: from2, to };
+    return { doc: doc4, sel, from: from3, to };
   }
   var ruleFromNode = (added) => (dom) => {
     let desc = dom.pmViewDesc;
@@ -11365,10 +11394,10 @@
     return null;
   };
   var isInline = /^(a|abbr|acronym|b|bd[io]|big|br|button|cite|code|data(list)?|del|dfn|em|i|img|ins|kbd|label|map|mark|meter|output|q|ruby|s|samp|small|span|strong|su[bp]|time|u|tt|var)$/i;
-  function readDOMChange(view, from2, to, selChange, typeOver, addedNodes) {
+  function readDOMChange(view, from3, to, selChange, typeOver, addedNodes) {
     let compositionID = view.input.compositionPendingChanges || (view.composing ? view.input.compositionID : 0);
     view.input.compositionPendingChanges = 0;
-    if (from2 < 0) {
+    if (from3 < 0) {
       let origin = view.input.lastSelectionTime > Date.now() - 50 ? view.input.lastSelectionOrigin : null;
       let newSel = selectionFromDOM(view, view.domSel.range, origin);
       if (newSel && !view.state.selection.eq(newSel) && view.domSel.active) {
@@ -11385,13 +11414,13 @@
       }
       return;
     }
-    let $before = view.state.doc.resolve(from2);
+    let $before = view.state.doc.resolve(from3);
     let shared = $before.sharedDepth(to);
-    from2 = $before.before(shared + 1);
+    from3 = $before.before(shared + 1);
     to = view.state.doc.resolve(to).after(shared + 1);
     let sel = view.state.selection;
-    let parse = parseBetween(view, from2, to, addedNodes);
-    let doc3 = view.state.doc, compare = doc3.slice(parse.from, parse.to);
+    let parse = parseBetween(view, from3, to, addedNodes);
+    let doc4 = view.state.doc, compare = doc4.slice(parse.from, parse.to);
     let preferredPos, preferredSide;
     if (view.input.lastKeyCode === 8 && Date.now() - 100 < view.input.lastKeyCodeTime) {
       preferredPos = view.state.selection.to;
@@ -11434,13 +11463,13 @@
     }
     let $from = parse.doc.resolveNoCache(change.start - parse.from);
     let $to = parse.doc.resolveNoCache(change.endB - parse.from);
-    let $fromA = doc3.resolve(change.start);
+    let $fromA = doc4.resolve(change.start);
     let inlineChange = $from.sameParent($to) && $from.parent.inlineContent && $fromA.end() >= change.endA;
     if ((ios && view.input.lastIOSEnter > Date.now() - 225 && (!inlineChange || addedNodes.some((n) => n.nodeName == "DIV" || n.nodeName == "P")) || !inlineChange && looksLikeEnter(parse.doc, $from.pos, $to.pos)) && dispatchKey(view, "Enter")) {
       view.input.lastIOSEnter = 0;
       return;
     }
-    if (view.state.selection.anchor > change.start && (inlineChange ? change.endA > change.start && change.endB == change.start : looksLikeBlockJoin(doc3, change.start, change.endA, $from, $to)) && dispatchKey(view, "Backspace")) {
+    if (view.state.selection.anchor > change.start && (inlineChange ? change.endA > change.start && change.endB == change.start : looksLikeBlockJoin(doc4, change.start, change.endA, $from, $to)) && dispatchKey(view, "Backspace")) {
       if (android && chrome)
         view.domSel.suppressChanges();
       return;
@@ -11468,7 +11497,7 @@
     if (inlineChange) {
       if ($from.pos == $to.pos) {
         let tr2 = mkTr(view.state.tr.delete(chFrom, chTo));
-        let marks = doc3.resolve(change.start).marksAcross(doc3.resolve(change.endA));
+        let marks = doc4.resolve(change.start).marksAcross(doc4.resolve(change.endA));
         if (marks)
           tr2.ensureMarks(marks);
         view.dispatch(tr2);
@@ -11483,9 +11512,9 @@
           tr2.removeMark(chFrom, chTo, markChange.mark);
         view.dispatch(tr2);
       } else if ($from.parent.child($from.index()).isText && $from.index() == $to.index() - ($to.textOffset ? 0 : 1)) {
-        let text = $from.parent.textBetween($from.parentOffset, $to.parentOffset);
-        let deflt = () => mkTr(view.state.tr.insertText(text, chFrom, chTo));
-        if (!view.someProp("handleTextInput", (f) => f(view, chFrom, chTo, text, deflt)))
+        let text2 = $from.parent.textBetween($from.parentOffset, $to.parentOffset);
+        let deflt = () => mkTr(view.state.tr.insertText(text2, chFrom, chTo));
+        if (!view.someProp("handleTextInput", (f) => f(view, chFrom, chTo, text2, deflt)))
           view.dispatch(deflt());
       } else {
         view.dispatch(mkTr());
@@ -11494,10 +11523,10 @@
       view.dispatch(mkTr());
     }
   }
-  function resolveSelection(view, doc3, parsedSel) {
-    if (Math.max(parsedSel.anchor, parsedSel.head) > doc3.content.size)
+  function resolveSelection(view, doc4, parsedSel) {
+    if (Math.max(parsedSel.anchor, parsedSel.head) > doc4.content.size)
       return null;
-    return selectionBetween(view, doc3.resolve(parsedSel.anchor), doc3.resolve(parsedSel.head));
+    return selectionBetween(view, doc4.resolve(parsedSel.anchor), doc4.resolve(parsedSel.head));
   }
   function isMarkChange(cur, prev) {
     let curMarks = cur.firstChild.marks, prevMarks = prev.firstChild.marks;
@@ -11542,12 +11571,12 @@
       return false;
     return $newStart.parent.content.cut($newStart.parentOffset).eq($next.parent.content);
   }
-  function looksLikeEnter(content, from2, to) {
+  function looksLikeEnter(content, from3, to) {
     let newTextlines = 0, newLeaves = 0;
-    content.nodesBetween(from2, to, (node, pos) => {
-      if (node.isTextblock && pos >= from2 && pos < to)
+    content.nodesBetween(from3, to, (node, pos) => {
+      if (node.isTextblock && pos >= from3 && pos < to)
         newTextlines++;
-      else if (node.isText ? /\S/.test(node.text.slice(Math.max(0, from2 - pos), Math.min(node.nodeSize, to - pos))) : node.isLeaf)
+      else if (node.isText ? /\S/.test(node.text.slice(Math.max(0, from3 - pos), Math.min(node.nodeSize, to - pos))) : node.isLeaf)
         newLeaves++;
     });
     return newLeaves == 0 && newTextlines == 1;
@@ -11693,12 +11722,12 @@
       if (readSel)
         view.domSel.read();
       let selChange = !view.domSel.suppress && !view.domSel.synced && !!hasFocusAndSelection(view) && !this.ignoreSelectionChange(view.domSel.range);
-      let from2 = -1, to = -1, typeOver = false, added = [];
+      let from3 = -1, to = -1, typeOver = false, added = [];
       if (view.editable) {
         for (let i2 = 0; i2 < mutations.length; i2++) {
           let result = this.registerMutation(mutations[i2], added);
           if (result) {
-            from2 = from2 < 0 ? result.from : Math.min(result.from, from2);
+            from3 = from3 < 0 ? result.from : Math.min(result.from, from3);
             to = to < 0 ? result.to : Math.max(result.to, to);
             if (result.typeOver)
               typeOver = true;
@@ -11735,18 +11764,18 @@
         }
       }
       let newSel = null;
-      if (from2 < 0 && selChange && view.domSel.active && view.input.lastFocus > Date.now() - 200 && Math.max(view.input.lastTouch, view.input.lastClick.time) < Date.now() - 300 && selectionCollapsed(view.domSel.range) && (newSel = selectionFromDOM(view, view.domSel.range)) && newSel.eq(Selection.near(view.state.doc.resolve(0), 1))) {
+      if (from3 < 0 && selChange && view.domSel.active && view.input.lastFocus > Date.now() - 200 && Math.max(view.input.lastTouch, view.input.lastClick.time) < Date.now() - 300 && selectionCollapsed(view.domSel.range) && (newSel = selectionFromDOM(view, view.domSel.range)) && newSel.eq(Selection.near(view.state.doc.resolve(0), 1))) {
         view.input.lastFocus = 0;
         view.domSel.sync();
         view.scrollToSelection();
-      } else if (from2 > -1 || selChange) {
-        if (from2 > -1)
+      } else if (from3 > -1 || selChange) {
+        if (from3 > -1)
           checkCSS(view);
         if (view.input.badSafariComposition) {
           view.input.badSafariComposition = false;
           fixUpBadSafariComposition(view, added);
         }
-        readDOMChange(this.view, from2, to, selChange, typeOver, added);
+        readDOMChange(this.view, from3, to, selChange, typeOver, added);
         if (view.docView && view.docView.damage)
           view.updateState(view.state);
         else if (selChange)
@@ -11783,14 +11812,14 @@
         }
         let prev = mut.previousSibling, next = mut.nextSibling;
         let fromOffset = prev && prev.parentNode == mut.target ? domIndex(prev) + 1 : 0;
-        let from2 = desc.localPosFromDOM(mut.target, fromOffset, -1);
+        let from3 = desc.localPosFromDOM(mut.target, fromOffset, -1);
         let toOffset = next && next.parentNode == mut.target ? domIndex(next) : mut.target.childNodes.length;
         let to = desc.localPosFromDOM(mut.target, toOffset, 1);
         desc.markDamage(
           ((_a = desc.contentDOM) === null || _a === void 0 ? void 0 : _a.contains(mut.target)) ? 2 : 4
           /* Damage.Structure */
         );
-        return { from: from2, to };
+        return { from: from3, to };
       } else if (mut.type == "attributes") {
         desc.markDamage(
           4
@@ -12222,8 +12251,8 @@
     /**
     Run the editor's paste logic with the given plain-text input.
     */
-    pasteText(text, event) {
-      return doPaste(this, text, null, true, event || new ClipboardEvent("paste"));
+    pasteText(text2, event) {
+      return doPaste(this, text2, null, true, event || new ClipboardEvent("paste"));
     }
     /**
     Serialize the given slice as it would be if it was copied from
@@ -12492,11 +12521,11 @@
       result = "Shift-" + result;
     return result;
   }
-  function normalize(map2) {
-    let copy2 = /* @__PURE__ */ Object.create(null);
-    for (let prop in map2)
-      copy2[normalizeKeyName(prop)] = map2[prop];
-    return copy2;
+  function normalize(map3) {
+    let copy3 = /* @__PURE__ */ Object.create(null);
+    for (let prop in map3)
+      copy3[normalizeKeyName(prop)] = map3[prop];
+    return copy3;
   }
   function modifiers(name, event, shift2 = true) {
     if (event.altKey)
@@ -12513,20 +12542,20 @@
     return new Plugin({ props: { handleKeyDown: keydownHandler(bindings) } });
   }
   function keydownHandler(bindings) {
-    let map2 = normalize(bindings);
+    let map3 = normalize(bindings);
     return function(view, event) {
-      let name = keyName(event), baseName, direct = map2[modifiers(name, event)];
+      let name = keyName(event), baseName, direct = map3[modifiers(name, event)];
       if (direct && direct(view.state, view.dispatch, view))
         return true;
       if (name.length == 1 && name != " ") {
         if (event.shiftKey) {
-          let noShift = map2[modifiers(name, event, false)];
+          let noShift = map3[modifiers(name, event, false)];
           if (noShift && noShift(view.state, view.dispatch, view))
             return true;
         }
         if ((event.altKey || event.metaKey || event.ctrlKey) && // Ctrl-Alt may be used for AltGr on Windows
         !(windows2 && event.ctrlKey && event.altKey) && (baseName = base[event.keyCode]) && baseName != name) {
-          let fromCode = map2[modifiers(baseName, event)];
+          let fromCode = map3[modifiers(baseName, event)];
           if (fromCode && fromCode(view.state, view.dispatch, view))
             return true;
         }
@@ -12555,13 +12584,13 @@
   RopeSequence.prototype.appendInner = function appendInner(other) {
     return new Append(this, other);
   };
-  RopeSequence.prototype.slice = function slice(from2, to) {
-    if (from2 === void 0) from2 = 0;
+  RopeSequence.prototype.slice = function slice(from3, to) {
+    if (from3 === void 0) from3 = 0;
     if (to === void 0) to = this.length;
-    if (from2 >= to) {
+    if (from3 >= to) {
       return RopeSequence.empty;
     }
-    return this.sliceInner(Math.max(0, from2), Math.min(this.length, to));
+    return this.sliceInner(Math.max(0, from3), Math.min(this.length, to));
   };
   RopeSequence.prototype.get = function get(i2) {
     if (i2 < 0 || i2 >= this.length) {
@@ -12569,22 +12598,22 @@
     }
     return this.getInner(i2);
   };
-  RopeSequence.prototype.forEach = function forEach(f, from2, to) {
-    if (from2 === void 0) from2 = 0;
+  RopeSequence.prototype.forEach = function forEach(f, from3, to) {
+    if (from3 === void 0) from3 = 0;
     if (to === void 0) to = this.length;
-    if (from2 <= to) {
-      this.forEachInner(f, from2, to, 0);
+    if (from3 <= to) {
+      this.forEachInner(f, from3, to, 0);
     } else {
-      this.forEachInvertedInner(f, from2, to, 0);
+      this.forEachInvertedInner(f, from3, to, 0);
     }
   };
-  RopeSequence.prototype.map = function map(f, from2, to) {
-    if (from2 === void 0) from2 = 0;
+  RopeSequence.prototype.map = function map(f, from3, to) {
+    if (from3 === void 0) from3 = 0;
     if (to === void 0) to = this.length;
     var result = [];
     this.forEach(function(elt, i2) {
       return result.push(f(elt, i2));
-    }, from2, to);
+    }, from3, to);
     return result;
   };
   RopeSequence.from = function from(values) {
@@ -12605,24 +12634,24 @@
     Leaf2.prototype.flatten = function flatten() {
       return this.values;
     };
-    Leaf2.prototype.sliceInner = function sliceInner(from2, to) {
-      if (from2 == 0 && to == this.length) {
+    Leaf2.prototype.sliceInner = function sliceInner(from3, to) {
+      if (from3 == 0 && to == this.length) {
         return this;
       }
-      return new Leaf2(this.values.slice(from2, to));
+      return new Leaf2(this.values.slice(from3, to));
     };
     Leaf2.prototype.getInner = function getInner(i2) {
       return this.values[i2];
     };
-    Leaf2.prototype.forEachInner = function forEachInner(f, from2, to, start) {
-      for (var i2 = from2; i2 < to; i2++) {
+    Leaf2.prototype.forEachInner = function forEachInner(f, from3, to, start) {
+      for (var i2 = from3; i2 < to; i2++) {
         if (f(this.values[i2], start + i2) === false) {
           return false;
         }
       }
     };
-    Leaf2.prototype.forEachInvertedInner = function forEachInvertedInner(f, from2, to, start) {
-      for (var i2 = from2 - 1; i2 >= to; i2--) {
+    Leaf2.prototype.forEachInvertedInner = function forEachInvertedInner(f, from3, to, start) {
+      for (var i2 = from3 - 1; i2 >= to; i2--) {
         if (f(this.values[i2], start + i2) === false) {
           return false;
         }
@@ -12665,36 +12694,36 @@
     Append2.prototype.getInner = function getInner(i2) {
       return i2 < this.left.length ? this.left.get(i2) : this.right.get(i2 - this.left.length);
     };
-    Append2.prototype.forEachInner = function forEachInner(f, from2, to, start) {
+    Append2.prototype.forEachInner = function forEachInner(f, from3, to, start) {
       var leftLen = this.left.length;
-      if (from2 < leftLen && this.left.forEachInner(f, from2, Math.min(to, leftLen), start) === false) {
+      if (from3 < leftLen && this.left.forEachInner(f, from3, Math.min(to, leftLen), start) === false) {
         return false;
       }
-      if (to > leftLen && this.right.forEachInner(f, Math.max(from2 - leftLen, 0), Math.min(this.length, to) - leftLen, start + leftLen) === false) {
+      if (to > leftLen && this.right.forEachInner(f, Math.max(from3 - leftLen, 0), Math.min(this.length, to) - leftLen, start + leftLen) === false) {
         return false;
       }
     };
-    Append2.prototype.forEachInvertedInner = function forEachInvertedInner(f, from2, to, start) {
+    Append2.prototype.forEachInvertedInner = function forEachInvertedInner(f, from3, to, start) {
       var leftLen = this.left.length;
-      if (from2 > leftLen && this.right.forEachInvertedInner(f, from2 - leftLen, Math.max(to, leftLen) - leftLen, start + leftLen) === false) {
+      if (from3 > leftLen && this.right.forEachInvertedInner(f, from3 - leftLen, Math.max(to, leftLen) - leftLen, start + leftLen) === false) {
         return false;
       }
-      if (to < leftLen && this.left.forEachInvertedInner(f, Math.min(from2, leftLen), to, start) === false) {
+      if (to < leftLen && this.left.forEachInvertedInner(f, Math.min(from3, leftLen), to, start) === false) {
         return false;
       }
     };
-    Append2.prototype.sliceInner = function sliceInner(from2, to) {
-      if (from2 == 0 && to == this.length) {
+    Append2.prototype.sliceInner = function sliceInner(from3, to) {
+      if (from3 == 0 && to == this.length) {
         return this;
       }
       var leftLen = this.left.length;
       if (to <= leftLen) {
-        return this.left.slice(from2, to);
+        return this.left.slice(from3, to);
       }
-      if (from2 >= leftLen) {
-        return this.right.slice(from2 - leftLen, to - leftLen);
+      if (from3 >= leftLen) {
+        return this.right.slice(from3 - leftLen, to - leftLen);
       }
-      return this.left.slice(from2, leftLen).append(this.right.slice(0, to - leftLen));
+      return this.left.slice(from3, leftLen).append(this.right.slice(0, to - leftLen));
     };
     Append2.prototype.leafAppend = function leafAppend(other) {
       var inner = this.right.leafAppend(other);
@@ -12758,14 +12787,14 @@
         }
         if (remap) {
           addBefore.push(new Item(item.map));
-          let step = item.step.map(remap.slice(mapFrom)), map2;
+          let step = item.step.map(remap.slice(mapFrom)), map3;
           if (step && transform.maybeStep(step).doc) {
-            map2 = transform.mapping.maps[transform.mapping.maps.length - 1];
-            addAfter.push(new Item(map2, void 0, void 0, addAfter.length + addBefore.length));
+            map3 = transform.mapping.maps[transform.mapping.maps.length - 1];
+            addAfter.push(new Item(map3, void 0, void 0, addAfter.length + addBefore.length));
           }
           mapFrom--;
-          if (map2)
-            remap.appendMap(map2, mapFrom);
+          if (map3)
+            remap.appendMap(map3, mapFrom);
         } else {
           transform.maybeStep(item.step);
         }
@@ -12806,18 +12835,18 @@
       }
       return new _Branch(oldItems.append(newItems), eventCount);
     }
-    remapping(from2, to) {
+    remapping(from3, to) {
       let maps = new Mapping();
       this.items.forEach((item, i2) => {
-        let mirrorPos = item.mirrorOffset != null && i2 - item.mirrorOffset >= from2 ? maps.maps.length - item.mirrorOffset : void 0;
+        let mirrorPos = item.mirrorOffset != null && i2 - item.mirrorOffset >= from3 ? maps.maps.length - item.mirrorOffset : void 0;
         maps.appendMap(item.map, mirrorPos);
-      }, from2, to);
+      }, from3, to);
       return maps;
     }
     addMaps(array) {
       if (this.eventCount == 0)
         return this;
-      return new _Branch(this.items.append(array.map((map2) => new Item(map2))), this.eventCount);
+      return new _Branch(this.items.append(array.map((map3) => new Item(map3))), this.eventCount);
     }
     // When the collab module receives remote changes, the history has
     // to know about those, so that it can adjust the steps that were
@@ -12841,15 +12870,15 @@
         if (pos == null)
           return;
         newUntil = Math.min(newUntil, pos);
-        let map2 = mapping.maps[pos];
+        let map3 = mapping.maps[pos];
         if (item.step) {
           let step = rebasedTransform.steps[pos].invert(rebasedTransform.docs[pos]);
           let selection = item.selection && item.selection.map(mapping.slice(iRebased + 1, pos));
           if (selection)
             eventCount++;
-          rebasedItems.push(new Item(map2, step, selection));
+          rebasedItems.push(new Item(map3, step, selection));
         } else {
-          rebasedItems.push(new Item(map2));
+          rebasedItems.push(new Item(map3));
         }
       }, start);
       let newMaps = [];
@@ -12884,17 +12913,17 @@
           if (item.selection)
             events++;
         } else if (item.step) {
-          let step = item.step.map(remap.slice(mapFrom)), map2 = step && step.getMap();
+          let step = item.step.map(remap.slice(mapFrom)), map3 = step && step.getMap();
           mapFrom--;
-          if (map2)
-            remap.appendMap(map2, mapFrom);
+          if (map3)
+            remap.appendMap(map3, mapFrom);
           if (step) {
             let selection = item.selection && item.selection.map(remap.slice(mapFrom));
             if (selection)
               events++;
-            let newItem = new Item(map2.invert(), step, selection), merged, last = items.length - 1;
-            if (merged = items.length && items[last].merge(newItem))
-              items[last] = merged;
+            let newItem = new Item(map3.invert(), step, selection), merged, last2 = items.length - 1;
+            if (merged = items.length && items[last2].merge(newItem))
+              items[last2] = merged;
             else
               items.push(newItem);
           }
@@ -12917,8 +12946,8 @@
     return items.slice(cutPoint);
   }
   var Item = class _Item {
-    constructor(map2, step, selection, mirrorOffset) {
-      this.map = map2;
+    constructor(map3, step, selection, mirrorOffset) {
+      this.map = map3;
       this.step = step;
       this.selection = selection;
       this.mirrorOffset = mirrorOffset;
@@ -12982,7 +13011,7 @@
   function rangesFor(maps) {
     let result = [];
     for (let i2 = maps.length - 1; i2 >= 0 && result.length == 0; i2--)
-      maps[i2].forEach((_from, _to, from2, to) => result.push(from2, to));
+      maps[i2].forEach((_from, _to, from3, to) => result.push(from3, to));
     return result;
   }
   function mapRanges(ranges, mapping) {
@@ -12990,16 +13019,16 @@
       return null;
     let result = [];
     for (let i2 = 0; i2 < ranges.length; i2 += 2) {
-      let from2 = mapping.map(ranges[i2], 1), to = mapping.map(ranges[i2 + 1], -1);
-      if (from2 <= to)
-        result.push(from2, to);
+      let from3 = mapping.map(ranges[i2], 1), to = mapping.map(ranges[i2 + 1], -1);
+      if (from3 <= to)
+        result.push(from3, to);
     }
     return result;
   }
   function selectionFromChanges(state, tr2) {
     for (let i2 = 0; i2 < tr2.steps.length; i2++) {
-      let map2 = tr2.mapping.maps[i2], pos = -1;
-      map2.forEach((_start, end) => pos = end);
+      let map3 = tr2.mapping.maps[i2], pos = -1;
+      map3.forEach((_start, end) => pos = end);
       if (pos < 0) {
         let step = tr2.steps[i2];
         if (step instanceof AddMarkStep || step instanceof RemoveMarkStep)
@@ -13010,16 +13039,16 @@
     }
     return state.selection;
   }
-  function histTransaction(history2, state, redo2) {
+  function histTransaction(history2, state, redo3) {
     let preserveItems = mustPreserveItems(state);
     let histOptions = historyKey.get(state).spec.config;
-    let pop = (redo2 ? history2.undone : history2.done).popEvent(state, preserveItems);
+    let pop = (redo3 ? history2.undone : history2.done).popEvent(state, preserveItems);
     if (!pop)
       return null;
     let selection = pop.selection.resolve(pop.transform.doc);
-    let added = (redo2 ? history2.done : history2.undone).addTransform(pop.transform, selectionFromChanges(state, pop.transform).getBookmark(), histOptions, preserveItems);
-    let newHist = new HistoryState(redo2 ? added : pop.remaining, redo2 ? pop.remaining : added, null, 0, -1);
-    return pop.transform.setSelection(selection).setMeta(historyKey, { redo: redo2, historyState: newHist });
+    let added = (redo3 ? history2.done : history2.undone).addTransform(pop.transform, selectionFromChanges(state, pop.transform).getBookmark(), histOptions, preserveItems);
+    let newHist = new HistoryState(redo3 ? added : pop.remaining, redo3 ? pop.remaining : added, null, 0, -1);
+    return pop.transform.setSelection(selection).setMeta(historyKey, { redo: redo3, historyState: newHist });
   }
   var cachedPreserveItems = false;
   var cachedPreserveItemsPlugins = null;
@@ -13071,13 +13100,13 @@
       }
     });
   }
-  function buildCommand(redo2, scroll) {
+  function buildCommand(redo3, scroll) {
     return (state, dispatch) => {
       let hist = historyKey.getState(state);
-      if (!hist || (redo2 ? hist.undone : hist.done).eventCount == 0)
+      if (!hist || (redo3 ? hist.undone : hist.done).eventCount == 0)
         return false;
       if (dispatch) {
-        let tr2 = histTransaction(hist, state, redo2);
+        let tr2 = histTransaction(hist, state, redo3);
         if (tr2)
           dispatch(scroll ? tr2.scrollIntoView() : tr2);
       }
@@ -13096,7 +13125,7 @@
   function createChainableState(config) {
     const { state, transaction } = config;
     let { selection } = transaction;
-    let { doc: doc3 } = transaction;
+    let { doc: doc4 } = transaction;
     let { storedMarks } = transaction;
     return {
       ...state,
@@ -13113,11 +13142,11 @@
         return selection;
       },
       get doc() {
-        return doc3;
+        return doc4;
       },
       get tr() {
         selection = transaction.selection;
-        doc3 = transaction.doc;
+        doc4 = transaction.doc;
         storedMarks = transaction.storedMarks;
         return transaction;
       }
@@ -13141,8 +13170,8 @@
       const { tr: tr2 } = state;
       const props = this.buildProps(tr2);
       return Object.fromEntries(Object.entries(rawCommands).map(([name, command2]) => {
-        const method = (...args) => {
-          const callback = command2(...args)(props);
+        const method = (...args2) => {
+          const callback = command2(...args2)(props);
           if (!tr2.getMeta("preventDispatch") && !this.hasCustomState) view.dispatch(tr2);
           return callback;
         };
@@ -13167,9 +13196,9 @@
       };
       const chain = {
         ...Object.fromEntries(Object.entries(rawCommands).map(([name, command2]) => {
-          const chainedCommand = (...args) => {
+          const chainedCommand = (...args2) => {
             const props = this.buildProps(tr2, shouldDispatch);
-            const callback = command2(...args)(props);
+            const callback = command2(...args2)(props);
             callbacks.push(callback);
             return chain;
           };
@@ -13201,7 +13230,7 @@
       const props = this.buildProps(tr2, dispatch);
       return {
         ...Object.fromEntries(Object.entries(rawCommands).map(([name, command2]) => {
-          return [name, (...args) => command2(...args)({
+          return [name, (...args2) => command2(...args2)({
             ...props,
             dispatch: void 0
           })];
@@ -13240,7 +13269,7 @@
         can: () => this.createCan(tr2),
         get commands() {
           return Object.fromEntries(Object.entries(rawCommands).map(([name, command2]) => {
-            return [name, (...args) => command2(...args)(props)];
+            return [name, (...args2) => command2(...args2)(props)];
           }));
         }
       };
@@ -13266,11 +13295,11 @@
     if (!dispatch) return true;
     const startMapsLength = tr2.mapping.maps.length;
     ranges.forEach(({ $from, $to }) => {
-      const from2 = $from.pos;
+      const from3 = $from.pos;
       const to = $to.pos;
       const depthMapping = tr2.mapping.slice(startMapsLength);
       let maxSweeps = 1;
-      tr2.doc.nodesBetween(depthMapping.map(from2), depthMapping.map(to), (_node, pos) => {
+      tr2.doc.nodesBetween(depthMapping.map(from3), depthMapping.map(to), (_node, pos) => {
         maxSweeps = Math.max(maxSweeps, tr2.doc.resolve(pos).depth + 1);
       });
       for (let sweep = 0; sweep < maxSweeps; sweep += 1) {
@@ -13279,7 +13308,7 @@
         const rangeMapping = tr2.mapping.slice(startMapsLength);
         let cachedMapsLength = sweepMapsLength;
         let sweepMapping = tr2.mapping.slice(sweepMapsLength);
-        const mappedFrom = rangeMapping.map(from2);
+        const mappedFrom = rangeMapping.map(from3);
         const mappedTo = rangeMapping.map(to);
         docBefore.nodesBetween(mappedFrom, mappedTo, (node, pos) => {
           if (node.type.isText) return;
@@ -13326,9 +13355,9 @@
     const $pos = tr2.selection.$anchor;
     for (let depth = $pos.depth; depth > 0; depth -= 1) if ($pos.node(depth).type === currentNode.type) {
       if (dispatch) {
-        const from2 = $pos.before(depth);
+        const from3 = $pos.before(depth);
         const to = $pos.after(depth);
-        tr2.delete(from2, to).scrollIntoView();
+        tr2.delete(from3, to).scrollIntoView();
       }
       return true;
     }
@@ -13346,17 +13375,17 @@
     const $pos = tr2.selection.$anchor;
     for (let depth = $pos.depth; depth > 0; depth -= 1) if ($pos.node(depth).type === type) {
       if (dispatch) {
-        const from2 = $pos.before(depth);
+        const from3 = $pos.before(depth);
         const to = $pos.after(depth);
-        tr2.delete(from2, to).scrollIntoView();
+        tr2.delete(from3, to).scrollIntoView();
       }
       return true;
     }
     return false;
   };
   var deleteRange2 = (range) => ({ tr: tr2, dispatch }) => {
-    const { from: from2, to } = range;
-    if (dispatch) tr2.delete(from2, to);
+    const { from: from3, to } = range;
+    if (dispatch) tr2.delete(from3, to);
     return true;
   };
   var hasTextContent = (nodeSpec) => {
@@ -13387,8 +13416,8 @@
         const mapping = tr2.mapping.slice(mapFrom);
         const $from = tr2.doc.resolve(mapping.map(range.$from.pos));
         const $to = tr2.doc.resolve(mapping.map(range.$to.pos));
-        const { from: from2, to } = expandSelectionForInlineText($from, $to, state.schema);
-        tr2.deleteRange(from2, to);
+        const { from: from3, to } = expandSelectionForInlineText($from, $to, state.schema);
+        tr2.deleteRange(from3, to);
       });
       if (!tr2.selection.empty) tr2.setSelection(TextSelection.near(tr2.doc.resolve(tr2.selection.from)));
       if (marks) tr2.ensureMarks(marks);
@@ -13407,12 +13436,12 @@
     return Object.prototype.toString.call(value) === "[object RegExp]";
   }
   function objectIncludes(object1, object2, options = { strict: true }) {
-    const keys2 = Object.keys(object2);
-    if (!keys2.length) return true;
-    return keys2.every((key) => {
-      if (options.strict) return object2[key] === object1[key];
-      if (isRegExp(object2[key])) return object2[key].test(object1[key]);
-      return object2[key] === object1[key];
+    const keys3 = Object.keys(object2);
+    if (!keys3.length) return true;
+    return keys3.every((key2) => {
+      if (options.strict) return object2[key2] === object1[key2];
+      if (isRegExp(object2[key2])) return object2[key2].test(object1[key2]);
+      return object2[key2] === object1[key2];
     });
   }
   function findMarkInSet(marks, type, attributes = {}) {
@@ -13459,12 +13488,12 @@
   }
   var extendMarkRange = (typeOrName, attributes) => ({ tr: tr2, state, dispatch }) => {
     const type = getMarkType(typeOrName, state.schema);
-    const { doc: doc3, selection } = tr2;
-    const { $from, from: from2, to } = selection;
+    const { doc: doc4, selection } = tr2;
+    const { $from, from: from3, to } = selection;
     if (dispatch) {
       const range = getMarkRange($from, type, attributes);
-      if (range && range.from <= from2 && range.to >= to) {
-        const newSelection = TextSelection.create(doc3, range.from, range.to);
+      if (range && range.from <= from3 && range.to >= to) {
+        const newSelection = TextSelection.create(doc4, range.from, range.to);
         tr2.setSelection(newSelection);
       }
     }
@@ -13478,19 +13507,19 @@
   function isTextSelection(value) {
     return value instanceof TextSelection;
   }
-  function minMax(value = 0, min = 0, max = 0) {
-    return Math.min(Math.max(value, min), max);
+  function minMax(value = 0, min2 = 0, max2 = 0) {
+    return Math.min(Math.max(value, min2), max2);
   }
-  function resolveFocusPosition(doc3, position = null) {
+  function resolveFocusPosition(doc4, position = null) {
     if (!position) return null;
-    const selectionAtStart = Selection.atStart(doc3);
-    const selectionAtEnd = Selection.atEnd(doc3);
+    const selectionAtStart = Selection.atStart(doc4);
+    const selectionAtEnd = Selection.atEnd(doc4);
     if (position === "start" || position === true) return selectionAtStart;
     if (position === "end") return selectionAtEnd;
     const minPos = selectionAtStart.from;
     const maxPos = selectionAtEnd.to;
-    if (position === "all") return TextSelection.create(doc3, minMax(0, minPos, maxPos), minMax(doc3.content.size, minPos, maxPos));
-    return TextSelection.create(doc3, minMax(position, minPos, maxPos), minMax(position, minPos, maxPos));
+    if (position === "all") return TextSelection.create(doc4, minMax(0, minPos, maxPos), minMax(doc4.content.size, minPos, maxPos));
+    return TextSelection.create(doc4, minMax(position, minPos, maxPos), minMax(position, minPos, maxPos));
   }
   function isAndroid() {
     return ["Android"].includes(navigator.platform) || /android/i.test(navigator.userAgent);
@@ -13533,10 +13562,10 @@
       return true;
     }
     const selection = resolveFocusPosition(tr2.doc, position) || editor.state.selection;
-    const isSameSelection = editor.state.selection.eq(selection);
+    const isSameSelection2 = editor.state.selection.eq(selection);
     if (dispatch) {
-      if (!isSameSelection) tr2.setSelection(selection);
-      if (isSameSelection && tr2.storedMarks) tr2.setStoredMarks(tr2.storedMarks);
+      if (!isSameSelection2) tr2.setSelection(selection);
+      if (isSameSelection2 && tr2.storedMarks) tr2.setStoredMarks(tr2.storedMarks);
       delayedFocus();
     }
     return true;
@@ -13610,11 +13639,11 @@
             }]
           } })
         });
-        if (options.slice) DOMParser.fromSchema(contentCheckSchema).parseSlice(elementFromString(content), options.parseOptions);
-        else DOMParser.fromSchema(contentCheckSchema).parse(elementFromString(content), options.parseOptions);
+        if (options.slice) DOMParser2.fromSchema(contentCheckSchema).parseSlice(elementFromString(content), options.parseOptions);
+        else DOMParser2.fromSchema(contentCheckSchema).parse(elementFromString(content), options.parseOptions);
         if (options.errorOnInvalidContent && hasInvalidContent) throw new Error("[tiptap error]: Invalid HTML content", { cause: /* @__PURE__ */ new Error(`Invalid element found: ${invalidContent}`) });
       }
-      const parser = DOMParser.fromSchema(schema);
+      const parser = DOMParser2.fromSchema(schema);
       if (options.slice) return parser.parseSlice(elementFromString(content), options.parseOptions).content;
       return parser.parse(elementFromString(content), options.parseOptions);
     }
@@ -13624,13 +13653,13 @@
     return !("type" in nodeOrFragment);
   }
   function selectionToInsertionEnd2(tr2, startLen, bias) {
-    const last = tr2.steps.length - 1;
-    if (last < startLen) return;
-    const step = tr2.steps[last];
+    const last2 = tr2.steps.length - 1;
+    if (last2 < startLen) return;
+    const step = tr2.steps[last2];
     if (!(step instanceof ReplaceStep || step instanceof ReplaceAroundStep)) return;
-    const map2 = tr2.mapping.maps[last];
+    const map3 = tr2.mapping.maps[last2];
     let end = 0;
-    map2.forEach((_from, _to, _newFrom, newTo) => {
+    map3.forEach((_from, _to, _newFrom, newTo) => {
       if (end === 0) end = newTo;
     });
     tr2.setSelection(Selection.near(tr2.doc.resolve(end), bias));
@@ -13676,7 +13705,7 @@
         emitContentError(e);
         return false;
       }
-      let { from: from2, to } = typeof position === "number" ? {
+      let { from: from3, to } = typeof position === "number" ? {
         from: position,
         to: position
       } : {
@@ -13691,10 +13720,10 @@
         isOnlyTextContent = isOnlyTextContent ? node.isText && node.marks.length === 0 : false;
         isOnlyBlockContent = isOnlyBlockContent ? node.isBlock : false;
       });
-      if (from2 === to && isOnlyBlockContent) {
-        const { parent } = tr2.doc.resolve(from2);
+      if (from3 === to && isOnlyBlockContent) {
+        const { parent } = tr2.doc.resolve(from3);
         if (parent.isTextblock && !parent.type.spec.code && !parent.childCount) {
-          from2 -= 1;
+          from3 -= 1;
           to += 1;
         }
       }
@@ -13707,32 +13736,32 @@
         }).join("");
         else if (typeof value === "object" && !!value && !!value.text) newContent = value.text;
         else newContent = value;
-        tr2.insertText(newContent, from2, to);
+        tr2.insertText(newContent, from3, to);
       } else {
         newContent = Fragment.from(nodes);
-        const $from = tr2.doc.resolve(from2);
+        const $from = tr2.doc.resolve(from3);
         const $fromNode = $from.node();
         const fromSelectionAtStart = $from.parentOffset === 0;
         const isTextSelection2 = $fromNode.isText || $fromNode.isTextblock;
-        const hasContent = $fromNode.content.size > 0;
-        if (fromSelectionAtStart && isTextSelection2 && hasContent && isOnlyBlockContent) from2 = Math.max(0, from2 - 1);
-        tr2.replaceWith(from2, to, nodes);
+        const hasContent2 = $fromNode.content.size > 0;
+        if (fromSelectionAtStart && isTextSelection2 && hasContent2 && isOnlyBlockContent) from3 = Math.max(0, from3 - 1);
+        tr2.replaceWith(from3, to, nodes);
       }
       if (options.updateSelection) selectionToInsertionEnd2(tr2, tr2.steps.length - 1, -1);
       if (options.applyInputRules) tr2.setMeta("applyInputRules", {
-        from: from2,
+        from: from3,
         text: newContent
       });
       if (options.applyPasteRules) tr2.setMeta("applyPasteRules", {
-        from: from2,
+        from: from3,
         text: newContent
       });
     }
     return true;
   };
-  function defaultBlockAt2(match) {
-    for (let i2 = 0; i2 < match.edgeCount; i2 += 1) {
-      const { type } = match.edge(i2);
+  function defaultBlockAt2(match2) {
+    for (let i2 = 0; i2 < match2.edgeCount; i2 += 1) {
+      const { type } = match2.edge(i2);
       if (type.isTextblock && !type.hasRequiredAttrs()) return type;
     }
     return null;
@@ -13746,7 +13775,7 @@
     const defaultType = defaultBlockAt2($pos.parent.contentMatchAt($pos.index()));
     if (!defaultType) return false;
     const validAttrKeys = Object.keys(defaultType.spec.attrs || {});
-    const filteredAttrs = attrs ? Object.fromEntries(Object.entries(attrs).filter(([key]) => validAttrKeys.includes(key))) : {};
+    const filteredAttrs = attrs ? Object.fromEntries(Object.entries(attrs).filter(([key2]) => validAttrKeys.includes(key2))) : {};
     let node;
     if (content) {
       const parsed = createNodeFromContent(content, editor.schema);
@@ -13771,8 +13800,8 @@
   var joinForward$1 = () => ({ state, dispatch }) => {
     return joinForward(state, dispatch);
   };
-  var canJoinItemsAt = (doc3, pos) => {
-    const $pos = doc3.resolve(pos);
+  var canJoinItemsAt = (doc4, pos) => {
+    const $pos = doc4.resolve(pos);
     const before = $pos.nodeBefore;
     const after = $pos.nodeAfter;
     if (!before || !after) return false;
@@ -13837,19 +13866,19 @@
     return result;
   }
   var keyboardShortcut = (name) => ({ editor, view, tr: tr2, dispatch }) => {
-    const keys2 = normalizeKeyName2(name).split(/-(?!$)/);
-    const key = keys2.find((item) => ![
+    const keys3 = normalizeKeyName2(name).split(/-(?!$)/);
+    const key2 = keys3.find((item) => ![
       "Alt",
       "Ctrl",
       "Meta",
       "Shift"
     ].includes(item));
     const event = new KeyboardEvent("keydown", {
-      key: key === "Space" ? " " : key,
-      altKey: keys2.includes("Alt"),
-      ctrlKey: keys2.includes("Ctrl"),
-      metaKey: keys2.includes("Meta"),
-      shiftKey: keys2.includes("Shift"),
+      key: key2 === "Space" ? " " : key2,
+      altKey: keys3.includes("Alt"),
+      ctrlKey: keys3.includes("Ctrl"),
+      metaKey: keys3.includes("Meta"),
+      shiftKey: keys3.includes("Shift"),
       bubbles: true,
       cancelable: true
     });
@@ -13863,12 +13892,12 @@
     return true;
   };
   function isNodeActive(state, typeOrName, attributes = {}) {
-    const { from: from2, to, empty: empty2 } = state.selection;
+    const { from: from3, to, empty: empty2 } = state.selection;
     const type = typeOrName ? getNodeType(typeOrName, state.schema) : null;
     const nodeRanges = [];
-    state.doc.nodesBetween(from2, to, (node, pos) => {
+    state.doc.nodesBetween(from3, to, (node, pos) => {
       if (node.isText) return;
-      const relativeFrom = Math.max(from2, pos);
+      const relativeFrom = Math.max(from3, pos);
       const relativeTo = Math.min(to, pos + node.nodeSize);
       nodeRanges.push({
         node,
@@ -13876,7 +13905,7 @@
         to: relativeTo
       });
     });
-    const selectionRange = to - from2;
+    const selectionRange = to - from3;
     const matchedNodeRanges = nodeRanges.filter((nodeRange) => {
       if (!type) return true;
       return type.name === nodeRange.node.type.name;
@@ -13968,19 +13997,19 @@
     });
   }
   var setContent = (content, { errorOnInvalidContent, emitUpdate = true, parseOptions = {} } = {}) => ({ editor, tr: tr2, dispatch, commands }) => {
-    const { doc: doc3 } = tr2;
+    const { doc: doc4 } = tr2;
     if (parseOptions.preserveWhitespace !== "full") {
       const document2 = createDocument(content, editor.schema, parseOptions, { errorOnInvalidContent: errorOnInvalidContent !== null && errorOnInvalidContent !== void 0 ? errorOnInvalidContent : editor.options.enableContentCheck });
       if (dispatch) {
         const nodes = isFragment(document2) ? document2.content : [document2];
-        tr2.replaceWith(0, doc3.content.size, nodes).setMeta("preventUpdate", !emitUpdate);
+        tr2.replaceWith(0, doc4.content.size, nodes).setMeta("preventUpdate", !emitUpdate);
       }
       return true;
     }
     if (dispatch) tr2.setMeta("preventUpdate", !emitUpdate);
     return commands.insertContentAt({
       from: 0,
-      to: doc3.content.size
+      to: doc4.content.size
     }, content, {
       parseOptions,
       errorOnInvalidContent: errorOnInvalidContent !== null && errorOnInvalidContent !== void 0 ? errorOnInvalidContent : editor.options.enableContentCheck
@@ -13988,12 +14017,12 @@
   };
   function getMarkAttributes(state, typeOrName) {
     const type = getMarkType(typeOrName, state.schema);
-    const { from: from2, to, empty: empty2 } = state.selection;
+    const { from: from3, to, empty: empty2 } = state.selection;
     const marks = [];
     if (empty2) {
       if (state.storedMarks) marks.push(...state.storedMarks);
       marks.push(...state.selection.$head.marks());
-    } else state.doc.nodesBetween(from2, to, (node) => {
+    } else state.doc.nodesBetween(from3, to, (node) => {
       marks.push(...node.marks);
     });
     const mark = marks.find((markItem) => markItem.type.name === type.name);
@@ -14122,7 +14151,7 @@
   }
   function mergeType(name, local, external, fields) {
     return {
-      ...Object.fromEntries(Object.entries(local).filter(([key]) => key !== "attrs" && !Object.hasOwn(fields, key))),
+      ...Object.fromEntries(Object.entries(local).filter(([key2]) => key2 !== "attrs" && !Object.hasOwn(fields, key2))),
       ...structuralFields(external, fields, name),
       attrs: external.attrs
     };
@@ -14247,8 +14276,8 @@
     let inSingleQuote = false;
     let inDoubleQuote = false;
     let parenDepth = 0;
-    const length = styles.length;
-    for (let i2 = 0; i2 < length; i2 += 1) {
+    const length2 = styles.length;
+    for (let i2 = 0; i2 < length2; i2 += 1) {
       const char = styles[i2];
       if (char === "'" && !inDoubleQuote) {
         inSingleQuote = !inSingleQuote;
@@ -14299,9 +14328,9 @@
   function mergeAttributes(...objects) {
     return objects.filter((item) => !!item).reduce((items, item) => {
       const mergedAttributes = { ...items };
-      Object.entries(item).forEach(([key, value]) => {
-        if (key === "__proto__") {
-          Object.defineProperty(mergedAttributes, key, {
+      Object.entries(item).forEach(([key2, value]) => {
+        if (key2 === "__proto__") {
+          Object.defineProperty(mergedAttributes, key2, {
             configurable: true,
             enumerable: true,
             value,
@@ -14309,19 +14338,19 @@
           });
           return;
         }
-        if (!mergedAttributes[key]) {
-          mergedAttributes[key] = value;
+        if (!mergedAttributes[key2]) {
+          mergedAttributes[key2] = value;
           return;
         }
-        if (key === "class") {
+        if (key2 === "class") {
           const valueClasses = value ? String(value).split(" ") : [];
-          const existingClasses = mergedAttributes[key] ? mergedAttributes[key].split(" ") : [];
+          const existingClasses = mergedAttributes[key2] ? mergedAttributes[key2].split(" ") : [];
           const insertClasses = valueClasses.filter((valueClass) => !existingClasses.includes(valueClass));
-          mergedAttributes[key] = [...existingClasses, ...insertClasses].join(" ");
-        } else if (key === "style") {
-          const styleMap = new Map([...parseStyleEntries(mergedAttributes[key]), ...parseStyleEntries(value)]);
-          mergedAttributes[key] = Array.from(styleMap.entries()).map(([property, val]) => `${property}: ${val}`).join("; ");
-        } else mergedAttributes[key] = value;
+          mergedAttributes[key2] = [...existingClasses, ...insertClasses].join(" ");
+        } else if (key2 === "style") {
+          const styleMap = new Map([...parseStyleEntries(mergedAttributes[key2]), ...parseStyleEntries(value)]);
+          mergedAttributes[key2] = Array.from(styleMap.entries()).map(([property, val]) => `${property}: ${val}`).join("; ");
+        } else mergedAttributes[key2] = value;
       });
       return mergedAttributes;
     }, {});
@@ -14362,8 +14391,8 @@
     };
   }
   function cleanUpSchemaItem(data) {
-    return Object.fromEntries(Object.entries(data).filter(([key, value]) => {
-      if (key === "attrs" && isEmptyObject(value)) return false;
+    return Object.fromEntries(Object.entries(data).filter(([key2, value]) => {
+      if (key2 === "attrs" && isEmptyObject(value)) return false;
       return value !== null && value !== void 0;
     }));
   }
@@ -14482,14 +14511,14 @@
     return getSchemaByResolvedExtensions(resolveExtensions(extensions), editor);
   }
   function getTextBetween(startNode, range, options) {
-    const { from: from2, to } = range;
+    const { from: from3, to } = range;
     const { blockSeparator = "\n\n", textSerializers = {} } = options || {};
-    let text = "";
-    startNode.nodesBetween(from2, to, (node, pos, parent, index) => {
-      if (node.isBlock && pos > from2) text += blockSeparator;
+    let text2 = "";
+    startNode.nodesBetween(from3, to, (node, pos, parent, index) => {
+      if (node.isBlock && pos > from3) text2 += blockSeparator;
       const textSerializer = textSerializers === null || textSerializers === void 0 ? void 0 : textSerializers[node.type.name];
       if (textSerializer) {
-        if (parent) text += textSerializer({
+        if (parent) text2 += textSerializer({
           node,
           pos,
           parent,
@@ -14500,10 +14529,10 @@
       }
       if (node.isText) {
         var _node$text;
-        text += node === null || node === void 0 || (_node$text = node.text) === null || _node$text === void 0 ? void 0 : _node$text.slice(Math.max(from2, pos) - pos, to - pos);
+        text2 += node === null || node === void 0 || (_node$text = node.text) === null || _node$text === void 0 ? void 0 : _node$text.slice(Math.max(from3, pos) - pos, to - pos);
       }
     });
-    return text;
+    return text2;
   }
   function getText2(node, options) {
     return getTextBetween(node, {
@@ -14516,9 +14545,9 @@
   }
   function getNodeAttributes(state, typeOrName) {
     const type = getNodeType(typeOrName, state.schema);
-    const { from: from2, to } = state.selection;
+    const { from: from3, to } = state.selection;
     const nodes = [];
-    state.doc.nodesBetween(from2, to, (node2) => {
+    state.doc.nodesBetween(from3, to, (node2) => {
       nodes.push(node2);
     });
     const node = nodes.reverse().find((nodeItem) => nodeItem.type.name === type.name);
@@ -14534,8 +14563,8 @@
   function removeDuplicates(array, by = JSON.stringify) {
     const seen = {};
     return array.filter((item) => {
-      const key = by(item);
-      return Object.prototype.hasOwnProperty.call(seen, key) ? false : seen[key] = true;
+      const key2 = by(item);
+      return Object.prototype.hasOwnProperty.call(seen, key2) ? false : seen[key2] = true;
     });
   }
   function simplifyChangedRanges(changes) {
@@ -14553,21 +14582,21 @@
     mapping.maps.forEach((stepMap, index) => {
       const ranges = [];
       if (!stepMap.ranges.length) {
-        const { from: from2, to } = steps[index];
-        if (from2 === void 0 || to === void 0) return;
+        const { from: from3, to } = steps[index];
+        if (from3 === void 0 || to === void 0) return;
         ranges.push({
-          from: from2,
+          from: from3,
           to
         });
-      } else stepMap.forEach((from2, to) => {
+      } else stepMap.forEach((from3, to) => {
         ranges.push({
-          from: from2,
+          from: from3,
           to
         });
       });
       const rest = mapping.slice(index);
-      ranges.forEach(({ from: from2, to }) => {
-        const newStart = rest.map(from2, -1);
+      ranges.forEach(({ from: from3, to }) => {
+        const newStart = rest.map(from3, -1);
         const newEnd = rest.map(to);
         const oldStart = inverted.map(newStart, -1);
         const oldEnd = inverted.map(newEnd);
@@ -14585,17 +14614,17 @@
     });
     return simplifyChangedRanges(changes);
   }
-  function getMarksBetween(from2, to, doc3) {
+  function getMarksBetween(from3, to, doc4) {
     const marks = [];
-    if (from2 === to) doc3.resolve(from2).marks().forEach((mark) => {
-      const range = getMarkRange(doc3.resolve(from2), mark.type);
+    if (from3 === to) doc4.resolve(from3).marks().forEach((mark) => {
+      const range = getMarkRange(doc4.resolve(from3), mark.type);
       if (!range) return;
       marks.push({
         mark,
         ...range
       });
     });
-    else doc3.nodesBetween(from2, to, (node, pos) => {
+    else doc4.nodesBetween(from3, to, (node, pos) => {
       if (!node || (node === null || node === void 0 ? void 0 : node.nodeSize) === void 0) return;
       marks.push(...node.marks.map((mark) => ({
         from: pos,
@@ -14660,12 +14689,12 @@
     let selectionRange = 0;
     const markRanges = [];
     ranges.forEach(({ $from, $to }) => {
-      const from2 = $from.pos;
+      const from3 = $from.pos;
       const to = $to.pos;
-      state.doc.nodesBetween(from2, to, (node, pos) => {
+      state.doc.nodesBetween(from3, to, (node, pos) => {
         if (type && node.inlineContent && !node.type.allowsMarkType(type)) return false;
         if (!node.isText && !node.marks.length) return;
-        const relativeFrom = Math.max(from2, pos);
+        const relativeFrom = Math.max(from3, pos);
         const relativeTo = Math.min(to, pos + node.nodeSize);
         const range = relativeTo - relativeFrom;
         selectionRange += range;
@@ -14833,10 +14862,10 @@
           ...attributes
         }));
       } else ranges.forEach((range) => {
-        const from2 = range.$from.pos;
+        const from3 = range.$from.pos;
         const to = range.$to.pos;
-        state.doc.nodesBetween(from2, to, (node, pos) => {
-          const trimmedFrom = Math.max(pos, from2);
+        state.doc.nodesBetween(from3, to, (node, pos) => {
+          const trimmedFrom = Math.max(pos, from3);
           const trimmedTo = Math.min(pos + node.nodeSize, to);
           if (node.marks.find((mark) => mark.type === type)) node.marks.forEach((mark) => {
             if (type === mark.type) tr2.addMark(trimmedFrom, trimmedTo, type.create({
@@ -14850,8 +14879,8 @@
     }
     return canSetMark(state, tr2, type);
   };
-  var setMeta = (key, value) => ({ tr: tr2 }) => {
-    tr2.setMeta(key, value);
+  var setMeta = (key2, value) => ({ tr: tr2 }) => {
+    tr2.setMeta(key2, value);
     return true;
   };
   var setNode = (typeOrName, attributes = {}) => ({ state, dispatch, chain }) => {
@@ -14877,28 +14906,28 @@
   };
   var setNodeSelection = (position) => ({ tr: tr2, dispatch }) => {
     if (dispatch) {
-      const { doc: doc3 } = tr2;
-      const from2 = minMax(position, 0, doc3.content.size);
-      const selection = NodeSelection.create(doc3, from2);
+      const { doc: doc4 } = tr2;
+      const from3 = minMax(position, 0, doc4.content.size);
+      const selection = NodeSelection.create(doc4, from3);
       tr2.setSelection(selection);
     }
     return true;
   };
   var setTextDirection = (direction, position) => ({ tr: tr2, state, dispatch }) => {
     const { selection } = state;
-    let from2;
+    let from3;
     let to;
     if (typeof position === "number") {
-      from2 = position;
+      from3 = position;
       to = position;
     } else if (position && "from" in position && "to" in position) {
-      from2 = position.from;
+      from3 = position.from;
       to = position.to;
     } else {
-      from2 = selection.from;
+      from3 = selection.from;
       to = selection.to;
     }
-    if (dispatch) tr2.doc.nodesBetween(from2, to, (node, pos) => {
+    if (dispatch) tr2.doc.nodesBetween(from3, to, (node, pos) => {
       if (node.isText) return;
       tr2.setNodeMarkup(pos, void 0, {
         ...node.attrs,
@@ -14909,16 +14938,16 @@
   };
   var setTextSelection = (position) => ({ tr: tr2, dispatch }) => {
     if (dispatch) {
-      const { doc: doc3 } = tr2;
-      const { from: from2, to } = typeof position === "number" ? {
+      const { doc: doc4 } = tr2;
+      const { from: from3, to } = typeof position === "number" ? {
         from: position,
         to: position
       } : position;
-      const minPos = TextSelection.atStart(doc3).from;
-      const maxPos = TextSelection.atEnd(doc3).to;
-      const resolvedFrom = minMax(from2, minPos, maxPos);
+      const minPos = TextSelection.atStart(doc4).from;
+      const maxPos = TextSelection.atEnd(doc4).to;
+      const resolvedFrom = minMax(from3, minPos, maxPos);
       const resolvedEnd = minMax(to, minPos, maxPos);
-      const selection = TextSelection.create(doc3, resolvedFrom, resolvedEnd);
+      const selection = TextSelection.create(doc4, resolvedFrom, resolvedEnd);
       tr2.setSelection(selection);
     }
     return true;
@@ -14935,12 +14964,12 @@
     }
   }
   var splitBlock2 = ({ keepMarks = true } = {}) => ({ tr: tr2, state, dispatch, editor }) => {
-    const { selection, doc: doc3 } = tr2;
+    const { selection, doc: doc4 } = tr2;
     const { $from, $to } = selection;
     const extensionAttributes = editor.extensionManager.attributes;
     const newAttributes = getSplittedAttributes(extensionAttributes, $from.node().type.name, $from.node().attrs);
     if (selection instanceof NodeSelection && selection.node.isBlock) {
-      if (!$from.parentOffset || !canSplit(doc3, $from.pos)) return false;
+      if (!$from.parentOffset || !canSplit(doc4, $from.pos)) return false;
       if (dispatch) {
         if (keepMarks) ensureMarks(state, editor.extensionManager.splittableMarks);
         tr2.split($from.pos).scrollIntoView();
@@ -15150,11 +15179,11 @@
     return true;
   };
   function createInnerSelectionForWholeDocList(tr2) {
-    const doc3 = tr2.doc;
-    const list = doc3.firstChild;
+    const doc4 = tr2.doc;
+    const list = doc4.firstChild;
     if (!list) return null;
-    const $start = doc3.resolve(1);
-    const $end = doc3.resolve(list.nodeSize - 1);
+    const $start = doc4.resolve(1);
+    const $end = doc4.resolve(list.nodeSize - 1);
     return TextSelection.between($start, $end);
   }
   var toggleList = (listTypeOrName, itemTypeOrName, keepMarks, attributes = {}) => ({ editor, tr: tr2, state, dispatch, chain, commands, can }) => {
@@ -15308,13 +15337,13 @@
     if (!dispatch) return true;
     if (empty2 && extendEmptyMarkRange) {
       var _$from$marks$find;
-      let { from: from2, to } = selection;
+      let { from: from3, to } = selection;
       const range = getMarkRange($from, type, (_$from$marks$find = $from.marks().find((mark) => mark.type === type)) === null || _$from$marks$find === void 0 ? void 0 : _$from$marks$find.attrs);
       if (range) {
-        from2 = range.from;
+        from3 = range.from;
         to = range.to;
       }
-      tr2.removeMark(from2, to, type);
+      tr2.removeMark(from3, to, type);
     } else ranges.forEach((range) => {
       tr2.removeMark(range.$from.pos, range.$to.pos, type);
     });
@@ -15323,19 +15352,19 @@
   };
   var unsetTextDirection = (position) => ({ tr: tr2, state, dispatch }) => {
     const { selection } = state;
-    let from2;
+    let from3;
     let to;
     if (typeof position === "number") {
-      from2 = position;
+      from3 = position;
       to = position;
     } else if (position && "from" in position && "to" in position) {
-      from2 = position.from;
+      from3 = position.from;
       to = position.to;
     } else {
-      from2 = selection.from;
+      from3 = selection.from;
       to = selection.to;
     }
-    if (dispatch) tr2.doc.nodesBetween(from2, to, (node, pos) => {
+    if (dispatch) tr2.doc.nodesBetween(from3, to, (node, pos) => {
       if (node.isText) return;
       const newAttrs = { ...node.attrs };
       delete newAttrs.dir;
@@ -15352,30 +15381,30 @@
     if (schemaType === "mark") markType = getMarkType(typeOrName, state.schema);
     let canUpdate = false;
     tr2.selection.ranges.forEach((range) => {
-      const from2 = range.$from.pos;
+      const from3 = range.$from.pos;
       const to = range.$to.pos;
       let lastPos;
       let lastNode;
       let trimmedFrom;
       let trimmedTo;
-      if (tr2.selection.empty) state.doc.nodesBetween(from2, to, (node, pos) => {
+      if (tr2.selection.empty) state.doc.nodesBetween(from3, to, (node, pos) => {
         if (nodeType && nodeType === node.type) {
           canUpdate = true;
-          trimmedFrom = Math.max(pos, from2);
+          trimmedFrom = Math.max(pos, from3);
           trimmedTo = Math.min(pos + node.nodeSize, to);
           lastPos = pos;
           lastNode = node;
         }
       });
-      else state.doc.nodesBetween(from2, to, (node, pos) => {
-        if (pos < from2 && nodeType && nodeType === node.type) {
+      else state.doc.nodesBetween(from3, to, (node, pos) => {
+        if (pos < from3 && nodeType && nodeType === node.type) {
           canUpdate = true;
-          trimmedFrom = Math.max(pos, from2);
+          trimmedFrom = Math.max(pos, from3);
           trimmedTo = Math.min(pos + node.nodeSize, to);
           lastPos = pos;
           lastNode = node;
         }
-        if (pos >= from2 && pos <= to) {
+        if (pos >= from3 && pos <= to) {
           if (nodeType && nodeType === node.type) {
             canUpdate = true;
             if (dispatch) tr2.setNodeMarkup(pos, void 0, {
@@ -15387,7 +15416,7 @@
             if (markType === mark.type) {
               canUpdate = true;
               if (dispatch) {
-                const trimmedFrom2 = Math.max(pos, from2);
+                const trimmedFrom2 = Math.max(pos, from3);
                 const trimmedTo2 = Math.min(pos + node.nodeSize, to);
                 tr2.addMark(trimmedFrom2, trimmedTo2, markType.create({
                   ...mark.attrs,
@@ -15518,9 +15547,9 @@
       this.callbacks[event].push(fn);
       return this;
     }
-    emit(event, ...args) {
+    emit(event, ...args2) {
       const callbacks = this.callbacks[event];
-      if (callbacks) callbacks.forEach((callback) => callback.apply(this, args));
+      if (callbacks) callbacks.forEach((callback) => callback.apply(this, args2));
       return this;
     }
     off(event, fn) {
@@ -15532,9 +15561,9 @@
       return this;
     }
     once(event, fn) {
-      const onceFn = (...args) => {
+      const onceFn = (...args2) => {
         this.off(event, onceFn);
-        fn.apply(this, args);
+        fn.apply(this, args2);
       };
       return this.on(event, onceFn);
     }
@@ -15560,58 +15589,58 @@
       widgetKeys
     };
   }
-  function buildDecorationSet(doc3, decorations, extensionName) {
+  function buildDecorationSet(doc4, decorations, extensionName) {
     const { decorations: pmDecorations, widgetKeys } = decorationsToPMDecorations(decorations, extensionName);
     return {
-      set: DecorationSet.create(doc3, pmDecorations),
+      set: DecorationSet.create(doc4, pmDecorations),
       widgetKeys
     };
   }
-  function rangeOwnsPosition({ position, from: from2, to, docSize }) {
-    if (position < from2) return false;
+  function rangeOwnsPosition({ position, from: from3, to, docSize }) {
+    if (position < from3) return false;
     if (position < to) return true;
     return position === to && to === docSize;
   }
-  function filterOutOfRangeDecorations({ decorations, from: from2, to, docSize, extensionName, warnedExtensions }) {
+  function filterOutOfRangeDecorations({ decorations, from: from3, to, docSize, extensionName, warnedExtensions }) {
     return decorations.filter((decoration) => {
       if (rangeOwnsPosition({
         position: decoration.anchor,
-        from: from2,
+        from: from3,
         to,
         docSize
       })) return true;
       if (decoration.anchor === to) return false;
       if (!warnedExtensions.has(extensionName)) {
         warnedExtensions.add(extensionName);
-        console.warn(`[tiptap warn]: Extension "${extensionName}" returned a decoration outside the requested range [${from2}, ${to}). It was ignored.`);
+        console.warn(`[tiptap warn]: Extension "${extensionName}" returned a decoration outside the requested range [${from3}, ${to}). It was ignored.`);
       }
       return false;
     });
   }
   function widgetKeyOf(decoration) {
     var _decoration$spec;
-    const key = (_decoration$spec = decoration.spec) === null || _decoration$spec === void 0 ? void 0 : _decoration$spec.key;
-    return typeof key === "string" ? key : void 0;
+    const key2 = (_decoration$spec = decoration.spec) === null || _decoration$spec === void 0 ? void 0 : _decoration$spec.key;
+    return typeof key2 === "string" ? key2 : void 0;
   }
   function findDuplicateWidgetKeys(decorationSet) {
     const extensionsByKey = /* @__PURE__ */ new Map();
     const counts = /* @__PURE__ */ new Map();
     for (const decoration of decorationSet.find()) {
       var _extensionName, _extensionsByKey$get, _counts$get;
-      const key = widgetKeyOf(decoration);
-      if (!key) continue;
+      const key2 = widgetKeyOf(decoration);
+      if (!key2) continue;
       const extension = (_extensionName = decoration.spec.extensionName) !== null && _extensionName !== void 0 ? _extensionName : "unknown";
-      const extensions = (_extensionsByKey$get = extensionsByKey.get(key)) !== null && _extensionsByKey$get !== void 0 ? _extensionsByKey$get : /* @__PURE__ */ new Set();
+      const extensions = (_extensionsByKey$get = extensionsByKey.get(key2)) !== null && _extensionsByKey$get !== void 0 ? _extensionsByKey$get : /* @__PURE__ */ new Set();
       extensions.add(extension);
-      extensionsByKey.set(key, extensions);
-      counts.set(key, ((_counts$get = counts.get(key)) !== null && _counts$get !== void 0 ? _counts$get : 0) + 1);
+      extensionsByKey.set(key2, extensions);
+      counts.set(key2, ((_counts$get = counts.get(key2)) !== null && _counts$get !== void 0 ? _counts$get : 0) + 1);
     }
-    return Array.from(extensionsByKey, ([key, extensions]) => ({
-      key,
+    return Array.from(extensionsByKey, ([key2, extensions]) => ({
+      key: key2,
       extensions
-    })).filter(({ key }) => {
+    })).filter(({ key: key2 }) => {
       var _counts$get2;
-      return ((_counts$get2 = counts.get(key)) !== null && _counts$get2 !== void 0 ? _counts$get2 : 0) > 1;
+      return ((_counts$get2 = counts.get(key2)) !== null && _counts$get2 !== void 0 ? _counts$get2 : 0) > 1;
     });
   }
   function isAttrStep(step) {
@@ -15626,25 +15655,25 @@
     const positionalStep = step;
     return typeof positionalStep.from === "number" && typeof positionalStep.to === "number";
   }
-  function blockRangeFor(doc3, changed) {
-    let from2 = null;
+  function blockRangeFor(doc4, changed) {
+    let from3 = null;
     let to = 0;
     let nodeStart = 0;
-    for (let index = 0; index < doc3.childCount; index += 1) {
+    for (let index = 0; index < doc4.childCount; index += 1) {
       if (nodeStart > changed.to) break;
-      const nodeEnd = nodeStart + doc3.child(index).nodeSize;
+      const nodeEnd = nodeStart + doc4.child(index).nodeSize;
       if (nodeEnd >= changed.from) {
-        if (from2 === null) from2 = nodeStart;
+        if (from3 === null) from3 = nodeStart;
         to = nodeEnd;
       }
       nodeStart = nodeEnd;
     }
-    return from2 === null ? null : {
-      from: from2,
+    return from3 === null ? null : {
+      from: from3,
       to
     };
   }
-  function getRebuildRanges(tr2, doc3) {
+  function getRebuildRanges(tr2, doc4) {
     if (tr2.steps.some((step) => !hasResolvableChangedRange(step))) return { type: "full" };
     const newRanges = getChangedRanges(tr2).map(({ newRange }) => newRange);
     tr2.steps.forEach((step, index) => {
@@ -15657,14 +15686,14 @@
     });
     const ranges = [];
     for (const newRange of newRanges) {
-      const blockRange = blockRangeFor(doc3, newRange);
+      const blockRange = blockRangeFor(doc4, newRange);
       if (blockRange) ranges.push(blockRange);
     }
     ranges.sort((a, b) => a.from - b.from);
     const merged = [];
     for (const range of ranges) {
-      const last = merged[merged.length - 1];
-      if (last && range.from <= last.to) last.to = Math.max(last.to, range.to);
+      const last2 = merged[merged.length - 1];
+      if (last2 && range.from <= last2.to) last2.to = Math.max(last2.to, range.to);
       else merged.push({ ...range });
     }
     return {
@@ -15672,10 +15701,10 @@
       ranges: merged
     };
   }
-  function mapDecorationSet(set, mapping, doc3, widgetKeys) {
-    return set.map(mapping, doc3, { onRemove: (removedSpec) => {
-      const key = removedSpec === null || removedSpec === void 0 ? void 0 : removedSpec.key;
-      if (typeof key === "string") widgetKeys.delete(key);
+  function mapDecorationSet(set, mapping, doc4, widgetKeys) {
+    return set.map(mapping, doc4, { onRemove: (removedSpec) => {
+      const key2 = removedSpec === null || removedSpec === void 0 ? void 0 : removedSpec.key;
+      if (typeof key2 === "string") widgetKeys.delete(key2);
     } });
   }
   function mapDecorations(name, previous, tr2) {
@@ -15687,13 +15716,13 @@
       widgetKeys
     };
   }
-  function mergeDecorationSets(doc3, decorationSetsByExtension) {
+  function mergeDecorationSets(doc4, decorationSetsByExtension) {
     const allDecorations = Object.values(decorationSetsByExtension).flatMap((set) => set.find());
-    return DecorationSet.create(doc3, allDecorations);
+    return DecorationSet.create(doc4, allDecorations);
   }
   function unionWidgetKeys(widgetKeysByExtension) {
     const merged = /* @__PURE__ */ new Set();
-    for (const keys2 of Object.values(widgetKeysByExtension)) for (const key of keys2) merged.add(key);
+    for (const keys3 of Object.values(widgetKeysByExtension)) for (const key2 of keys3) merged.add(key2);
     return merged;
   }
   function validateDecorationSpec(name, spec) {
@@ -15879,16 +15908,16 @@
       const widgetKeys = new Set((_previous$widgetKeysB = previous.widgetKeysByExtension[name]) !== null && _previous$widgetKeysB !== void 0 ? _previous$widgetKeysB : []);
       let set = mapDecorationSet(previousSet, tr2.mapping, tr2.doc, widgetKeys);
       const docSize = newState.doc.content.size;
-      for (const { from: from2, to } of ranges) {
-        const stale = set.find(from2, to).filter((decoration) => rangeOwnsPosition({
+      for (const { from: from3, to } of ranges) {
+        const stale = set.find(from3, to).filter((decoration) => rangeOwnsPosition({
           position: decoration.from,
-          from: from2,
+          from: from3,
           to,
           docSize
         }));
         for (const decoration of stale) {
-          const key = widgetKeyOf(decoration);
-          if (key) widgetKeys.delete(key);
+          const key2 = widgetKeyOf(decoration);
+          if (key2) widgetKeys.delete(key2);
         }
         set = set.remove(stale);
         const { decorations: pmDecorations, widgetKeys: addedKeys } = decorationsToPMDecorations(filterOutOfRangeDecorations({
@@ -15896,17 +15925,17 @@
             editor: this.editor,
             state: newState,
             view: this.mountedView,
-            from: from2,
+            from: from3,
             to
           })),
-          from: from2,
+          from: from3,
           to,
           docSize,
           extensionName: name,
           warnedExtensions: this.warnedOutOfRangeExtensions
         }), name);
         set = set.add(newState.doc, pmDecorations);
-        for (const key of addedKeys) widgetKeys.add(key);
+        for (const key2 of addedKeys) widgetKeys.add(key2);
       }
       return {
         set,
@@ -15936,9 +15965,9 @@
     * @param create The callback to run.
     * @returns The decorations, or an empty array if the callback threw.
     */
-    runCreate(name, method, create) {
+    runCreate(name, method, create7) {
       try {
-        return create();
+        return create7();
       } catch (error) {
         console.error(`[tiptap error]: Extension "${name}" threw in \`addDecorations().${method}()\`. Its decorations were dropped for this update.`, error);
         return [];
@@ -15951,11 +15980,11 @@
         return;
       }
       const duplicateKeys = findDuplicateWidgetKeys(state.mergedDecorationSet);
-      const nextWarningKeys = new Set(duplicateKeys.map(({ key }) => key));
-      for (const { key, extensions } of duplicateKeys) {
-        if (this.warnedWidgetKeys.has(key)) continue;
+      const nextWarningKeys = new Set(duplicateKeys.map(({ key: key2 }) => key2));
+      for (const { key: key2, extensions } of duplicateKeys) {
+        if (this.warnedWidgetKeys.has(key2)) continue;
         const names = Array.from(extensions).map((name) => `"${name}"`).join(", ");
-        console.warn(`[tiptap warn]: Duplicate widget decoration key "${key}" in extension${extensions.size === 1 ? "" : "s"} ${names}. Widget decoration keys must be globally unique, otherwise ProseMirror misplaces the widget DOM. Use a stable, unique key (e.g. \`comment-\${id}\`).`);
+        console.warn(`[tiptap warn]: Duplicate widget decoration key "${key2}" in extension${extensions.size === 1 ? "" : "s"} ${names}. Widget decoration keys must be globally unique, otherwise ProseMirror misplaces the widget DOM. Use a stable, unique key (e.g. \`comment-\${id}\`).`);
       }
       this.warnedWidgetKeys = nextWarningKeys;
     }
@@ -15966,10 +15995,10 @@
     * @param decorationSetsByExtension The per-extension decoration sets.
     * @returns The merged decoration set.
     */
-    buildMergedSet(doc3, decorationSetsByExtension) {
+    buildMergedSet(doc4, decorationSetsByExtension) {
       const names = Object.keys(decorationSetsByExtension);
       if (names.length === 1) return decorationSetsByExtension[names[0]];
-      return mergeDecorationSets(doc3, decorationSetsByExtension);
+      return mergeDecorationSets(doc4, decorationSetsByExtension);
     }
     /**
     * Computes the merged DecorationSet after apply. Single extension skips the
@@ -16007,8 +16036,8 @@
     document.getElementsByTagName("head")[0].appendChild(styleNode);
     return styleNode;
   }
-  function getStyleProperty(element, propertyName) {
-    const styleAttr = element.getAttribute("style");
+  function getStyleProperty(element2, propertyName) {
+    const styleAttr = element2.getAttribute("style");
     if (!styleAttr) return null;
     const decls = styleAttr.split(";").map((decl) => decl.trim()).filter(Boolean);
     const target = propertyName.toLowerCase();
@@ -16129,9 +16158,9 @@ ${line}
     };
   }
   var TAB_STOP = 4;
-  function columnWidth(text) {
+  function columnWidth(text2) {
     let width = 0;
-    for (const character of text) width = character === "	" ? width + TAB_STOP - width % TAB_STOP : width + 1;
+    for (const character of text2) width = character === "	" ? width + TAB_STOP - width % TAB_STOP : width + 1;
     return width;
   }
   function renderNestedMarkdownContent(node, h2, prefixOrGenerator, ctx, options) {
@@ -16161,18 +16190,18 @@ ${indentedChild}`;
   }
   function mergeDeep(target, source) {
     const output = { ...target };
-    if (isPlainObject(target) && isPlainObject(source)) Object.keys(source).forEach((key) => {
-      if (isPlainObject(source[key]) && isPlainObject(target[key])) output[key] = mergeDeep(target[key], source[key]);
-      else output[key] = source[key];
+    if (isPlainObject(target) && isPlainObject(source)) Object.keys(source).forEach((key2) => {
+      if (isPlainObject(source[key2]) && isPlainObject(target[key2])) output[key2] = mergeDeep(target[key2], source[key2]);
+      else output[key2] = source[key2];
     });
     return output;
   }
   function updateMarkViewAttributes(checkMark, editor, attrs = {}) {
     const { state } = editor;
-    const { doc: doc3, tr: tr2 } = state;
+    const { doc: doc4, tr: tr2 } = state;
     const thisMark = checkMark;
-    doc3.descendants((node, pos) => {
-      const from2 = tr2.mapping.map(pos);
+    doc4.descendants((node, pos) => {
+      const from3 = tr2.mapping.map(pos);
       const to = tr2.mapping.map(pos) + node.nodeSize;
       let foundMark = null;
       node.marks.forEach((mark) => {
@@ -16189,8 +16218,8 @@ ${indentedChild}`;
           ...checkMark.attrs,
           ...attrs
         });
-        tr2.removeMark(from2, to, checkMark.type);
-        tr2.addMark(from2, to, updatedMark);
+        tr2.removeMark(from3, to, checkMark.type);
+        tr2.addMark(from3, to, updatedMark);
       }
     });
     if (tr2.docChanged) editor.view.dispatch(tr2);
@@ -16203,13 +16232,13 @@ ${indentedChild}`;
       this.undoable = (_config$undoable = config.undoable) !== null && _config$undoable !== void 0 ? _config$undoable : true;
     }
   };
-  var inputRuleMatcherHandler = (text, find2) => {
-    if (isRegExp(find2)) return find2.exec(text);
-    const inputRuleMatch = find2(text);
+  var inputRuleMatcherHandler = (text2, find3) => {
+    if (isRegExp(find3)) return find3.exec(text2);
+    const inputRuleMatch = find3(text2);
     if (!inputRuleMatch) return null;
     const result = [inputRuleMatch.text];
     result.index = inputRuleMatch.index;
-    result.input = text;
+    result.input = text2;
     result.data = inputRuleMatch.data;
     if (inputRuleMatch.replaceWith) {
       if (!inputRuleMatch.text.includes(inputRuleMatch.replaceWith)) console.warn('[tiptap warn]: "inputRuleMatch.replaceWith" must be part of "inputRuleMatch.text".');
@@ -16218,12 +16247,12 @@ ${indentedChild}`;
     return result;
   };
   function createRuleTransaction(config) {
-    const { editor, from: from2, to, text, insertText } = config;
-    if (!insertText) return {
+    const { editor, from: from3, to, text: text2, insertText: insertText2 } = config;
+    if (!insertText2) return {
       inputTransaction: null,
       tr: editor.view.state.tr
     };
-    const inputTransaction = editor.view.state.tr.insertText(text, from2, to);
+    const inputTransaction = editor.view.state.tr.insertText(text2, from3, to);
     return {
       inputTransaction,
       tr: EditorState.create({
@@ -16234,22 +16263,22 @@ ${indentedChild}`;
     };
   }
   function applyRule(config) {
-    const { editor, from: from2, to, text, rule, match, plugin, insertText } = config;
+    const { editor, from: from3, to, text: text2, rule, match: match2, plugin, insertText: insertText2 } = config;
     const { view } = editor;
     const { inputTransaction, tr: tr2 } = createRuleTransaction({
       editor,
-      from: from2,
+      from: from3,
       to,
-      text,
-      insertText
+      text: text2,
+      insertText: insertText2
     });
-    const inputEnd = inputTransaction ? from2 + text.length : to;
+    const inputEnd = inputTransaction ? from3 + text2.length : to;
     const state = createChainableState({
       state: view.state,
       transaction: tr2
     });
     const range = {
-      from: from2 - (match[0].length - text.length),
+      from: from3 - (match2[0].length - text2.length),
       to: inputEnd
     };
     const { commands, chain, can } = new CommandManager({
@@ -16259,7 +16288,7 @@ ${indentedChild}`;
     if (rule.handler({
       state,
       range,
-      match,
+      match: match2,
       commands,
       chain,
       can
@@ -16272,39 +16301,39 @@ ${indentedChild}`;
     tr2.setMeta("inputRule", true);
     if (rule.undoable) tr2.setMeta(plugin, {
       transform: tr2,
-      from: from2,
+      from: from3,
       to: inputEnd,
-      text
+      text: text2
     });
     view.dispatch(tr2);
     return true;
   }
-  function matchesDocument($from, match, text) {
-    const matchedDocLength = match[0].length - text.length;
+  function matchesDocument($from, match2, text2) {
+    const matchedDocLength = match2[0].length - text2.length;
     if (matchedDocLength <= 0) return true;
     const matchStartOffset = $from.parentOffset - matchedDocLength;
-    return matchStartOffset >= 0 && $from.parent.textBetween(matchStartOffset, $from.parentOffset) === match[0].slice(0, matchedDocLength);
+    return matchStartOffset >= 0 && $from.parent.textBetween(matchStartOffset, $from.parentOffset) === match2[0].slice(0, matchedDocLength);
   }
   function run$1(config) {
     var _ref;
-    const { editor, from: from2, to, text, rules, plugin, insertText } = config;
+    const { editor, from: from3, to, text: text2, rules, plugin, insertText: insertText2 } = config;
     const { view } = editor;
     if (view.composing) return false;
-    const $from = view.state.doc.resolve(from2);
+    const $from = view.state.doc.resolve(from3);
     if ($from.parent.type.spec.code || !!((_ref = $from.nodeBefore || $from.nodeAfter) === null || _ref === void 0 ? void 0 : _ref.marks.find((mark) => mark.type.spec.code))) return false;
-    const textBefore = getTextContentFromNodes($from) + text;
+    const textBefore = getTextContentFromNodes($from) + text2;
     for (const rule of rules) {
-      const match = inputRuleMatcherHandler(textBefore, rule.find);
-      if (!match || !matchesDocument($from, match, text)) continue;
+      const match2 = inputRuleMatcherHandler(textBefore, rule.find);
+      if (!match2 || !matchesDocument($from, match2, text2)) continue;
       if (applyRule({
         editor,
-        from: from2,
+        from: from3,
         to,
-        text,
+        text: text2,
         rule,
-        match,
+        match: match2,
         plugin,
-        insertText
+        insertText: insertText2
       })) return true;
     }
     return false;
@@ -16330,16 +16359,16 @@ ${indentedChild}`;
           }
           const simulatedInputMeta = tr2.getMeta("applyInputRules");
           if (!!simulatedInputMeta) setTimeout(() => {
-            let { text } = simulatedInputMeta;
-            if (typeof text === "string") text = text;
-            else text = getHTMLFromFragment(Fragment.from(text), state.schema);
-            const { from: from2 } = simulatedInputMeta;
-            const to = from2 + text.length;
+            let { text: text2 } = simulatedInputMeta;
+            if (typeof text2 === "string") text2 = text2;
+            else text2 = getHTMLFromFragment(Fragment.from(text2), state.schema);
+            const { from: from3 } = simulatedInputMeta;
+            const to = from3 + text2.length;
             run$1({
               editor,
-              from: from2,
+              from: from3,
               to,
-              text,
+              text: text2,
               rules,
               plugin
             });
@@ -16348,12 +16377,12 @@ ${indentedChild}`;
         }
       },
       props: {
-        handleTextInput(view, from2, to, text) {
+        handleTextInput(view, from3, to, text2) {
           return run$1({
             editor,
-            from: from2,
+            from: from3,
             to,
-            text,
+            text: text2,
             rules,
             plugin,
             insertText: true
@@ -16477,14 +16506,14 @@ ${indentedChild}`;
       this.handler = config.handler;
     }
   };
-  var pasteRuleMatcherHandler = (text, find2, event) => {
-    if (isRegExp(find2)) return [...text.matchAll(find2)];
-    const matches2 = find2(text, event);
+  var pasteRuleMatcherHandler = (text2, find3, event) => {
+    if (isRegExp(find3)) return [...text2.matchAll(find3)];
+    const matches2 = find3(text2, event);
     if (!matches2) return [];
     return matches2.map((pasteRuleMatch) => {
       const result = [pasteRuleMatch.text];
       result.index = pasteRuleMatch.index;
-      result.input = text;
+      result.input = text2;
       result.data = pasteRuleMatch.data;
       if (pasteRuleMatch.replaceWith) {
         if (!pasteRuleMatch.text.includes(pasteRuleMatch.replaceWith)) console.warn('[tiptap warn]: "pasteRuleMatch.replaceWith" must be part of "pasteRuleMatch.text".');
@@ -16494,24 +16523,24 @@ ${indentedChild}`;
     });
   };
   function run(config) {
-    const { editor, state, from: from2, to, rule, pasteEvent, dropEvent } = config;
+    const { editor, state, from: from3, to, rule, pasteEvent, dropEvent } = config;
     const { commands, chain, can } = new CommandManager({
       editor,
       state
     });
     const handlers2 = [];
-    state.doc.nodesBetween(from2, to, (node, pos) => {
+    state.doc.nodesBetween(from3, to, (node, pos) => {
       var _node$type, _ref, _node$content$size, _node$content;
       if (((_node$type = node.type) === null || _node$type === void 0 || (_node$type = _node$type.spec) === null || _node$type === void 0 ? void 0 : _node$type.code) || !(node.isText || node.isTextblock || node.isInline)) return;
       const contentSize = (_ref = (_node$content$size = (_node$content = node.content) === null || _node$content === void 0 ? void 0 : _node$content.size) !== null && _node$content$size !== void 0 ? _node$content$size : node.nodeSize) !== null && _ref !== void 0 ? _ref : 0;
-      const resolvedFrom = Math.max(from2, pos);
+      const resolvedFrom = Math.max(from3, pos);
       const resolvedTo = Math.min(to, pos + contentSize);
       if (resolvedFrom >= resolvedTo) return;
       const textToMatch = node.isText ? node.text || "" : node.textBetween(resolvedFrom - pos, resolvedTo - pos, void 0, "\uFFFC");
-      pasteRuleMatcherHandler(textToMatch, rule.find, pasteEvent).forEach((match) => {
-        if (match.index === void 0) return;
-        const start = resolvedFrom + match.index + 1;
-        const end = start + match[0].length;
+      pasteRuleMatcherHandler(textToMatch, rule.find, pasteEvent).forEach((match2) => {
+        if (match2.index === void 0) return;
+        const start = resolvedFrom + match2.index + 1;
+        const end = start + match2[0].length;
         const range = {
           from: state.tr.mapping.map(start),
           to: state.tr.mapping.map(end)
@@ -16519,7 +16548,7 @@ ${indentedChild}`;
         const handler = rule.handler({
           state,
           range,
-          match,
+          match: match2,
           commands,
           chain,
           can,
@@ -16532,10 +16561,10 @@ ${indentedChild}`;
     return handlers2.every((handler) => handler !== null);
   }
   var tiptapDragFromOtherEditor = null;
-  var createClipboardPasteEvent = (text) => {
+  var createClipboardPasteEvent = (text2) => {
     var _event$clipboardData;
     const event = new ClipboardEvent("paste", { clipboardData: new DataTransfer() });
-    (_event$clipboardData = event.clipboardData) === null || _event$clipboardData === void 0 || _event$clipboardData.setData("text/html", text);
+    (_event$clipboardData = event.clipboardData) === null || _event$clipboardData === void 0 || _event$clipboardData.setData("text/html", text2);
     return event;
   };
   function pasteRulesPlugin(props) {
@@ -16550,7 +16579,7 @@ ${indentedChild}`;
     } catch {
       dropEvent = null;
     }
-    const processEvent = ({ state, from: from2, to, rule, pasteEvt }) => {
+    const processEvent = ({ state, from: from3, to, rule, pasteEvt }) => {
       const tr2 = state.tr;
       const chainableState = createChainableState({
         state,
@@ -16559,7 +16588,7 @@ ${indentedChild}`;
       if (!run({
         editor,
         state: chainableState,
-        from: Math.max(from2 - 1, 0),
+        from: Math.max(from3 - 1, 0),
         to: to.b - 1,
         rule,
         pasteEvent: pasteEvt,
@@ -16627,27 +16656,27 @@ ${indentedChild}`;
           const isSimulatedPaste = !!simulatedPasteMeta;
           if (!isPaste && !isDrop && !isSimulatedPaste) return;
           if (isSimulatedPaste) {
-            let { text } = simulatedPasteMeta;
-            if (typeof text === "string") text = text;
-            else text = getHTMLFromFragment(Fragment.from(text), state.schema);
-            const { from: from3 } = simulatedPasteMeta;
-            const to2 = from3 + text.length;
-            const pasteEvt = createClipboardPasteEvent(text);
+            let { text: text2 } = simulatedPasteMeta;
+            if (typeof text2 === "string") text2 = text2;
+            else text2 = getHTMLFromFragment(Fragment.from(text2), state.schema);
+            const { from: from4 } = simulatedPasteMeta;
+            const to2 = from4 + text2.length;
+            const pasteEvt = createClipboardPasteEvent(text2);
             return processEvent({
               rule,
               state,
-              from: from3,
+              from: from4,
               to: { b: to2 },
               pasteEvt
             });
           }
-          const from2 = oldState.doc.content.findDiffStart(state.doc.content);
+          const from3 = oldState.doc.content.findDiffStart(state.doc.content);
           const to = oldState.doc.content.findDiffEnd(state.doc.content);
-          if (!isNumber(from2) || !to || from2 === to.b) return;
+          if (!isNumber(from3) || !to || from3 === to.b) return;
           return processEvent({
             rule,
             state,
-            from: from2,
+            from: from3,
             to,
             pasteEvt: pasteEvent
           });
@@ -17011,14 +17040,14 @@ ${indentedChild}`;
         props: { clipboardTextSerializer: () => {
           const { editor } = this;
           const { state, schema } = editor;
-          const { doc: doc3, selection } = state;
+          const { doc: doc4, selection } = state;
           const textSerializers = getTextSerializersFromSchema(schema);
           const { blockSeparator } = this.options;
           const options = {
             ...blockSeparator !== void 0 ? { blockSeparator } : {},
             textSerializers
           };
-          return [...selection.ranges].sort((a, b) => a.$from.pos - b.$from.pos).map(({ $from, $to }) => getTextBetween(doc3, {
+          return [...selection.ranges].sort((a, b) => a.$from.pos - b.$from.pos).map(({ $from, $to }) => getTextBetween(doc4, {
             from: $from.pos,
             to: $to.pos
           }, options)).join(blockSeparator !== null && blockSeparator !== void 0 ? blockSeparator : "\n\n");
@@ -17041,15 +17070,15 @@ ${indentedChild}`;
         if ((_this$editor$options$ = (_this$editor$options$2 = this.editor.options.coreExtensionOptions) === null || _this$editor$options$2 === void 0 || (_this$editor$options$2 = _this$editor$options$2.delete) === null || _this$editor$options$2 === void 0 || (_this$editor$options$3 = _this$editor$options$2.filterTransaction) === null || _this$editor$options$3 === void 0 ? void 0 : _this$editor$options$3.call(_this$editor$options$2, transaction)) !== null && _this$editor$options$ !== void 0 ? _this$editor$options$ : transaction.getMeta("y-sync$")) return;
         const nextTransaction = combineTransactionSteps(transaction.before, [transaction, ...appendedTransactions]);
         getChangedRanges(nextTransaction).forEach((change) => {
-          if (nextTransaction.mapping.mapResult(change.oldRange.from).deletedAfter && nextTransaction.mapping.mapResult(change.oldRange.to).deletedBefore) nextTransaction.before.nodesBetween(change.oldRange.from, change.oldRange.to, (node, from2) => {
-            const to = from2 + node.nodeSize - 2;
-            const isFullyWithinRange = change.oldRange.from <= from2 && to <= change.oldRange.to;
+          if (nextTransaction.mapping.mapResult(change.oldRange.from).deletedAfter && nextTransaction.mapping.mapResult(change.oldRange.to).deletedBefore) nextTransaction.before.nodesBetween(change.oldRange.from, change.oldRange.to, (node, from3) => {
+            const to = from3 + node.nodeSize - 2;
+            const isFullyWithinRange = change.oldRange.from <= from3 && to <= change.oldRange.to;
             this.editor.emit("delete", {
               type: "node",
               node,
-              from: from2,
+              from: from3,
               to,
-              newFrom: nextTransaction.mapping.map(from2),
+              newFrom: nextTransaction.mapping.map(from3),
               newTo: nextTransaction.mapping.map(to),
               deletedRange: change.oldRange,
               newRange: change.newRange,
@@ -17145,9 +17174,9 @@ ${indentedChild}`;
     }
   });
   function isWholeDocumentSelected(state) {
-    const { empty: empty2, from: from2, to } = state.selection;
+    const { empty: empty2, from: from3, to } = state.selection;
     if (empty2) return false;
-    return from2 === Selection.atStart(state.doc).from && to === Selection.atEnd(state.doc).to;
+    return from3 === Selection.atStart(state.doc).from && to === Selection.atEnd(state.doc).to;
   }
   var Keymap = Extension.create({
     name: "keymap",
@@ -17155,13 +17184,13 @@ ${indentedChild}`;
       const handleBackspace3 = () => this.editor.commands.first(({ commands }) => [
         () => commands.undoInputRule(),
         () => commands.command(({ tr: tr2 }) => {
-          const { selection, doc: doc3 } = tr2;
+          const { selection, doc: doc4 } = tr2;
           const { empty: empty2, $anchor } = selection;
           const { pos, parent } = $anchor;
           const $parentPos = $anchor.parent.isTextblock && pos > 0 ? tr2.doc.resolve(pos - 1) : $anchor;
           const parentIsIsolating = $parentPos.parent.type.spec.isolating;
           const parentPos = $anchor.pos - $anchor.parentOffset;
-          const isAtStart = parentIsIsolating && $parentPos.parent.childCount === 1 ? parentPos === $anchor.pos : Selection.atStart(doc3).from === pos;
+          const isAtStart = parentIsIsolating && $parentPos.parent.childCount === 1 ? parentPos === $anchor.pos : Selection.atStart(doc4).from === pos;
           if (!empty2 || !parent.type.isTextblock || parent.textContent.length || !isAtStart || isAtStart && $anchor.parent.type.name === "paragraph") return false;
           return commands.clearNodes();
         }),
@@ -17275,8 +17304,8 @@ ${indentedChild}`;
         types: nodeExtensions.filter((extension) => extension.name !== "text").map((extension) => extension.name),
         attributes: { dir: {
           default: this.options.direction,
-          parseHTML: (element) => {
-            const dir = element.getAttribute("dir");
+          parseHTML: (element2) => {
+            const dir = element2.getAttribute("dir");
             if (dir && (dir === "ltr" || dir === "rtl" || dir === "auto")) return dir;
             return this.options.direction;
           },
@@ -17345,18 +17374,18 @@ ${indentedChild}`;
       return this.node.content;
     }
     set content(content) {
-      let from2 = this.from;
+      let from3 = this.from;
       let to = this.to;
       if (this.isBlock) {
         if (this.content.size === 0) {
           console.error(`You can\u2019t set content on a block node. Tried to set content on ${this.name} at ${this.pos}`);
           return;
         }
-        from2 = this.from + 1;
+        from3 = this.from + 1;
         to = this.to - 1;
       }
       this.editor.commands.insertContentAt({
-        from: from2,
+        from: from3,
         to
       }, content);
     }
@@ -17431,8 +17460,8 @@ ${indentedChild}`;
             const nodeAttributes = currentNode.node.attrs;
             const attrKeys = Object.keys(attributes);
             for (let index = 0; index < attrKeys.length; index += 1) {
-              const key = attrKeys[index];
-              if (nodeAttributes[key] !== attributes[key]) break;
+              const key2 = attrKeys[index];
+              if (nodeAttributes[key2] !== attributes[key2]) break;
             }
           } else node = currentNode;
         }
@@ -17450,7 +17479,7 @@ ${indentedChild}`;
       this.children.forEach((childPos) => {
         if (firstItemOnly && nodes.length > 0) return;
         if (childPos.node.type.name === selector) {
-          if (attrKeys.every((key) => attributes[key] === childPos.node.attrs[key])) nodes.push(childPos);
+          if (attrKeys.every((key2) => attributes[key2] === childPos.node.attrs[key2])) nodes.push(childPos);
         }
         if (firstItemOnly && nodes.length > 0) return;
         nodes = nodes.concat(childPos.querySelectorAll(selector, attributes, firstItemOnly));
@@ -17740,11 +17769,11 @@ img.ProseMirror-separator {
         dragging: null,
         editable: true,
         isDestroyed: false
-      }, { get: (obj, key) => {
-        if (this.editorView) return this.editorView[key];
-        if (key === "state") return this.editorState;
-        if (key in obj) return Reflect.get(obj, key);
-        throw new Error(`[tiptap error]: The editor view is not available. Cannot access view['${key}']. The editor may not be mounted yet.`);
+      }, { get: (obj, key2) => {
+        if (this.editorView) return this.editorView[key2];
+        if (key2 === "state") return this.editorState;
+        if (key2 in obj) return Reflect.get(obj, key2);
+        throw new Error(`[tiptap error]: The editor view is not available. Cannot access view['${key2}']. The editor may not be mounted yet.`);
       } });
     }
     /**
@@ -17834,9 +17863,9 @@ img.ProseMirror-separator {
     * Creates the initial document.
     */
     createDoc() {
-      let doc3;
+      let doc4;
       try {
-        doc3 = createDocument(this.options.content, this.schema, this.options.parseOptions, { errorOnInvalidContent: this.options.enableContentCheck });
+        doc4 = createDocument(this.options.content, this.schema, this.options.parseOptions, { errorOnInvalidContent: this.options.enableContentCheck });
       } catch (e) {
         if (!(e instanceof Error) || !["[tiptap error]: Invalid JSON content", "[tiptap error]: Invalid HTML content"].includes(e.message)) throw e;
         const fallbackDoc = createDocument(this.options.content, this.schema, this.options.parseOptions, { errorOnInvalidContent: false });
@@ -17856,7 +17885,7 @@ img.ProseMirror-separator {
         });
         return this.editorState.doc;
       }
-      return doc3;
+      return doc4;
     }
     /**
     * Returns the attributes for the editor element.
@@ -17878,13 +17907,13 @@ img.ProseMirror-separator {
     /**
     * Creates a ProseMirror view.
     */
-    createView(element) {
+    createView(element2) {
       const { editorProps, enableExtensionDispatchTransaction } = this.options;
       const baseDispatch = editorProps.dispatchTransaction || this.dispatchTransaction.bind(this);
       const dispatch = enableExtensionDispatchTransaction ? this.extensionManager.dispatchTransaction(baseDispatch) : baseDispatch;
       const baseTransformPastedHTML = editorProps.transformPastedHTML;
       const transformPastedHTML = this.extensionManager.transformPastedHTML(baseTransformPastedHTML);
-      this.editorView = new EditorView(element, {
+      this.editorView = new EditorView(element2, {
         ...editorProps,
         attributes: this.getEditorViewAttributes(),
         dispatchTransaction: dispatch,
@@ -18066,12 +18095,12 @@ img.ProseMirror-separator {
   function markInputRule(config) {
     return new InputRule({
       find: config.find,
-      handler: ({ state, range, match }) => {
-        const attributes = callOrReturn(config.getAttributes, void 0, match);
+      handler: ({ state, range, match: match2 }) => {
+        const attributes = callOrReturn(config.getAttributes, void 0, match2);
         if (attributes === false || attributes === null) return null;
         const { tr: tr2 } = state;
-        const captureGroup = match[match.length - 1];
-        const fullMatch = match[0];
+        const captureGroup = match2[match2.length - 1];
+        const fullMatch = match2[0];
         if (captureGroup) {
           const startSpaces = fullMatch.search(/\S/);
           const textStart = range.from + fullMatch.indexOf(captureGroup);
@@ -18092,20 +18121,20 @@ img.ProseMirror-separator {
   function nodeInputRule(config) {
     return new InputRule({
       find: config.find,
-      handler: ({ state, range, match }) => {
-        const attributes = callOrReturn(config.getAttributes, void 0, match) || {};
+      handler: ({ state, range, match: match2 }) => {
+        const attributes = callOrReturn(config.getAttributes, void 0, match2) || {};
         const { tr: tr2 } = state;
         const start = range.from;
         let end = range.to;
         const newNode = config.type.create(attributes);
-        if (match[1]) {
-          let matchStart = start + match[0].lastIndexOf(match[1]);
+        if (match2[1]) {
+          let matchStart = start + match2[0].lastIndexOf(match2[1]);
           if (matchStart > end) matchStart = end;
-          else end = matchStart + match[1].length;
-          const lastChar = match[0][match[0].length - 1];
-          tr2.insertText(lastChar, start + match[0].length - 1);
+          else end = matchStart + match2[1].length;
+          const lastChar = match2[0][match2[0].length - 1];
+          tr2.insertText(lastChar, start + match2[0].length - 1);
           tr2.replaceWith(matchStart, end, newNode);
-        } else if (match[0]) {
+        } else if (match2[0]) {
           const insertionStart = config.type.isInline ? start : start - 1;
           tr2.insert(insertionStart, config.type.create(attributes)).delete(tr2.mapping.map(start), tr2.mapping.map(end));
         }
@@ -18117,9 +18146,9 @@ img.ProseMirror-separator {
   function textblockTypeInputRule(config) {
     return new InputRule({
       find: config.find,
-      handler: ({ state, range, match }) => {
+      handler: ({ state, range, match: match2 }) => {
         const $start = state.doc.resolve(range.from);
-        const attributes = callOrReturn(config.getAttributes, void 0, match) || {};
+        const attributes = callOrReturn(config.getAttributes, void 0, match2) || {};
         if (!$start.node(-1).canReplaceWith($start.index(-1), $start.indexAfter(-1), config.type)) return null;
         state.tr.delete(range.from, range.to).setBlockType(range.from, range.from, config.type, attributes);
       },
@@ -18129,8 +18158,8 @@ img.ProseMirror-separator {
   function wrappingInputRule(config) {
     return new InputRule({
       find: config.find,
-      handler: ({ state, range, match, chain }) => {
-        const attributes = callOrReturn(config.getAttributes, void 0, match) || {};
+      handler: ({ state, range, match: match2, chain }) => {
+        const attributes = callOrReturn(config.getAttributes, void 0, match2) || {};
         const tr2 = state.tr.delete(range.from, range.to);
         const blockRange = tr2.doc.resolve(range.from).blockRange();
         const wrapping = blockRange && findWrapping(blockRange, config.type, attributes);
@@ -18150,7 +18179,7 @@ img.ProseMirror-separator {
           chain().updateAttributes(nodeType, attributes).run();
         }
         const before = tr2.doc.resolve(range.from - 1).nodeBefore;
-        if (before && before.type === config.type && canJoin(tr2.doc, range.from - 1) && (!config.joinPredicate || config.joinPredicate(match, before))) tr2.join(range.from - 1);
+        if (before && before.type === config.type && canJoin(tr2.doc, range.from - 1) && (!config.joinPredicate || config.joinPredicate(match2, before))) tr2.join(range.from - 1);
       },
       undoable: config.undoable
     });
@@ -18179,12 +18208,12 @@ img.ProseMirror-separator {
   function markPasteRule(config) {
     return new PasteRule({
       find: config.find,
-      handler: ({ state, range, match, pasteEvent }) => {
-        const attributes = callOrReturn(config.getAttributes, void 0, match, pasteEvent);
+      handler: ({ state, range, match: match2, pasteEvent }) => {
+        const attributes = callOrReturn(config.getAttributes, void 0, match2, pasteEvent);
         if (attributes === false || attributes === null) return null;
         const { tr: tr2 } = state;
-        const captureGroup = match[match.length - 1];
-        const fullMatch = match[0];
+        const captureGroup = match2[match2.length - 1];
+        const fullMatch = match2[0];
         let markEnd = range.to;
         if (captureGroup) {
           const startSpaces = fullMatch.search(/\S/);
@@ -18197,19 +18226,11253 @@ img.ProseMirror-separator {
           if (textStart > range.from) tr2.delete(range.from + startSpaces, textStart);
           markEnd = range.from + startSpaces + captureGroup.length;
           tr2.addMark(range.from + startSpaces, markEnd, config.type.create(attributes || {}));
-          if (!(match.index !== void 0 && match.input !== void 0 && match.index + match[0].length >= match.input.length)) tr2.removeStoredMark(config.type);
+          if (!(match2.index !== void 0 && match2.input !== void 0 && match2.index + match2[0].length >= match2.input.length)) tr2.removeStoredMark(config.type);
         }
       }
     });
+  }
+
+  // node_modules/lib0/map.js
+  var create = () => /* @__PURE__ */ new Map();
+  var copy2 = (m) => {
+    const r = create();
+    m.forEach((v, k) => {
+      r.set(k, v);
+    });
+    return r;
+  };
+  var setIfUndefined = (map3, key2, createT) => {
+    let set = map3.get(key2);
+    if (set === void 0) {
+      map3.set(key2, set = createT());
+    }
+    return set;
+  };
+  var map2 = (m, f) => {
+    const res = [];
+    for (const [key2, value] of m) {
+      res.push(f(value, key2));
+    }
+    return res;
+  };
+  var any = (m, f) => {
+    for (const [key2, value] of m) {
+      if (f(value, key2)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  // node_modules/lib0/set.js
+  var create2 = () => /* @__PURE__ */ new Set();
+
+  // node_modules/lib0/array.js
+  var last = (arr) => arr[arr.length - 1];
+  var appendTo = (dest, src) => {
+    for (let i2 = 0; i2 < src.length; i2++) {
+      dest.push(src[i2]);
+    }
+  };
+  var from2 = Array.from;
+  var every = (arr, f) => {
+    for (let i2 = 0; i2 < arr.length; i2++) {
+      if (!f(arr[i2], i2, arr)) {
+        return false;
+      }
+    }
+    return true;
+  };
+  var some = (arr, f) => {
+    for (let i2 = 0; i2 < arr.length; i2++) {
+      if (f(arr[i2], i2, arr)) {
+        return true;
+      }
+    }
+    return false;
+  };
+  var unfold = (len, f) => {
+    const array = new Array(len);
+    for (let i2 = 0; i2 < len; i2++) {
+      array[i2] = f(i2, array);
+    }
+    return array;
+  };
+  var isArray = Array.isArray;
+
+  // node_modules/lib0/observable.js
+  var ObservableV2 = class {
+    constructor() {
+      this._observers = create();
+    }
+    /**
+     * @template {keyof EVENTS & string} NAME
+     * @param {NAME} name
+     * @param {EVENTS[NAME]} f
+     */
+    on(name, f) {
+      setIfUndefined(
+        this._observers,
+        /** @type {string} */
+        name,
+        create2
+      ).add(f);
+      return f;
+    }
+    /**
+     * @template {keyof EVENTS & string} NAME
+     * @param {NAME} name
+     * @param {EVENTS[NAME]} f
+     */
+    once(name, f) {
+      const _f = (...args2) => {
+        this.off(
+          name,
+          /** @type {any} */
+          _f
+        );
+        f(...args2);
+      };
+      this.on(
+        name,
+        /** @type {any} */
+        _f
+      );
+    }
+    /**
+     * @template {keyof EVENTS & string} NAME
+     * @param {NAME} name
+     * @param {EVENTS[NAME]} f
+     */
+    off(name, f) {
+      const observers = this._observers.get(name);
+      if (observers !== void 0) {
+        observers.delete(f);
+        if (observers.size === 0) {
+          this._observers.delete(name);
+        }
+      }
+    }
+    /**
+     * Emit a named event. All registered event listeners that listen to the
+     * specified name will receive the event.
+     *
+     * @todo This should catch exceptions
+     *
+     * @template {keyof EVENTS & string} NAME
+     * @param {NAME} name The event name.
+     * @param {Parameters<EVENTS[NAME]>} args The arguments that are applied to the event listener.
+     */
+    emit(name, args2) {
+      return from2((this._observers.get(name) || create()).values()).forEach((f) => f(...args2));
+    }
+    destroy() {
+      this._observers = create();
+    }
+  };
+  var Observable = class {
+    constructor() {
+      this._observers = create();
+    }
+    /**
+     * @param {N} name
+     * @param {function} f
+     */
+    on(name, f) {
+      setIfUndefined(this._observers, name, create2).add(f);
+    }
+    /**
+     * @param {N} name
+     * @param {function} f
+     */
+    once(name, f) {
+      const _f = (...args2) => {
+        this.off(name, _f);
+        f(...args2);
+      };
+      this.on(name, _f);
+    }
+    /**
+     * @param {N} name
+     * @param {function} f
+     */
+    off(name, f) {
+      const observers = this._observers.get(name);
+      if (observers !== void 0) {
+        observers.delete(f);
+        if (observers.size === 0) {
+          this._observers.delete(name);
+        }
+      }
+    }
+    /**
+     * Emit a named event. All registered event listeners that listen to the
+     * specified name will receive the event.
+     *
+     * @todo This should catch exceptions
+     *
+     * @param {N} name The event name.
+     * @param {Array<any>} args The arguments that are applied to the event listener.
+     */
+    emit(name, args2) {
+      return from2((this._observers.get(name) || create()).values()).forEach((f) => f(...args2));
+    }
+    destroy() {
+      this._observers = create();
+    }
+  };
+
+  // node_modules/lib0/math.js
+  var floor = Math.floor;
+  var abs = Math.abs;
+  var min = (a, b) => a < b ? a : b;
+  var max = (a, b) => a > b ? a : b;
+  var isNaN2 = Number.isNaN;
+  var isNegativeZero = (n) => n !== 0 ? n < 0 : 1 / n < 0;
+
+  // node_modules/lib0/binary.js
+  var BIT1 = 1;
+  var BIT2 = 2;
+  var BIT3 = 4;
+  var BIT4 = 8;
+  var BIT6 = 32;
+  var BIT7 = 64;
+  var BIT8 = 128;
+  var BIT18 = 1 << 17;
+  var BIT19 = 1 << 18;
+  var BIT20 = 1 << 19;
+  var BIT21 = 1 << 20;
+  var BIT22 = 1 << 21;
+  var BIT23 = 1 << 22;
+  var BIT24 = 1 << 23;
+  var BIT25 = 1 << 24;
+  var BIT26 = 1 << 25;
+  var BIT27 = 1 << 26;
+  var BIT28 = 1 << 27;
+  var BIT29 = 1 << 28;
+  var BIT30 = 1 << 29;
+  var BIT31 = 1 << 30;
+  var BIT32 = 1 << 31;
+  var BITS5 = 31;
+  var BITS6 = 63;
+  var BITS7 = 127;
+  var BITS17 = BIT18 - 1;
+  var BITS18 = BIT19 - 1;
+  var BITS19 = BIT20 - 1;
+  var BITS20 = BIT21 - 1;
+  var BITS21 = BIT22 - 1;
+  var BITS22 = BIT23 - 1;
+  var BITS23 = BIT24 - 1;
+  var BITS24 = BIT25 - 1;
+  var BITS25 = BIT26 - 1;
+  var BITS26 = BIT27 - 1;
+  var BITS27 = BIT28 - 1;
+  var BITS28 = BIT29 - 1;
+  var BITS29 = BIT30 - 1;
+  var BITS30 = BIT31 - 1;
+  var BITS31 = 2147483647;
+
+  // node_modules/lib0/number.js
+  var MAX_SAFE_INTEGER = Number.MAX_SAFE_INTEGER;
+  var MIN_SAFE_INTEGER = Number.MIN_SAFE_INTEGER;
+  var LOWEST_INT32 = 1 << 31;
+  var isInteger = Number.isInteger || ((num) => typeof num === "number" && isFinite(num) && floor(num) === num);
+  var isNaN3 = Number.isNaN;
+  var parseInt2 = Number.parseInt;
+
+  // node_modules/lib0/string.js
+  var fromCharCode = String.fromCharCode;
+  var fromCodePoint = String.fromCodePoint;
+  var MAX_UTF16_CHARACTER = fromCharCode(65535);
+  var toLowerCase = (s) => s.toLowerCase();
+  var trimLeftRegex = /^\s*/g;
+  var trimLeft = (s) => s.replace(trimLeftRegex, "");
+  var fromCamelCaseRegex = /([A-Z])/g;
+  var fromCamelCase = (s, separator) => trimLeft(s.replace(fromCamelCaseRegex, (match2) => `${separator}${toLowerCase(match2)}`));
+  var _encodeUtf8Polyfill = (str) => {
+    const encodedString = unescape(encodeURIComponent(str));
+    const len = encodedString.length;
+    const buf = new Uint8Array(len);
+    for (let i2 = 0; i2 < len; i2++) {
+      buf[i2] = /** @type {number} */
+      encodedString.codePointAt(i2);
+    }
+    return buf;
+  };
+  var utf8TextEncoder = (
+    /** @type {TextEncoder} */
+    typeof TextEncoder !== "undefined" ? new TextEncoder() : null
+  );
+  var _encodeUtf8Native = (str) => utf8TextEncoder.encode(str);
+  var encodeUtf8 = utf8TextEncoder ? _encodeUtf8Native : _encodeUtf8Polyfill;
+  var utf8TextDecoder = typeof TextDecoder === "undefined" ? null : new TextDecoder("utf-8", { fatal: true, ignoreBOM: true });
+  if (utf8TextDecoder && utf8TextDecoder.decode(new Uint8Array()).length === 1) {
+    utf8TextDecoder = null;
+  }
+  var repeat = (source, n) => unfold(n, () => source).join("");
+
+  // node_modules/lib0/encoding.js
+  var Encoder = class {
+    constructor() {
+      this.cpos = 0;
+      this.cbuf = new Uint8Array(100);
+      this.bufs = [];
+    }
+  };
+  var createEncoder = () => new Encoder();
+  var encode = (f) => {
+    const encoder = createEncoder();
+    f(encoder);
+    return toUint8Array(encoder);
+  };
+  var length = (encoder) => {
+    let len = encoder.cpos;
+    for (let i2 = 0; i2 < encoder.bufs.length; i2++) {
+      len += encoder.bufs[i2].length;
+    }
+    return len;
+  };
+  var toUint8Array = (encoder) => {
+    const uint8arr = new Uint8Array(length(encoder));
+    let curPos = 0;
+    for (let i2 = 0; i2 < encoder.bufs.length; i2++) {
+      const d = encoder.bufs[i2];
+      uint8arr.set(d, curPos);
+      curPos += d.length;
+    }
+    uint8arr.set(new Uint8Array(encoder.cbuf.buffer, 0, encoder.cpos), curPos);
+    return uint8arr;
+  };
+  var verifyLen = (encoder, len) => {
+    const bufferLen = encoder.cbuf.length;
+    if (bufferLen - encoder.cpos < len) {
+      encoder.bufs.push(new Uint8Array(encoder.cbuf.buffer, 0, encoder.cpos));
+      encoder.cbuf = new Uint8Array(max(bufferLen, len) * 2);
+      encoder.cpos = 0;
+    }
+  };
+  var write = (encoder, num) => {
+    const bufferLen = encoder.cbuf.length;
+    if (encoder.cpos === bufferLen) {
+      encoder.bufs.push(encoder.cbuf);
+      encoder.cbuf = new Uint8Array(bufferLen * 2);
+      encoder.cpos = 0;
+    }
+    encoder.cbuf[encoder.cpos++] = num;
+  };
+  var writeUint8 = write;
+  var writeVarUint = (encoder, num) => {
+    while (num > BITS7) {
+      write(encoder, BIT8 | BITS7 & num);
+      num = floor(num / 128);
+    }
+    write(encoder, BITS7 & num);
+  };
+  var writeVarInt = (encoder, num) => {
+    const isNegative = isNegativeZero(num);
+    if (isNegative) {
+      num = -num;
+    }
+    write(encoder, (num > BITS6 ? BIT8 : 0) | (isNegative ? BIT7 : 0) | BITS6 & num);
+    num = floor(num / 64);
+    while (num > 0) {
+      write(encoder, (num > BITS7 ? BIT8 : 0) | BITS7 & num);
+      num = floor(num / 128);
+    }
+  };
+  var _strBuffer = new Uint8Array(3e4);
+  var _maxStrBSize = _strBuffer.length / 3;
+  var _writeVarStringNative = (encoder, str) => {
+    if (str.length < _maxStrBSize) {
+      const written = utf8TextEncoder.encodeInto(str, _strBuffer).written || 0;
+      writeVarUint(encoder, written);
+      for (let i2 = 0; i2 < written; i2++) {
+        write(encoder, _strBuffer[i2]);
+      }
+    } else {
+      writeVarUint8Array(encoder, encodeUtf8(str));
+    }
+  };
+  var _writeVarStringPolyfill = (encoder, str) => {
+    const encodedString = unescape(encodeURIComponent(str));
+    const len = encodedString.length;
+    writeVarUint(encoder, len);
+    for (let i2 = 0; i2 < len; i2++) {
+      write(
+        encoder,
+        /** @type {number} */
+        encodedString.codePointAt(i2)
+      );
+    }
+  };
+  var writeVarString = utf8TextEncoder && /** @type {any} */
+  utf8TextEncoder.encodeInto ? _writeVarStringNative : _writeVarStringPolyfill;
+  var writeUint8Array = (encoder, uint8Array) => {
+    const bufferLen = encoder.cbuf.length;
+    const cpos = encoder.cpos;
+    const leftCopyLen = min(bufferLen - cpos, uint8Array.length);
+    const rightCopyLen = uint8Array.length - leftCopyLen;
+    encoder.cbuf.set(uint8Array.subarray(0, leftCopyLen), cpos);
+    encoder.cpos += leftCopyLen;
+    if (rightCopyLen > 0) {
+      encoder.bufs.push(encoder.cbuf);
+      encoder.cbuf = new Uint8Array(max(bufferLen * 2, rightCopyLen));
+      encoder.cbuf.set(uint8Array.subarray(leftCopyLen));
+      encoder.cpos = rightCopyLen;
+    }
+  };
+  var writeVarUint8Array = (encoder, uint8Array) => {
+    writeVarUint(encoder, uint8Array.byteLength);
+    writeUint8Array(encoder, uint8Array);
+  };
+  var writeOnDataView = (encoder, len) => {
+    verifyLen(encoder, len);
+    const dview = new DataView(encoder.cbuf.buffer, encoder.cpos, len);
+    encoder.cpos += len;
+    return dview;
+  };
+  var writeFloat32 = (encoder, num) => writeOnDataView(encoder, 4).setFloat32(0, num, false);
+  var writeFloat64 = (encoder, num) => writeOnDataView(encoder, 8).setFloat64(0, num, false);
+  var writeBigInt64 = (encoder, num) => (
+    /** @type {any} */
+    writeOnDataView(encoder, 8).setBigInt64(0, num, false)
+  );
+  var floatTestBed = new DataView(new ArrayBuffer(4));
+  var isFloat32 = (num) => {
+    floatTestBed.setFloat32(0, num);
+    return floatTestBed.getFloat32(0) === num;
+  };
+  var writeAny = (encoder, data) => {
+    switch (typeof data) {
+      case "string":
+        write(encoder, 119);
+        writeVarString(encoder, data);
+        break;
+      case "number":
+        if (isInteger(data) && abs(data) <= BITS31) {
+          write(encoder, 125);
+          writeVarInt(encoder, data);
+        } else if (isFloat32(data)) {
+          write(encoder, 124);
+          writeFloat32(encoder, data);
+        } else {
+          write(encoder, 123);
+          writeFloat64(encoder, data);
+        }
+        break;
+      case "bigint":
+        write(encoder, 122);
+        writeBigInt64(encoder, data);
+        break;
+      case "object":
+        if (data === null) {
+          write(encoder, 126);
+        } else if (isArray(data)) {
+          write(encoder, 117);
+          writeVarUint(encoder, data.length);
+          for (let i2 = 0; i2 < data.length; i2++) {
+            writeAny(encoder, data[i2]);
+          }
+        } else if (data instanceof Uint8Array) {
+          write(encoder, 116);
+          writeVarUint8Array(encoder, data);
+        } else {
+          write(encoder, 118);
+          const keys3 = Object.keys(data);
+          writeVarUint(encoder, keys3.length);
+          for (let i2 = 0; i2 < keys3.length; i2++) {
+            const key2 = keys3[i2];
+            writeVarString(encoder, key2);
+            writeAny(encoder, data[key2]);
+          }
+        }
+        break;
+      case "boolean":
+        write(encoder, data ? 120 : 121);
+        break;
+      default:
+        write(encoder, 127);
+    }
+  };
+  var RleEncoder = class extends Encoder {
+    /**
+     * @param {function(Encoder, T):void} writer
+     */
+    constructor(writer) {
+      super();
+      this.w = writer;
+      this.s = null;
+      this.count = 0;
+    }
+    /**
+     * @param {T} v
+     */
+    write(v) {
+      if (this.s === v) {
+        this.count++;
+      } else {
+        if (this.count > 0) {
+          writeVarUint(this, this.count - 1);
+        }
+        this.count = 1;
+        this.w(this, v);
+        this.s = v;
+      }
+    }
+  };
+  var flushUintOptRleEncoder = (encoder) => {
+    if (encoder.count > 0) {
+      writeVarInt(encoder.encoder, encoder.count === 1 ? encoder.s : -encoder.s);
+      if (encoder.count > 1) {
+        writeVarUint(encoder.encoder, encoder.count - 2);
+      }
+    }
+  };
+  var UintOptRleEncoder = class {
+    constructor() {
+      this.encoder = new Encoder();
+      this.s = 0;
+      this.count = 0;
+    }
+    /**
+     * @param {number} v
+     */
+    write(v) {
+      if (this.s === v) {
+        this.count++;
+      } else {
+        flushUintOptRleEncoder(this);
+        this.count = 1;
+        this.s = v;
+      }
+    }
+    /**
+     * Flush the encoded state and transform this to a Uint8Array.
+     *
+     * Note that this should only be called once.
+     */
+    toUint8Array() {
+      flushUintOptRleEncoder(this);
+      return toUint8Array(this.encoder);
+    }
+  };
+  var flushIntDiffOptRleEncoder = (encoder) => {
+    if (encoder.count > 0) {
+      const encodedDiff = encoder.diff * 2 + (encoder.count === 1 ? 0 : 1);
+      writeVarInt(encoder.encoder, encodedDiff);
+      if (encoder.count > 1) {
+        writeVarUint(encoder.encoder, encoder.count - 2);
+      }
+    }
+  };
+  var IntDiffOptRleEncoder = class {
+    constructor() {
+      this.encoder = new Encoder();
+      this.s = 0;
+      this.count = 0;
+      this.diff = 0;
+    }
+    /**
+     * @param {number} v
+     */
+    write(v) {
+      if (this.diff === v - this.s) {
+        this.s = v;
+        this.count++;
+      } else {
+        flushIntDiffOptRleEncoder(this);
+        this.count = 1;
+        this.diff = v - this.s;
+        this.s = v;
+      }
+    }
+    /**
+     * Flush the encoded state and transform this to a Uint8Array.
+     *
+     * Note that this should only be called once.
+     */
+    toUint8Array() {
+      flushIntDiffOptRleEncoder(this);
+      return toUint8Array(this.encoder);
+    }
+  };
+  var StringEncoder = class {
+    constructor() {
+      this.sarr = [];
+      this.s = "";
+      this.lensE = new UintOptRleEncoder();
+    }
+    /**
+     * @param {string} string
+     */
+    write(string) {
+      this.s += string;
+      if (this.s.length > 19) {
+        this.sarr.push(this.s);
+        this.s = "";
+      }
+      this.lensE.write(string.length);
+    }
+    toUint8Array() {
+      const encoder = new Encoder();
+      this.sarr.push(this.s);
+      this.s = "";
+      writeVarString(encoder, this.sarr.join(""));
+      writeUint8Array(encoder, this.lensE.toUint8Array());
+      return toUint8Array(encoder);
+    }
+  };
+
+  // node_modules/lib0/error.js
+  var create3 = (s) => new Error(s);
+  var methodUnimplemented = () => {
+    throw create3("Method unimplemented");
+  };
+  var unexpectedCase = () => {
+    throw create3("Unexpected case");
+  };
+
+  // node_modules/lib0/decoding.js
+  var errorUnexpectedEndOfArray = create3("Unexpected end of array");
+  var errorIntegerOutOfRange = create3("Integer out of Range");
+  var subarray = (arr, begin, len) => {
+    if (begin < 0 || len < 0 || begin + len > arr.length) {
+      throw errorUnexpectedEndOfArray;
+    }
+    return new Uint8Array(arr.buffer, arr.byteOffset + begin, len);
+  };
+  var subdataview = (arr, begin, len) => {
+    if (begin < 0 || len < 0 || begin + len > arr.length) {
+      throw errorUnexpectedEndOfArray;
+    }
+    return new DataView(arr.buffer, arr.byteOffset + begin, len);
+  };
+  var Decoder = class {
+    /**
+     * @param {Uint8Array<Buf>} uint8Array Binary data to decode
+     */
+    constructor(uint8Array) {
+      this.arr = uint8Array;
+      this.pos = 0;
+    }
+  };
+  var createDecoder = (uint8Array) => new Decoder(uint8Array);
+  var hasContent = (decoder) => decoder.pos !== decoder.arr.length;
+  var readUint8Array = (decoder, len) => {
+    const view = subarray(decoder.arr, decoder.pos, len);
+    decoder.pos += len;
+    return view;
+  };
+  var readVarUint8Array = (decoder) => readUint8Array(decoder, readVarUint(decoder));
+  var readUint8 = (decoder) => decoder.arr[decoder.pos++];
+  var readVarUint = (decoder) => {
+    let num = 0;
+    let mult = 1;
+    const len = decoder.arr.length;
+    while (decoder.pos < len) {
+      const r = decoder.arr[decoder.pos++];
+      num = num + (r & BITS7) * mult;
+      mult *= 128;
+      if (r < BIT8) {
+        return num;
+      }
+      if (num > MAX_SAFE_INTEGER) {
+        throw errorIntegerOutOfRange;
+      }
+    }
+    throw errorUnexpectedEndOfArray;
+  };
+  var readVarInt = (decoder) => {
+    let r = decoder.arr[decoder.pos++];
+    let num = r & BITS6;
+    let mult = 64;
+    const sign = (r & BIT7) > 0 ? -1 : 1;
+    if ((r & BIT8) === 0) {
+      return sign * num;
+    }
+    const len = decoder.arr.length;
+    while (decoder.pos < len) {
+      r = decoder.arr[decoder.pos++];
+      num = num + (r & BITS7) * mult;
+      mult *= 128;
+      if (r < BIT8) {
+        return sign * num;
+      }
+      if (num > MAX_SAFE_INTEGER) {
+        throw errorIntegerOutOfRange;
+      }
+    }
+    throw errorUnexpectedEndOfArray;
+  };
+  var _readVarStringPolyfill = (decoder) => {
+    let remainingLen = readVarUint(decoder);
+    if (remainingLen === 0) {
+      return "";
+    } else {
+      let encodedString = String.fromCodePoint(readUint8(decoder));
+      if (--remainingLen < 100) {
+        while (remainingLen--) {
+          encodedString += String.fromCodePoint(readUint8(decoder));
+        }
+      } else {
+        while (remainingLen > 0) {
+          const nextLen = remainingLen < 1e4 ? remainingLen : 1e4;
+          const bytes = decoder.arr.subarray(decoder.pos, decoder.pos + nextLen);
+          decoder.pos += nextLen;
+          encodedString += String.fromCodePoint.apply(
+            null,
+            /** @type {any} */
+            bytes
+          );
+          remainingLen -= nextLen;
+        }
+      }
+      return decodeURIComponent(escape(encodedString));
+    }
+  };
+  var _readVarStringNative = (decoder) => (
+    /** @type any */
+    utf8TextDecoder.decode(readVarUint8Array(decoder))
+  );
+  var readVarString = utf8TextDecoder ? _readVarStringNative : _readVarStringPolyfill;
+  var readFromDataView = (decoder, len) => {
+    const dv = subdataview(decoder.arr, decoder.pos, len);
+    decoder.pos += len;
+    return dv;
+  };
+  var readFloat32 = (decoder) => readFromDataView(decoder, 4).getFloat32(0, false);
+  var readFloat64 = (decoder) => readFromDataView(decoder, 8).getFloat64(0, false);
+  var readBigInt64 = (decoder) => (
+    /** @type {any} */
+    readFromDataView(decoder, 8).getBigInt64(0, false)
+  );
+  var readAnyLookupTable = [
+    (decoder) => void 0,
+    // CASE 127: undefined
+    (decoder) => null,
+    // CASE 126: null
+    readVarInt,
+    // CASE 125: integer
+    readFloat32,
+    // CASE 124: float32
+    readFloat64,
+    // CASE 123: float64
+    readBigInt64,
+    // CASE 122: bigint
+    (decoder) => false,
+    // CASE 121: boolean (false)
+    (decoder) => true,
+    // CASE 120: boolean (true)
+    readVarString,
+    // CASE 119: string
+    (decoder) => {
+      const len = readVarUint(decoder);
+      const obj = {};
+      for (let i2 = 0; i2 < len; i2++) {
+        const key2 = readVarString(decoder);
+        obj[key2] = readAny(decoder);
+      }
+      return obj;
+    },
+    (decoder) => {
+      const len = readVarUint(decoder);
+      const arr = [];
+      for (let i2 = 0; i2 < len; i2++) {
+        arr.push(readAny(decoder));
+      }
+      return arr;
+    },
+    readVarUint8Array
+    // CASE 116: Uint8Array
+  ];
+  var readAny = (decoder) => readAnyLookupTable[127 - readUint8(decoder)](decoder);
+  var RleDecoder = class extends Decoder {
+    /**
+     * @param {Uint8Array} uint8Array
+     * @param {function(Decoder):T} reader
+     */
+    constructor(uint8Array, reader) {
+      super(uint8Array);
+      this.reader = reader;
+      this.s = null;
+      this.count = 0;
+    }
+    read() {
+      if (this.count === 0) {
+        this.s = this.reader(this);
+        if (hasContent(this)) {
+          this.count = readVarUint(this) + 1;
+        } else {
+          this.count = -1;
+        }
+      }
+      this.count--;
+      return (
+        /** @type {T} */
+        this.s
+      );
+    }
+  };
+  var UintOptRleDecoder = class extends Decoder {
+    /**
+     * @param {Uint8Array} uint8Array
+     */
+    constructor(uint8Array) {
+      super(uint8Array);
+      this.s = 0;
+      this.count = 0;
+    }
+    read() {
+      if (this.count === 0) {
+        this.s = readVarInt(this);
+        const isNegative = isNegativeZero(this.s);
+        this.count = 1;
+        if (isNegative) {
+          this.s = -this.s;
+          this.count = readVarUint(this) + 2;
+        }
+      }
+      this.count--;
+      return (
+        /** @type {number} */
+        this.s
+      );
+    }
+  };
+  var IntDiffOptRleDecoder = class extends Decoder {
+    /**
+     * @param {Uint8Array} uint8Array
+     */
+    constructor(uint8Array) {
+      super(uint8Array);
+      this.s = 0;
+      this.count = 0;
+      this.diff = 0;
+    }
+    /**
+     * @return {number}
+     */
+    read() {
+      if (this.count === 0) {
+        const diff = readVarInt(this);
+        const hasCount = diff & 1;
+        this.diff = floor(diff / 2);
+        this.count = 1;
+        if (hasCount) {
+          this.count = readVarUint(this) + 2;
+        }
+      }
+      this.s += this.diff;
+      this.count--;
+      return this.s;
+    }
+  };
+  var StringDecoder = class {
+    /**
+     * @param {Uint8Array} uint8Array
+     */
+    constructor(uint8Array) {
+      this.decoder = new UintOptRleDecoder(uint8Array);
+      this.str = readVarString(this.decoder);
+      this.spos = 0;
+    }
+    /**
+     * @return {string}
+     */
+    read() {
+      const end = this.spos + this.decoder.read();
+      const res = this.str.slice(this.spos, end);
+      this.spos = end;
+      return res;
+    }
+  };
+
+  // node_modules/lib0/webcrypto.js
+  var subtle = crypto.subtle;
+  var getRandomValues = crypto.getRandomValues.bind(crypto);
+
+  // node_modules/lib0/random.js
+  var rand = Math.random;
+  var uint32 = () => getRandomValues(new Uint32Array(1))[0];
+  var oneOf = (arr) => arr[floor(rand() * arr.length)];
+  var uuidv4Template = "10000000-1000-4000-8000" + -1e11;
+  var uuidv4 = () => uuidv4Template.replace(
+    /[018]/g,
+    /** @param {number} c */
+    (c) => (c ^ uint32() & 15 >> c / 4).toString(16)
+  );
+
+  // node_modules/lib0/time.js
+  var getUnixTime = Date.now;
+
+  // node_modules/lib0/promise.js
+  var create4 = (f) => (
+    /** @type {Promise<T>} */
+    new Promise(f)
+  );
+  var all = Promise.all.bind(Promise);
+
+  // node_modules/lib0/conditions.js
+  var undefinedToNull = (v) => v === void 0 ? null : v;
+
+  // node_modules/lib0/storage.js
+  var VarStoragePolyfill = class {
+    constructor() {
+      this.map = /* @__PURE__ */ new Map();
+    }
+    /**
+     * @param {string} key
+     * @param {any} newValue
+     */
+    setItem(key2, newValue) {
+      this.map.set(key2, newValue);
+    }
+    /**
+     * @param {string} key
+     */
+    getItem(key2) {
+      return this.map.get(key2);
+    }
+  };
+  var _localStorage = new VarStoragePolyfill();
+  var usePolyfill = true;
+  try {
+    if (typeof window !== "undefined" && typeof localStorage !== "undefined" && localStorage) {
+      _localStorage = localStorage;
+      usePolyfill = false;
+    }
+  } catch (e) {
+  }
+  var varStorage = _localStorage;
+
+  // node_modules/lib0/trait/equality.js
+  var EqualityTraitSymbol = /* @__PURE__ */ Symbol("Equality");
+  var equals = (a, b) => a === b || !!a?.[EqualityTraitSymbol]?.(b) || false;
+
+  // node_modules/lib0/object.js
+  var isObject = (o) => typeof o === "object";
+  var assign = Object.assign;
+  var keys2 = Object.keys;
+  var forEach3 = (obj, f) => {
+    for (const key2 in obj) {
+      f(obj[key2], key2);
+    }
+  };
+  var size = (obj) => keys2(obj).length;
+  var isEmpty = (obj) => {
+    for (const _k in obj) {
+      return false;
+    }
+    return true;
+  };
+  var every2 = (obj, f) => {
+    for (const key2 in obj) {
+      if (!f(obj[key2], key2)) {
+        return false;
+      }
+    }
+    return true;
+  };
+  var hasProperty = (obj, key2) => Object.prototype.hasOwnProperty.call(obj, key2);
+  var equalFlat = (a, b) => a === b || size(a) === size(b) && every2(a, (val, key2) => (val !== void 0 || hasProperty(b, key2)) && equals(b[key2], val));
+  var freeze = Object.freeze;
+  var deepFreeze = (o) => {
+    for (const key2 in o) {
+      const c = o[key2];
+      if (typeof c === "object" || typeof c === "function") {
+        deepFreeze(o[key2]);
+      }
+    }
+    return freeze(o);
+  };
+
+  // node_modules/lib0/function.js
+  var callAll = (fs, args2, i2 = 0) => {
+    try {
+      for (; i2 < fs.length; i2++) {
+        fs[i2](...args2);
+      }
+    } finally {
+      if (i2 < fs.length) {
+        callAll(fs, args2, i2 + 1);
+      }
+    }
+  };
+  var id = (a) => a;
+  var equalityDeep = (a, b) => {
+    if (a === b) {
+      return true;
+    }
+    if (a == null || b == null || a.constructor !== b.constructor && (a.constructor || Object) !== (b.constructor || Object)) {
+      return false;
+    }
+    if (a[EqualityTraitSymbol] != null) {
+      return a[EqualityTraitSymbol](b);
+    }
+    switch (a.constructor) {
+      case ArrayBuffer:
+        a = new Uint8Array(a);
+        b = new Uint8Array(b);
+      // eslint-disable-next-line no-fallthrough
+      case Uint8Array: {
+        if (a.byteLength !== b.byteLength) {
+          return false;
+        }
+        for (let i2 = 0; i2 < a.length; i2++) {
+          if (a[i2] !== b[i2]) {
+            return false;
+          }
+        }
+        break;
+      }
+      case Set: {
+        if (a.size !== b.size) {
+          return false;
+        }
+        for (const value of a) {
+          if (!b.has(value)) {
+            return false;
+          }
+        }
+        break;
+      }
+      case Map: {
+        if (a.size !== b.size) {
+          return false;
+        }
+        for (const key2 of a.keys()) {
+          if (!b.has(key2) || !equalityDeep(a.get(key2), b.get(key2))) {
+            return false;
+          }
+        }
+        break;
+      }
+      case void 0:
+      case Object:
+        if (size(a) !== size(b)) {
+          return false;
+        }
+        for (const key2 in a) {
+          if (!hasProperty(a, key2) || !equalityDeep(a[key2], b[key2])) {
+            return false;
+          }
+        }
+        break;
+      case Array:
+        if (a.length !== b.length) {
+          return false;
+        }
+        for (let i2 = 0; i2 < a.length; i2++) {
+          if (!equalityDeep(a[i2], b[i2])) {
+            return false;
+          }
+        }
+        break;
+      default:
+        return false;
+    }
+    return true;
+  };
+  var isOneOf = (value, options) => options.includes(value);
+
+  // node_modules/lib0/environment.js
+  var isNode = typeof process !== "undefined" && process.release && /node|io\.js/.test(process.release.name) && Object.prototype.toString.call(typeof process !== "undefined" ? process : 0) === "[object process]";
+  var isBrowser = typeof window !== "undefined" && typeof document !== "undefined" && !isNode;
+  var isMac = typeof navigator !== "undefined" ? /Mac/.test(navigator.platform) : false;
+  var params;
+  var args = [];
+  var computeParams = () => {
+    if (params === void 0) {
+      if (isNode) {
+        params = create();
+        const pargs = process.argv;
+        let currParamName = null;
+        for (let i2 = 0; i2 < pargs.length; i2++) {
+          const parg = pargs[i2];
+          if (parg[0] === "-") {
+            if (currParamName !== null) {
+              params.set(currParamName, "");
+            }
+            currParamName = parg;
+          } else {
+            if (currParamName !== null) {
+              params.set(currParamName, parg);
+              currParamName = null;
+            } else {
+              args.push(parg);
+            }
+          }
+        }
+        if (currParamName !== null) {
+          params.set(currParamName, "");
+        }
+      } else if (typeof location === "object") {
+        params = create();
+        (location.search || "?").slice(1).split("&").forEach((kv) => {
+          if (kv.length !== 0) {
+            const [key2, value] = kv.split("=");
+            params.set(`--${fromCamelCase(key2, "-")}`, value);
+            params.set(`-${fromCamelCase(key2, "-")}`, value);
+          }
+        });
+      } else {
+        params = create();
+      }
+    }
+    return params;
+  };
+  var hasParam = (name) => computeParams().has(name);
+  var getVariable = (name) => isNode ? undefinedToNull(process.env[name.toUpperCase().replaceAll("-", "_")]) : undefinedToNull(varStorage.getItem(name));
+  var hasConf = (name) => hasParam("--" + name) || getVariable(name) !== null;
+  var production = hasConf("production");
+  var forceColor = isNode && isOneOf(process.env.FORCE_COLOR, ["true", "1", "2"]);
+  var supportsColor = forceColor || !hasParam("--no-colors") && // @todo deprecate --no-colors
+  !hasConf("no-color") && (!isNode || process.stdout.isTTY) && (!isNode || hasParam("--color") || getVariable("COLORTERM") !== null || (getVariable("TERM") || "").includes("color"));
+
+  // node_modules/lib0/buffer.js
+  var createUint8ArrayFromLen = (len) => new Uint8Array(len);
+  var toBase64Browser = (bytes) => {
+    let s = "";
+    for (let i2 = 0; i2 < bytes.byteLength; i2++) {
+      s += fromCharCode(bytes[i2]);
+    }
+    return btoa(s);
+  };
+  var toBase64Node = (bytes) => Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString("base64");
+  var toBase64 = isBrowser ? toBase64Browser : toBase64Node;
+  var copyUint8Array = (uint8Array) => {
+    const newBuf = createUint8ArrayFromLen(uint8Array.byteLength);
+    newBuf.set(uint8Array);
+    return newBuf;
+  };
+  var encodeAny = (data) => encode((encoder) => writeAny(encoder, data));
+
+  // node_modules/lib0/pair.js
+  var Pair = class {
+    /**
+     * @param {L} left
+     * @param {R} right
+     */
+    constructor(left, right) {
+      this.left = left;
+      this.right = right;
+    }
+  };
+  var create5 = (left, right) => new Pair(left, right);
+
+  // node_modules/lib0/prng.js
+  var bool = (gen) => gen.next() >= 0.5;
+  var int53 = (gen, min2, max2) => floor(gen.next() * (max2 + 1 - min2) + min2);
+  var int32 = (gen, min2, max2) => floor(gen.next() * (max2 + 1 - min2) + min2);
+  var int31 = (gen, min2, max2) => int32(gen, min2, max2);
+  var letter = (gen) => fromCharCode(int31(gen, 97, 122));
+  var word = (gen, minLen = 0, maxLen = 20) => {
+    const len = int31(gen, minLen, maxLen);
+    let str = "";
+    for (let i2 = 0; i2 < len; i2++) {
+      str += letter(gen);
+    }
+    return str;
+  };
+  var oneOf2 = (gen, array) => array[int31(gen, 0, array.length - 1)];
+
+  // node_modules/lib0/schema.js
+  var schemaSymbol = /* @__PURE__ */ Symbol("0schema");
+  var ValidationError = class {
+    constructor() {
+      this._rerrs = [];
+    }
+    /**
+     * @param {string?} path
+     * @param {string} expected
+     * @param {string} has
+     * @param {string?} message
+     */
+    extend(path, expected, has, message = null) {
+      this._rerrs.push({ path, expected, has, message });
+    }
+    toString() {
+      const s = [];
+      for (let i2 = this._rerrs.length - 1; i2 > 0; i2--) {
+        const r = this._rerrs[i2];
+        s.push(repeat(" ", (this._rerrs.length - i2) * 2) + `${r.path != null ? `[${r.path}] ` : ""}${r.has} doesn't match ${r.expected}. ${r.message}`);
+      }
+      return s.join("\n");
+    }
+  };
+  var shapeExtends = (a, b) => {
+    if (a === b) return true;
+    if (a == null || b == null || a.constructor !== b.constructor) return false;
+    if (a[EqualityTraitSymbol]) return equals(a, b);
+    if (isArray(a)) {
+      return every(
+        a,
+        (aitem) => some(b, (bitem) => shapeExtends(aitem, bitem))
+      );
+    } else if (isObject(a)) {
+      return every2(
+        a,
+        (aitem, akey) => shapeExtends(aitem, b[akey])
+      );
+    }
+    return false;
+  };
+  var Schema2 = class {
+    // this.shape must not be defined on Schema. Otherwise typecheck on metatypes (e.g. $$object) won't work as expected anymore
+    /**
+     * If true, the more things are added to the shape the more objects this schema will accept (e.g.
+     * union). By default, the more objects are added, the the fewer objects this schema will accept.
+     * @protected
+     */
+    static _dilutes = false;
+    /**
+     * @param {Schema<any>} other
+     */
+    extends(other) {
+      let [a, b] = [
+        /** @type {any} */
+        this.shape,
+        /** @type {any} */
+        other.shape
+      ];
+      if (
+        /** @type {typeof Schema<any>} */
+        this.constructor._dilutes
+      ) [b, a] = [a, b];
+      return shapeExtends(a, b);
+    }
+    /**
+     * Overwrite this when necessary. By default, we only check the `shape` property which every shape
+     * should have.
+     * @param {Schema<any>} other
+     */
+    equals(other) {
+      return this.constructor === other.constructor && equalityDeep(this.shape, other.shape);
+    }
+    [schemaSymbol]() {
+      return true;
+    }
+    /**
+     * @param {object} other
+     */
+    [EqualityTraitSymbol](other) {
+      return this.equals(
+        /** @type {any} */
+        other
+      );
+    }
+    /**
+     * Use `schema.validate(obj)` with a typed parameter that is already of typed to be an instance of
+     * Schema. Validate will check the structure of the parameter and return true iff the instance
+     * really is an instance of Schema.
+     *
+     * @param {T} o
+     * @return {boolean}
+     */
+    validate(o) {
+      return this.check(o);
+    }
+    /* c8 ignore start */
+    /**
+     * Similar to validate, but this method accepts untyped parameters.
+     *
+     * @param {any} _o
+     * @param {ValidationError} [_err]
+     * @return {_o is T}
+     */
+    check(_o, _err) {
+      methodUnimplemented();
+    }
+    /* c8 ignore stop */
+    /**
+     * @type {Schema<T?>}
+     */
+    get nullable() {
+      return $union(this, $null);
+    }
+    /**
+     * @type {$Optional<Schema<T>>}
+     */
+    get optional() {
+      return new $Optional(
+        /** @type {Schema<T>} */
+        this
+      );
+    }
+    /**
+     * Cast a variable to a specific type. Returns the casted value, or throws an exception otherwise.
+     * Use this if you know that the type is of a specific type and you just want to convince the type
+     * system.
+     *
+     * **Do not rely on these error messages!**
+     * Performs an assertion check only if not in a production environment.
+     *
+     * @template OO
+     * @param {OO} o
+     * @return {Extract<OO, T> extends never ? T : (OO extends Array<never> ? T : Extract<OO,T>)}
+     */
+    cast(o) {
+      assert(o, this);
+      return (
+        /** @type {any} */
+        o
+      );
+    }
+    /**
+     * EXPECTO PATRONUM!! 🪄
+     * This function protects against type errors. Though it may not work in the real world.
+     *
+     * "After all this time?"
+     * "Always." - Snape, talking about type safety
+     *
+     * Ensures that a variable is a a specific type. Returns the value, or throws an exception if the assertion check failed.
+     * Use this if you know that the type is of a specific type and you just want to convince the type
+     * system.
+     *
+     * Can be useful when defining lambdas: `s.lambda(s.$number, s.$void).expect((n) => n + 1)`
+     *
+     * **Do not rely on these error messages!**
+     * Performs an assertion check if not in a production environment.
+     *
+     * @param {T} o
+     * @return {o extends T ? T : never}
+     */
+    expect(o) {
+      assert(o, this);
+      return o;
+    }
+  };
+  var $ConstructedBy = class extends Schema2 {
+    /**
+     * @param {C} c
+     * @param {((o:Instance<C>)=>boolean)|null} check
+     */
+    constructor(c, check) {
+      super();
+      this.shape = c;
+      this._c = check;
+    }
+    /**
+     * @param {any} o
+     * @param {ValidationError} [err]
+     * @return {o is C extends ((...args:any[]) => infer T) ? T : (C extends (new (...args:any[]) => any) ? InstanceType<C> : never)} o
+     */
+    check(o, err = void 0) {
+      const c = o?.constructor === this.shape && (this._c == null || this._c(o));
+      !c && err?.extend(null, this.shape.name, o?.constructor.name, o?.constructor !== this.shape ? "Constructor match failed" : "Check failed");
+      return c;
+    }
+  };
+  var $constructedBy = (c, check = null) => new $ConstructedBy(c, check);
+  var $$constructedBy = $constructedBy($ConstructedBy);
+  var $Custom = class extends Schema2 {
+    /**
+     * @param {(o:any) => boolean} check
+     */
+    constructor(check) {
+      super();
+      this.shape = check;
+    }
+    /**
+     * @param {any} o
+     * @param {ValidationError} err
+     * @return {o is any}
+     */
+    check(o, err) {
+      const c = this.shape(o);
+      !c && err?.extend(null, "custom prop", o?.constructor.name, "failed to check custom prop");
+      return c;
+    }
+  };
+  var $custom = (check) => new $Custom(check);
+  var $$custom = $constructedBy($Custom);
+  var $Literal = class extends Schema2 {
+    /**
+     * @param {Array<T>} literals
+     */
+    constructor(literals) {
+      super();
+      this.shape = literals;
+    }
+    /**
+     *
+     * @param {any} o
+     * @param {ValidationError} [err]
+     * @return {o is T}
+     */
+    check(o, err) {
+      const c = this.shape.some((a) => a === o);
+      !c && err?.extend(null, this.shape.join(" | "), o.toString());
+      return c;
+    }
+  };
+  var $literal = (...literals) => new $Literal(literals);
+  var $$literal = $constructedBy($Literal);
+  var _regexEscape = (
+    /** @type {any} */
+    RegExp.escape || /** @type {(str:string) => string} */
+    ((str) => str.replace(/[().|&,$^[\]]/g, (s) => "\\" + s))
+  );
+  var _schemaStringTemplateToRegex = (s) => {
+    if ($string.check(s)) {
+      return [_regexEscape(s)];
+    }
+    if ($$literal.check(s)) {
+      return (
+        /** @type {Array<string|number>} */
+        s.shape.map((v) => v + "")
+      );
+    }
+    if ($$number.check(s)) {
+      return ["[+-]?\\d+.?\\d*"];
+    }
+    if ($$string.check(s)) {
+      return [".*"];
+    }
+    if ($$union.check(s)) {
+      return s.shape.map(_schemaStringTemplateToRegex).flat(1);
+    }
+    unexpectedCase();
+  };
+  var $StringTemplate = class extends Schema2 {
+    /**
+     * @param {T} shape
+     */
+    constructor(shape) {
+      super();
+      this.shape = shape;
+      this._r = new RegExp("^" + shape.map(_schemaStringTemplateToRegex).map((opts) => `(${opts.join("|")})`).join("") + "$");
+    }
+    /**
+     * @param {any} o
+     * @param {ValidationError} [err]
+     * @return {o is CastStringTemplateArgsToTemplate<T>}
+     */
+    check(o, err) {
+      const c = this._r.exec(o) != null;
+      !c && err?.extend(null, this._r.toString(), o.toString(), "String doesn't match string template.");
+      return c;
+    }
+  };
+  var $$stringTemplate = $constructedBy($StringTemplate);
+  var isOptionalSymbol = /* @__PURE__ */ Symbol("optional");
+  var $Optional = class extends Schema2 {
+    /**
+     * @param {S} shape
+     */
+    constructor(shape) {
+      super();
+      this.shape = shape;
+    }
+    /**
+     * @param {any} o
+     * @param {ValidationError} [err]
+     * @return {o is (Unwrap<S>|undefined)}
+     */
+    check(o, err) {
+      const c = o === void 0 || this.shape.check(o);
+      !c && err?.extend(null, "undefined (optional)", "()");
+      return c;
+    }
+    get [isOptionalSymbol]() {
+      return true;
+    }
+  };
+  var $$optional = $constructedBy($Optional);
+  var $Never = class extends Schema2 {
+    /**
+     * @param {any} _o
+     * @param {ValidationError} [err]
+     * @return {_o is never}
+     */
+    check(_o, err) {
+      err?.extend(null, "never", typeof _o);
+      return false;
+    }
+  };
+  var $never = new $Never();
+  var $$never = $constructedBy($Never);
+  var $Object = class _$Object extends Schema2 {
+    /**
+     * @param {S} shape
+     * @param {boolean} partial
+     */
+    constructor(shape, partial = false) {
+      super();
+      this.shape = shape;
+      this._isPartial = partial;
+    }
+    static _dilutes = true;
+    /**
+     * @type {Schema<Partial<$ObjectToType<S>>>}
+     */
+    get partial() {
+      return new _$Object(this.shape, true);
+    }
+    /**
+     * @param {any} o
+     * @param {ValidationError} err
+     * @return {o is $ObjectToType<S>}
+     */
+    check(o, err) {
+      if (o == null) {
+        err?.extend(null, "object", "null");
+        return false;
+      }
+      return every2(this.shape, (vv, vk) => {
+        const c = this._isPartial && !hasProperty(o, vk) || vv.check(o[vk], err);
+        !c && err?.extend(vk.toString(), vv.toString(), typeof o[vk], "Object property does not match");
+        return c;
+      });
+    }
+  };
+  var $object = (def) => (
+    /** @type {any} */
+    new $Object(def)
+  );
+  var $$object = $constructedBy($Object);
+  var $objectAny = $custom((o) => o != null && (o.constructor === Object || o.constructor == null));
+  var $Record = class extends Schema2 {
+    /**
+     * @param {Keys} keys
+     * @param {Values} values
+     */
+    constructor(keys3, values) {
+      super();
+      this.shape = {
+        keys: keys3,
+        values
+      };
+    }
+    /**
+     * @param {any} o
+     * @param {ValidationError} err
+     * @return {o is { [key in Unwrap<Keys>]: Unwrap<Values> }}
+     */
+    check(o, err) {
+      return o != null && every2(o, (vv, vk) => {
+        const ck = this.shape.keys.check(vk, err);
+        !ck && err?.extend(vk + "", "Record", typeof o, ck ? "Key doesn't match schema" : "Value doesn't match value");
+        return ck && this.shape.values.check(vv, err);
+      });
+    }
+  };
+  var $record = (keys3, values) => new $Record(keys3, values);
+  var $$record = $constructedBy($Record);
+  var $Tuple = class extends Schema2 {
+    /**
+     * @param {S} shape
+     */
+    constructor(shape) {
+      super();
+      this.shape = shape;
+    }
+    /**
+     * @param {any} o
+     * @param {ValidationError} err
+     * @return {o is { [K in keyof S]: S[K] extends Schema<infer Type> ? Type : never }}
+     */
+    check(o, err) {
+      return o != null && every2(this.shape, (vv, vk) => {
+        const c = (
+          /** @type {Schema<any>} */
+          vv.check(o[vk], err)
+        );
+        !c && err?.extend(vk.toString(), "Tuple", typeof vv);
+        return c;
+      });
+    }
+  };
+  var $tuple = (...def) => new $Tuple(def);
+  var $$tuple = $constructedBy($Tuple);
+  var $Array = class extends Schema2 {
+    /**
+     * @param {Array<S>} v
+     */
+    constructor(v) {
+      super();
+      this.shape = v.length === 1 ? v[0] : new $Union(v);
+    }
+    /**
+     * @param {any} o
+     * @param {ValidationError} [err]
+     * @return {o is Array<S extends Schema<infer T> ? T : never>} o
+     */
+    check(o, err) {
+      const c = isArray(o) && every(o, (oi) => this.shape.check(oi));
+      !c && err?.extend(null, "Array", "");
+      return c;
+    }
+  };
+  var $array = (...def) => new $Array(def);
+  var $$array = $constructedBy($Array);
+  var $arrayAny = $custom((o) => isArray(o));
+  var $InstanceOf = class extends Schema2 {
+    /**
+     * @param {new (...args:any) => T} constructor
+     * @param {((o:T) => boolean)|null} check
+     */
+    constructor(constructor, check) {
+      super();
+      this.shape = constructor;
+      this._c = check;
+    }
+    /**
+     * @param {any} o
+     * @param {ValidationError} err
+     * @return {o is T}
+     */
+    check(o, err) {
+      const c = o instanceof this.shape && (this._c == null || this._c(o));
+      !c && err?.extend(null, this.shape.name, o?.constructor.name);
+      return c;
+    }
+  };
+  var $instanceOf = (c, check = null) => new $InstanceOf(c, check);
+  var $$instanceOf = $constructedBy($InstanceOf);
+  var $$schema = $instanceOf(Schema2);
+  var $Lambda = class extends Schema2 {
+    /**
+     * @param {Args} args
+     */
+    constructor(args2) {
+      super();
+      this.len = args2.length - 1;
+      this.args = $tuple(...args2.slice(-1));
+      this.res = args2[this.len];
+    }
+    /**
+     * @param {any} f
+     * @param {ValidationError} err
+     * @return {f is _LArgsToLambdaDef<Args>}
+     */
+    check(f, err) {
+      const c = f.constructor === Function && f.length <= this.len;
+      !c && err?.extend(null, "function", typeof f);
+      return c;
+    }
+  };
+  var $$lambda = $constructedBy($Lambda);
+  var $function = $custom((o) => typeof o === "function");
+  var $Intersection = class extends Schema2 {
+    /**
+     * @param {T} v
+     */
+    constructor(v) {
+      super();
+      this.shape = v;
+    }
+    /**
+     * @param {any} o
+     * @param {ValidationError} [err]
+     * @return {o is Intersect<UnwrapArray<T>>}
+     */
+    check(o, err) {
+      const c = every(this.shape, (check) => check.check(o, err));
+      !c && err?.extend(null, "Intersectinon", typeof o);
+      return c;
+    }
+  };
+  var $$intersect = $constructedBy($Intersection, (o) => o.shape.length > 0);
+  var $Union = class extends Schema2 {
+    static _dilutes = true;
+    /**
+     * @param {Array<Schema<S>>} v
+     */
+    constructor(v) {
+      super();
+      this.shape = v;
+    }
+    /**
+     * @param {any} o
+     * @param {ValidationError} [err]
+     * @return {o is S}
+     */
+    check(o, err) {
+      const c = some(this.shape, (vv) => vv.check(o, err));
+      err?.extend(null, "Union", typeof o);
+      return c;
+    }
+  };
+  var $union = (...schemas) => schemas.findIndex(($s) => $$union.check($s)) >= 0 ? $union(...schemas.map(($s) => $($s)).map(($s) => $$union.check($s) ? $s.shape : [$s]).flat(1)) : schemas.length === 1 ? schemas[0] : new $Union(schemas);
+  var $$union = (
+    /** @type {Schema<$Union<any>>} */
+    $constructedBy($Union)
+  );
+  var _t = () => true;
+  var $any = $custom(_t);
+  var $$any = (
+    /** @type {Schema<Schema<any>>} */
+    $constructedBy($Custom, (o) => o.shape === _t)
+  );
+  var $bigint = $custom((o) => typeof o === "bigint");
+  var $$bigint = (
+    /** @type {Schema<Schema<BigInt>>} */
+    $custom((o) => o === $bigint)
+  );
+  var $symbol = $custom((o) => typeof o === "symbol");
+  var $$symbol = (
+    /** @type {Schema<Schema<Symbol>>} */
+    $custom((o) => o === $symbol)
+  );
+  var $number = $custom((o) => typeof o === "number");
+  var $$number = (
+    /** @type {Schema<Schema<number>>} */
+    $custom((o) => o === $number)
+  );
+  var $string = $custom((o) => typeof o === "string");
+  var $$string = (
+    /** @type {Schema<Schema<string>>} */
+    $custom((o) => o === $string)
+  );
+  var $boolean = $custom((o) => typeof o === "boolean");
+  var $$boolean = (
+    /** @type {Schema<Schema<Boolean>>} */
+    $custom((o) => o === $boolean)
+  );
+  var $undefined = $literal(void 0);
+  var $$undefined = (
+    /** @type {Schema<Schema<undefined>>} */
+    $constructedBy($Literal, (o) => o.shape.length === 1 && o.shape[0] === void 0)
+  );
+  var $void = $literal(void 0);
+  var $null = $literal(null);
+  var $$null = (
+    /** @type {Schema<Schema<null>>} */
+    $constructedBy($Literal, (o) => o.shape.length === 1 && o.shape[0] === null)
+  );
+  var $uint8Array = $constructedBy(Uint8Array);
+  var $$uint8Array = (
+    /** @type {Schema<Schema<Uint8Array>>} */
+    $constructedBy($ConstructedBy, (o) => o.shape === Uint8Array)
+  );
+  var $primitive = $union($number, $string, $null, $undefined, $bigint, $boolean, $symbol);
+  var $json = (() => {
+    const $jsonArr = (
+      /** @type {$Array<$any>} */
+      $array($any)
+    );
+    const $jsonRecord = (
+      /** @type {$Record<$string,$any>} */
+      $record($string, $any)
+    );
+    const $json2 = $union($number, $string, $null, $boolean, $jsonArr, $jsonRecord);
+    $jsonArr.shape = $json2;
+    $jsonRecord.shape.values = $json2;
+    return $json2;
+  })();
+  var $ = (o) => {
+    if ($$schema.check(o)) {
+      return (
+        /** @type {any} */
+        o
+      );
+    } else if ($objectAny.check(o)) {
+      const o2 = {};
+      for (const k in o) {
+        o2[k] = $(o[k]);
+      }
+      return (
+        /** @type {any} */
+        $object(o2)
+      );
+    } else if ($arrayAny.check(o)) {
+      return (
+        /** @type {any} */
+        $union(...o.map($))
+      );
+    } else if ($primitive.check(o)) {
+      return (
+        /** @type {any} */
+        $literal(o)
+      );
+    } else if ($function.check(o)) {
+      return (
+        /** @type {any} */
+        $constructedBy(
+          /** @type {any} */
+          o
+        )
+      );
+    }
+    unexpectedCase();
+  };
+  var assert = production ? () => {
+  } : (o, schema) => {
+    const err = new ValidationError();
+    if (!schema.check(o, err)) {
+      throw create3(`Expected value to be of type ${schema.constructor.name}.
+${err.toString()}`);
+    }
+  };
+  var PatternMatcher = class {
+    /**
+     * @param {Schema<State>} [$state]
+     */
+    constructor($state) {
+      this.patterns = [];
+      this.$state = $state;
+    }
+    /**
+     * @template P
+     * @template R
+     * @param {P} pattern
+     * @param {(o:NoInfer<Unwrap<ReadSchema<P>>>,s:State)=>R} handler
+     * @return {PatternMatcher<State,Patterns|Pattern<Unwrap<ReadSchema<P>>,R>>}
+     */
+    if(pattern, handler) {
+      this.patterns.push({ if: $(pattern), h: handler });
+      return this;
+    }
+    /**
+     * @template R
+     * @param {(o:any,s:State)=>R} h
+     */
+    else(h2) {
+      return this.if($any, h2);
+    }
+    /**
+     * @return {State extends undefined
+     *   ? <In extends Unwrap<Patterns['if']>>(o:In,state?:undefined)=>PatternMatchResult<Patterns,In>
+     *   : <In extends Unwrap<Patterns['if']>>(o:In,state:State)=>PatternMatchResult<Patterns,In>}
+     */
+    done() {
+      return (
+        /** @type {any} */
+        (o, s) => {
+          for (let i2 = 0; i2 < this.patterns.length; i2++) {
+            const p = this.patterns[i2];
+            if (p.if.check(o)) {
+              return p.h(o, s);
+            }
+          }
+          throw create3("Unhandled pattern");
+        }
+      );
+    }
+  };
+  var match = (state) => new PatternMatcher(
+    /** @type {any} */
+    state
+  );
+  var _random = (
+    /** @type {any} */
+    match(
+      /** @type {Schema<prng.PRNG>} */
+      $any
+    ).if($$number, (_o, gen) => int53(gen, MIN_SAFE_INTEGER, MAX_SAFE_INTEGER)).if($$string, (_o, gen) => word(gen)).if($$boolean, (_o, gen) => bool(gen)).if($$bigint, (_o, gen) => BigInt(int53(gen, MIN_SAFE_INTEGER, MAX_SAFE_INTEGER))).if($$union, (o, gen) => random(gen, oneOf2(gen, o.shape))).if($$object, (o, gen) => {
+      const res = {};
+      for (const k in o.shape) {
+        let prop = o.shape[k];
+        if ($$optional.check(prop)) {
+          if (bool(gen)) {
+            continue;
+          }
+          prop = prop.shape;
+        }
+        res[k] = _random(prop, gen);
+      }
+      return res;
+    }).if($$array, (o, gen) => {
+      const arr = [];
+      const n = int32(gen, 0, 42);
+      for (let i2 = 0; i2 < n; i2++) {
+        arr.push(random(gen, o.shape));
+      }
+      return arr;
+    }).if($$literal, (o, gen) => {
+      return oneOf2(gen, o.shape);
+    }).if($$null, (o, gen) => {
+      return null;
+    }).if($$lambda, (o, gen) => {
+      const res = random(gen, o.res);
+      return () => res;
+    }).if($$any, (o, gen) => random(gen, oneOf2(gen, [
+      $number,
+      $string,
+      $null,
+      $undefined,
+      $bigint,
+      $boolean,
+      $array($number),
+      $record($union("a", "b", "c"), $number)
+    ]))).if($$record, (o, gen) => {
+      const res = {};
+      const keysN = int53(gen, 0, 3);
+      for (let i2 = 0; i2 < keysN; i2++) {
+        const key2 = random(gen, o.shape.keys);
+        const val = random(gen, o.shape.values);
+        res[key2] = val;
+      }
+      return res;
+    }).done()
+  );
+  var random = (gen, schema) => (
+    /** @type {any} */
+    _random($(schema), gen)
+  );
+
+  // node_modules/lib0/dom.js
+  var doc3 = (
+    /** @type {Document} */
+    typeof document !== "undefined" ? document : {}
+  );
+  var $fragment = $custom((el) => el.nodeType === DOCUMENT_FRAGMENT_NODE);
+  var domParser = (
+    /** @type {DOMParser} */
+    typeof DOMParser !== "undefined" ? new DOMParser() : null
+  );
+  var $element = $custom((el) => el.nodeType === ELEMENT_NODE);
+  var $text = $custom((el) => el.nodeType === TEXT_NODE);
+  var mapToStyleString = (m) => map2(m, (value, key2) => `${key2}:${value};`).join("");
+  var ELEMENT_NODE = doc3.ELEMENT_NODE;
+  var TEXT_NODE = doc3.TEXT_NODE;
+  var CDATA_SECTION_NODE = doc3.CDATA_SECTION_NODE;
+  var COMMENT_NODE = doc3.COMMENT_NODE;
+  var DOCUMENT_NODE = doc3.DOCUMENT_NODE;
+  var DOCUMENT_TYPE_NODE = doc3.DOCUMENT_TYPE_NODE;
+  var DOCUMENT_FRAGMENT_NODE = doc3.DOCUMENT_FRAGMENT_NODE;
+  var $node = $custom((el) => el.nodeType === DOCUMENT_NODE);
+
+  // node_modules/lib0/eventloop.js
+  var createTimeoutClass = (clearFunction) => class TT {
+    /**
+     * @param {number} timeoutId
+     */
+    constructor(timeoutId) {
+      this._ = timeoutId;
+    }
+    destroy() {
+      clearFunction(this._);
+    }
+  };
+  var Timeout = createTimeoutClass(clearTimeout);
+  var timeout = (timeout2, callback) => new Timeout(setTimeout(callback, timeout2));
+  var Interval = createTimeoutClass(clearInterval);
+  var Animation = createTimeoutClass((arg) => typeof requestAnimationFrame !== "undefined" && cancelAnimationFrame(arg));
+  var Idle = createTimeoutClass((arg) => typeof cancelIdleCallback !== "undefined" && cancelIdleCallback(arg));
+
+  // node_modules/lib0/symbol.js
+  var create6 = Symbol;
+
+  // node_modules/lib0/logging.common.js
+  var BOLD = create6();
+  var UNBOLD = create6();
+  var BLUE = create6();
+  var GREY = create6();
+  var GREEN = create6();
+  var RED = create6();
+  var PURPLE = create6();
+  var ORANGE = create6();
+  var UNCOLOR = create6();
+  var computeNoColorLoggingArgs = (args2) => {
+    if (args2.length === 1 && args2[0]?.constructor === Function) {
+      args2 = /** @type {Array<string|Symbol|Object|number>} */
+      /** @type {[function]} */
+      args2[0]();
+    }
+    const strBuilder = [];
+    const logArgs = [];
+    let i2 = 0;
+    for (; i2 < args2.length; i2++) {
+      const arg = args2[i2];
+      if (arg === void 0) {
+        break;
+      } else if (arg.constructor === String || arg.constructor === Number) {
+        strBuilder.push(arg);
+      } else if (arg.constructor === Object) {
+        break;
+      }
+    }
+    if (i2 > 0) {
+      logArgs.push(strBuilder.join(""));
+    }
+    for (; i2 < args2.length; i2++) {
+      const arg = args2[i2];
+      if (!(arg instanceof Symbol)) {
+        logArgs.push(arg);
+      }
+    }
+    return logArgs;
+  };
+  var lastLoggingTime = getUnixTime();
+
+  // node_modules/lib0/logging.js
+  var _browserStyleMap = {
+    [BOLD]: create5("font-weight", "bold"),
+    [UNBOLD]: create5("font-weight", "normal"),
+    [BLUE]: create5("color", "blue"),
+    [GREEN]: create5("color", "green"),
+    [GREY]: create5("color", "grey"),
+    [RED]: create5("color", "red"),
+    [PURPLE]: create5("color", "purple"),
+    [ORANGE]: create5("color", "orange"),
+    // not well supported in chrome when debugging node with inspector - TODO: deprecate
+    [UNCOLOR]: create5("color", "black")
+  };
+  var computeBrowserLoggingArgs = (args2) => {
+    if (args2.length === 1 && args2[0]?.constructor === Function) {
+      args2 = /** @type {Array<string|Symbol|Object|number>} */
+      /** @type {[function]} */
+      args2[0]();
+    }
+    const strBuilder = [];
+    const styles = [];
+    const currentStyle = create();
+    let logArgs = [];
+    let i2 = 0;
+    for (; i2 < args2.length; i2++) {
+      const arg = args2[i2];
+      const style2 = _browserStyleMap[arg];
+      if (style2 !== void 0) {
+        currentStyle.set(style2.left, style2.right);
+      } else {
+        if (arg === void 0) {
+          break;
+        }
+        if (arg.constructor === String || arg.constructor === Number) {
+          const style3 = mapToStyleString(currentStyle);
+          if (i2 > 0 || style3.length > 0) {
+            strBuilder.push("%c" + arg);
+            styles.push(style3);
+          } else {
+            strBuilder.push(arg);
+          }
+        } else {
+          break;
+        }
+      }
+    }
+    if (i2 > 0) {
+      logArgs = styles;
+      logArgs.unshift(strBuilder.join(""));
+    }
+    for (; i2 < args2.length; i2++) {
+      const arg = args2[i2];
+      if (!(arg instanceof Symbol)) {
+        logArgs.push(arg);
+      }
+    }
+    return logArgs;
+  };
+  var computeLoggingArgs = supportsColor ? computeBrowserLoggingArgs : computeNoColorLoggingArgs;
+  var print = (...args2) => {
+    console.log(...computeLoggingArgs(args2));
+    vconsoles.forEach((vc) => vc.print(args2));
+  };
+  var warn = (...args2) => {
+    console.warn(...computeLoggingArgs(args2));
+    args2.unshift(ORANGE);
+    vconsoles.forEach((vc) => vc.print(args2));
+  };
+  var vconsoles = create2();
+
+  // node_modules/lib0/iterator.js
+  var createIterator = (next) => ({
+    /**
+     * @return {IterableIterator<T>}
+     */
+    [Symbol.iterator]() {
+      return this;
+    },
+    // @ts-ignore
+    next
+  });
+  var iteratorFilter = (iterator, filter) => createIterator(() => {
+    let res;
+    do {
+      res = iterator.next();
+    } while (!res.done && !filter(res.value));
+    return res;
+  });
+  var iteratorMap = (iterator, fmap) => createIterator(() => {
+    const { done, value } = iterator.next();
+    return { done, value: done ? void 0 : fmap(value) };
+  });
+
+  // node_modules/yjs/dist/yjs.mjs
+  var DeleteItem = class {
+    /**
+     * @param {number} clock
+     * @param {number} len
+     */
+    constructor(clock, len) {
+      this.clock = clock;
+      this.len = len;
+    }
+  };
+  var DeleteSet = class {
+    constructor() {
+      this.clients = /* @__PURE__ */ new Map();
+    }
+  };
+  var iterateDeletedStructs = (transaction, ds, f) => ds.clients.forEach((deletes, clientid) => {
+    const structs = (
+      /** @type {Array<GC|Item>} */
+      transaction.doc.store.clients.get(clientid)
+    );
+    if (structs != null) {
+      const lastStruct = structs[structs.length - 1];
+      const clockState = lastStruct.id.clock + lastStruct.length;
+      for (let i2 = 0, del2 = deletes[i2]; i2 < deletes.length && del2.clock < clockState; del2 = deletes[++i2]) {
+        iterateStructs(transaction, structs, del2.clock, del2.len, f);
+      }
+    }
+  });
+  var findIndexDS = (dis, clock) => {
+    let left = 0;
+    let right = dis.length - 1;
+    while (left <= right) {
+      const midindex = floor((left + right) / 2);
+      const mid = dis[midindex];
+      const midclock = mid.clock;
+      if (midclock <= clock) {
+        if (clock < midclock + mid.len) {
+          return midindex;
+        }
+        left = midindex + 1;
+      } else {
+        right = midindex - 1;
+      }
+    }
+    return null;
+  };
+  var isDeleted = (ds, id2) => {
+    const dis = ds.clients.get(id2.client);
+    return dis !== void 0 && findIndexDS(dis, id2.clock) !== null;
+  };
+  var sortAndMergeDeleteSet = (ds) => {
+    ds.clients.forEach((dels) => {
+      dels.sort((a, b) => a.clock - b.clock);
+      let i2, j;
+      for (i2 = 1, j = 1; i2 < dels.length; i2++) {
+        const left = dels[j - 1];
+        const right = dels[i2];
+        if (left.clock + left.len >= right.clock) {
+          dels[j - 1] = new DeleteItem(left.clock, max(left.len, right.clock + right.len - left.clock));
+        } else {
+          if (j < i2) {
+            dels[j] = right;
+          }
+          j++;
+        }
+      }
+      dels.length = j;
+    });
+  };
+  var mergeDeleteSets = (dss) => {
+    const merged = new DeleteSet();
+    for (let dssI = 0; dssI < dss.length; dssI++) {
+      dss[dssI].clients.forEach((delsLeft, client) => {
+        if (!merged.clients.has(client)) {
+          const dels = delsLeft.slice();
+          for (let i2 = dssI + 1; i2 < dss.length; i2++) {
+            appendTo(dels, dss[i2].clients.get(client) || []);
+          }
+          merged.clients.set(client, dels);
+        }
+      });
+    }
+    sortAndMergeDeleteSet(merged);
+    return merged;
+  };
+  var addToDeleteSet = (ds, client, clock, length2) => {
+    setIfUndefined(ds.clients, client, () => (
+      /** @type {Array<DeleteItem>} */
+      []
+    )).push(new DeleteItem(clock, length2));
+  };
+  var createDeleteSet = () => new DeleteSet();
+  var createDeleteSetFromStructStore = (ss) => {
+    const ds = createDeleteSet();
+    ss.clients.forEach((structs, client) => {
+      const dsitems = [];
+      for (let i2 = 0; i2 < structs.length; i2++) {
+        const struct = structs[i2];
+        if (struct.deleted) {
+          const clock = struct.id.clock;
+          let len = struct.length;
+          if (i2 + 1 < structs.length) {
+            for (let next = structs[i2 + 1]; i2 + 1 < structs.length && next.deleted; next = structs[++i2 + 1]) {
+              len += next.length;
+            }
+          }
+          dsitems.push(new DeleteItem(clock, len));
+        }
+      }
+      if (dsitems.length > 0) {
+        ds.clients.set(client, dsitems);
+      }
+    });
+    return ds;
+  };
+  var writeDeleteSet = (encoder, ds) => {
+    writeVarUint(encoder.restEncoder, ds.clients.size);
+    from2(ds.clients.entries()).sort((a, b) => b[0] - a[0]).forEach(([client, dsitems]) => {
+      encoder.resetDsCurVal();
+      writeVarUint(encoder.restEncoder, client);
+      const len = dsitems.length;
+      writeVarUint(encoder.restEncoder, len);
+      for (let i2 = 0; i2 < len; i2++) {
+        const item = dsitems[i2];
+        encoder.writeDsClock(item.clock);
+        encoder.writeDsLen(item.len);
+      }
+    });
+  };
+  var readDeleteSet = (decoder) => {
+    const ds = new DeleteSet();
+    const numClients = readVarUint(decoder.restDecoder);
+    for (let i2 = 0; i2 < numClients; i2++) {
+      decoder.resetDsCurVal();
+      const client = readVarUint(decoder.restDecoder);
+      const numberOfDeletes = readVarUint(decoder.restDecoder);
+      if (numberOfDeletes > 0) {
+        const dsField = setIfUndefined(ds.clients, client, () => (
+          /** @type {Array<DeleteItem>} */
+          []
+        ));
+        for (let i3 = 0; i3 < numberOfDeletes; i3++) {
+          dsField.push(new DeleteItem(decoder.readDsClock(), decoder.readDsLen()));
+        }
+      }
+    }
+    return ds;
+  };
+  var readAndApplyDeleteSet = (decoder, transaction, store) => {
+    const unappliedDS = new DeleteSet();
+    const numClients = readVarUint(decoder.restDecoder);
+    for (let i2 = 0; i2 < numClients; i2++) {
+      decoder.resetDsCurVal();
+      const client = readVarUint(decoder.restDecoder);
+      const numberOfDeletes = readVarUint(decoder.restDecoder);
+      const structs = store.clients.get(client) || [];
+      const state = getState(store, client);
+      for (let i3 = 0; i3 < numberOfDeletes; i3++) {
+        const clock = decoder.readDsClock();
+        const clockEnd = clock + decoder.readDsLen();
+        if (clock < state) {
+          if (state < clockEnd) {
+            addToDeleteSet(unappliedDS, client, state, clockEnd - state);
+          }
+          let index = findIndexSS(structs, clock);
+          let struct = structs[index];
+          if (!struct.deleted && struct.id.clock < clock) {
+            structs.splice(index + 1, 0, splitItem(transaction, struct, clock - struct.id.clock));
+            index++;
+          }
+          while (index < structs.length) {
+            struct = structs[index++];
+            if (struct.id.clock < clockEnd) {
+              if (!struct.deleted) {
+                if (clockEnd < struct.id.clock + struct.length) {
+                  structs.splice(index, 0, splitItem(transaction, struct, clockEnd - struct.id.clock));
+                }
+                struct.delete(transaction);
+              }
+            } else {
+              break;
+            }
+          }
+        } else {
+          addToDeleteSet(unappliedDS, client, clock, clockEnd - clock);
+        }
+      }
+    }
+    if (unappliedDS.clients.size > 0) {
+      const ds = new UpdateEncoderV2();
+      writeVarUint(ds.restEncoder, 0);
+      writeDeleteSet(ds, unappliedDS);
+      return ds.toUint8Array();
+    }
+    return null;
+  };
+  var generateNewClientId = uint32;
+  var Doc = class _Doc extends ObservableV2 {
+    /**
+     * @param {DocOpts} opts configuration
+     */
+    constructor({ guid = uuidv4(), collectionid = null, gc = true, gcFilter = () => true, meta = null, autoLoad = false, shouldLoad = true } = {}) {
+      super();
+      this.gc = gc;
+      this.gcFilter = gcFilter;
+      this.clientID = generateNewClientId();
+      this.guid = guid;
+      this.collectionid = collectionid;
+      this.share = /* @__PURE__ */ new Map();
+      this.store = new StructStore();
+      this._transaction = null;
+      this._transactionCleanups = [];
+      this.subdocs = /* @__PURE__ */ new Set();
+      this._item = null;
+      this.shouldLoad = shouldLoad;
+      this.autoLoad = autoLoad;
+      this.meta = meta;
+      this.isLoaded = false;
+      this.isSynced = false;
+      this.isDestroyed = false;
+      this.whenLoaded = create4((resolve) => {
+        this.on("load", () => {
+          this.isLoaded = true;
+          resolve(this);
+        });
+      });
+      const provideSyncedPromise = () => create4((resolve) => {
+        const eventHandler = (isSynced) => {
+          if (isSynced === void 0 || isSynced === true) {
+            this.off("sync", eventHandler);
+            resolve();
+          }
+        };
+        this.on("sync", eventHandler);
+      });
+      this.on("sync", (isSynced) => {
+        if (isSynced === false && this.isSynced) {
+          this.whenSynced = provideSyncedPromise();
+        }
+        this.isSynced = isSynced === void 0 || isSynced === true;
+        if (this.isSynced && !this.isLoaded) {
+          this.emit("load", [this]);
+        }
+      });
+      this.whenSynced = provideSyncedPromise();
+    }
+    /**
+     * Notify the parent document that you request to load data into this subdocument (if it is a subdocument).
+     *
+     * `load()` might be used in the future to request any provider to load the most current data.
+     *
+     * It is safe to call `load()` multiple times.
+     */
+    load() {
+      const item = this._item;
+      if (item !== null && !this.shouldLoad) {
+        transact(
+          /** @type {any} */
+          item.parent.doc,
+          (transaction) => {
+            transaction.subdocsLoaded.add(this);
+          },
+          null,
+          true
+        );
+      }
+      this.shouldLoad = true;
+    }
+    getSubdocs() {
+      return this.subdocs;
+    }
+    getSubdocGuids() {
+      return new Set(from2(this.subdocs).map((doc4) => doc4.guid));
+    }
+    /**
+     * Changes that happen inside of a transaction are bundled. This means that
+     * the observer fires _after_ the transaction is finished and that all changes
+     * that happened inside of the transaction are sent as one message to the
+     * other peers.
+     *
+     * @template T
+     * @param {function(Transaction):T} f The function that should be executed as a transaction
+     * @param {any} [origin] Origin of who started the transaction. Will be stored on transaction.origin
+     * @return T
+     *
+     * @public
+     */
+    transact(f, origin = null) {
+      return transact(this, f, origin);
+    }
+    /**
+     * Define a shared data type.
+     *
+     * Multiple calls of `ydoc.get(name, TypeConstructor)` yield the same result
+     * and do not overwrite each other. I.e.
+     * `ydoc.get(name, Y.Array) === ydoc.get(name, Y.Array)`
+     *
+     * After this method is called, the type is also available on `ydoc.share.get(name)`.
+     *
+     * *Best Practices:*
+     * Define all types right after the Y.Doc instance is created and store them in a separate object.
+     * Also use the typed methods `getText(name)`, `getArray(name)`, ..
+     *
+     * @template {typeof AbstractType<any>} Type
+     * @example
+     *   const ydoc = new Y.Doc(..)
+     *   const appState = {
+     *     document: ydoc.getText('document')
+     *     comments: ydoc.getArray('comments')
+     *   }
+     *
+     * @param {string} name
+     * @param {Type} TypeConstructor The constructor of the type definition. E.g. Y.Text, Y.Array, Y.Map, ...
+     * @return {InstanceType<Type>} The created type. Constructed with TypeConstructor
+     *
+     * @public
+     */
+    get(name, TypeConstructor = (
+      /** @type {any} */
+      AbstractType
+    )) {
+      const type = setIfUndefined(this.share, name, () => {
+        const t = new TypeConstructor();
+        t._integrate(this, null);
+        return t;
+      });
+      const Constr = type.constructor;
+      if (TypeConstructor !== AbstractType && Constr !== TypeConstructor) {
+        if (Constr === AbstractType) {
+          const t = new TypeConstructor();
+          t._map = type._map;
+          type._map.forEach(
+            /** @param {Item?} n */
+            (n) => {
+              for (; n !== null; n = n.left) {
+                n.parent = t;
+              }
+            }
+          );
+          t._start = type._start;
+          for (let n = t._start; n !== null; n = n.right) {
+            n.parent = t;
+          }
+          t._length = type._length;
+          this.share.set(name, t);
+          t._integrate(this, null);
+          return (
+            /** @type {InstanceType<Type>} */
+            t
+          );
+        } else {
+          throw new Error(`Type with the name ${name} has already been defined with a different constructor`);
+        }
+      }
+      return (
+        /** @type {InstanceType<Type>} */
+        type
+      );
+    }
+    /**
+     * @template T
+     * @param {string} [name]
+     * @return {YArray<T>}
+     *
+     * @public
+     */
+    getArray(name = "") {
+      return (
+        /** @type {YArray<T>} */
+        this.get(name, YArray)
+      );
+    }
+    /**
+     * @param {string} [name]
+     * @return {YText}
+     *
+     * @public
+     */
+    getText(name = "") {
+      return this.get(name, YText);
+    }
+    /**
+     * @template T
+     * @param {string} [name]
+     * @return {YMap<T>}
+     *
+     * @public
+     */
+    getMap(name = "") {
+      return (
+        /** @type {YMap<T>} */
+        this.get(name, YMap)
+      );
+    }
+    /**
+     * @param {string} [name]
+     * @return {YXmlElement}
+     *
+     * @public
+     */
+    getXmlElement(name = "") {
+      return (
+        /** @type {YXmlElement<{[key:string]:string}>} */
+        this.get(name, YXmlElement)
+      );
+    }
+    /**
+     * @param {string} [name]
+     * @return {YXmlFragment}
+     *
+     * @public
+     */
+    getXmlFragment(name = "") {
+      return this.get(name, YXmlFragment);
+    }
+    /**
+     * Converts the entire document into a js object, recursively traversing each yjs type
+     * Doesn't log types that have not been defined (using ydoc.getType(..)).
+     *
+     * @deprecated Do not use this method and rather call toJSON directly on the shared types.
+     *
+     * @return {Object<string, any>}
+     */
+    toJSON() {
+      const doc4 = {};
+      this.share.forEach((value, key2) => {
+        doc4[key2] = value.toJSON();
+      });
+      return doc4;
+    }
+    /**
+     * Emit `destroy` event and unregister all event handlers.
+     */
+    destroy() {
+      this.isDestroyed = true;
+      from2(this.subdocs).forEach((subdoc) => subdoc.destroy());
+      const item = this._item;
+      if (item !== null) {
+        this._item = null;
+        const content = (
+          /** @type {ContentDoc} */
+          item.content
+        );
+        content.doc = new _Doc({ guid: this.guid, ...content.opts, shouldLoad: false });
+        content.doc._item = item;
+        transact(
+          /** @type {any} */
+          item.parent.doc,
+          (transaction) => {
+            const doc4 = content.doc;
+            if (!item.deleted) {
+              transaction.subdocsAdded.add(doc4);
+            }
+            transaction.subdocsRemoved.add(this);
+          },
+          null,
+          true
+        );
+      }
+      this.emit("destroyed", [true]);
+      this.emit("destroy", [this]);
+      super.destroy();
+    }
+  };
+  var DSDecoderV1 = class {
+    /**
+     * @param {decoding.Decoder} decoder
+     */
+    constructor(decoder) {
+      this.restDecoder = decoder;
+    }
+    resetDsCurVal() {
+    }
+    /**
+     * @return {number}
+     */
+    readDsClock() {
+      return readVarUint(this.restDecoder);
+    }
+    /**
+     * @return {number}
+     */
+    readDsLen() {
+      return readVarUint(this.restDecoder);
+    }
+  };
+  var UpdateDecoderV1 = class extends DSDecoderV1 {
+    /**
+     * @return {ID}
+     */
+    readLeftID() {
+      return createID(readVarUint(this.restDecoder), readVarUint(this.restDecoder));
+    }
+    /**
+     * @return {ID}
+     */
+    readRightID() {
+      return createID(readVarUint(this.restDecoder), readVarUint(this.restDecoder));
+    }
+    /**
+     * Read the next client id.
+     * Use this in favor of readID whenever possible to reduce the number of objects created.
+     */
+    readClient() {
+      return readVarUint(this.restDecoder);
+    }
+    /**
+     * @return {number} info An unsigned 8-bit integer
+     */
+    readInfo() {
+      return readUint8(this.restDecoder);
+    }
+    /**
+     * @return {string}
+     */
+    readString() {
+      return readVarString(this.restDecoder);
+    }
+    /**
+     * @return {boolean} isKey
+     */
+    readParentInfo() {
+      return readVarUint(this.restDecoder) === 1;
+    }
+    /**
+     * @return {number} info An unsigned 8-bit integer
+     */
+    readTypeRef() {
+      return readVarUint(this.restDecoder);
+    }
+    /**
+     * Write len of a struct - well suited for Opt RLE encoder.
+     *
+     * @return {number} len
+     */
+    readLen() {
+      return readVarUint(this.restDecoder);
+    }
+    /**
+     * @return {any}
+     */
+    readAny() {
+      return readAny(this.restDecoder);
+    }
+    /**
+     * @return {Uint8Array}
+     */
+    readBuf() {
+      return copyUint8Array(readVarUint8Array(this.restDecoder));
+    }
+    /**
+     * Legacy implementation uses JSON parse. We use any-decoding in v2.
+     *
+     * @return {any}
+     */
+    readJSON() {
+      return JSON.parse(readVarString(this.restDecoder));
+    }
+    /**
+     * @return {string}
+     */
+    readKey() {
+      return readVarString(this.restDecoder);
+    }
+  };
+  var DSDecoderV2 = class {
+    /**
+     * @param {decoding.Decoder} decoder
+     */
+    constructor(decoder) {
+      this.dsCurrVal = 0;
+      this.restDecoder = decoder;
+    }
+    resetDsCurVal() {
+      this.dsCurrVal = 0;
+    }
+    /**
+     * @return {number}
+     */
+    readDsClock() {
+      this.dsCurrVal += readVarUint(this.restDecoder);
+      return this.dsCurrVal;
+    }
+    /**
+     * @return {number}
+     */
+    readDsLen() {
+      const diff = readVarUint(this.restDecoder) + 1;
+      this.dsCurrVal += diff;
+      return diff;
+    }
+  };
+  var UpdateDecoderV2 = class extends DSDecoderV2 {
+    /**
+     * @param {decoding.Decoder} decoder
+     */
+    constructor(decoder) {
+      super(decoder);
+      this.keys = [];
+      readVarUint(decoder);
+      this.keyClockDecoder = new IntDiffOptRleDecoder(readVarUint8Array(decoder));
+      this.clientDecoder = new UintOptRleDecoder(readVarUint8Array(decoder));
+      this.leftClockDecoder = new IntDiffOptRleDecoder(readVarUint8Array(decoder));
+      this.rightClockDecoder = new IntDiffOptRleDecoder(readVarUint8Array(decoder));
+      this.infoDecoder = new RleDecoder(readVarUint8Array(decoder), readUint8);
+      this.stringDecoder = new StringDecoder(readVarUint8Array(decoder));
+      this.parentInfoDecoder = new RleDecoder(readVarUint8Array(decoder), readUint8);
+      this.typeRefDecoder = new UintOptRleDecoder(readVarUint8Array(decoder));
+      this.lenDecoder = new UintOptRleDecoder(readVarUint8Array(decoder));
+    }
+    /**
+     * @return {ID}
+     */
+    readLeftID() {
+      return new ID(this.clientDecoder.read(), this.leftClockDecoder.read());
+    }
+    /**
+     * @return {ID}
+     */
+    readRightID() {
+      return new ID(this.clientDecoder.read(), this.rightClockDecoder.read());
+    }
+    /**
+     * Read the next client id.
+     * Use this in favor of readID whenever possible to reduce the number of objects created.
+     */
+    readClient() {
+      return this.clientDecoder.read();
+    }
+    /**
+     * @return {number} info An unsigned 8-bit integer
+     */
+    readInfo() {
+      return (
+        /** @type {number} */
+        this.infoDecoder.read()
+      );
+    }
+    /**
+     * @return {string}
+     */
+    readString() {
+      return this.stringDecoder.read();
+    }
+    /**
+     * @return {boolean}
+     */
+    readParentInfo() {
+      return this.parentInfoDecoder.read() === 1;
+    }
+    /**
+     * @return {number} An unsigned 8-bit integer
+     */
+    readTypeRef() {
+      return this.typeRefDecoder.read();
+    }
+    /**
+     * Write len of a struct - well suited for Opt RLE encoder.
+     *
+     * @return {number}
+     */
+    readLen() {
+      return this.lenDecoder.read();
+    }
+    /**
+     * @return {any}
+     */
+    readAny() {
+      return readAny(this.restDecoder);
+    }
+    /**
+     * @return {Uint8Array}
+     */
+    readBuf() {
+      return readVarUint8Array(this.restDecoder);
+    }
+    /**
+     * This is mainly here for legacy purposes.
+     *
+     * Initial we incoded objects using JSON. Now we use the much faster lib0/any-encoder. This method mainly exists for legacy purposes for the v1 encoder.
+     *
+     * @return {any}
+     */
+    readJSON() {
+      return readAny(this.restDecoder);
+    }
+    /**
+     * @return {string}
+     */
+    readKey() {
+      const keyClock = this.keyClockDecoder.read();
+      if (keyClock < this.keys.length) {
+        return this.keys[keyClock];
+      } else {
+        const key2 = this.stringDecoder.read();
+        this.keys.push(key2);
+        return key2;
+      }
+    }
+  };
+  var DSEncoderV1 = class {
+    constructor() {
+      this.restEncoder = createEncoder();
+    }
+    toUint8Array() {
+      return toUint8Array(this.restEncoder);
+    }
+    resetDsCurVal() {
+    }
+    /**
+     * @param {number} clock
+     */
+    writeDsClock(clock) {
+      writeVarUint(this.restEncoder, clock);
+    }
+    /**
+     * @param {number} len
+     */
+    writeDsLen(len) {
+      writeVarUint(this.restEncoder, len);
+    }
+  };
+  var UpdateEncoderV1 = class extends DSEncoderV1 {
+    /**
+     * @param {ID} id
+     */
+    writeLeftID(id2) {
+      writeVarUint(this.restEncoder, id2.client);
+      writeVarUint(this.restEncoder, id2.clock);
+    }
+    /**
+     * @param {ID} id
+     */
+    writeRightID(id2) {
+      writeVarUint(this.restEncoder, id2.client);
+      writeVarUint(this.restEncoder, id2.clock);
+    }
+    /**
+     * Use writeClient and writeClock instead of writeID if possible.
+     * @param {number} client
+     */
+    writeClient(client) {
+      writeVarUint(this.restEncoder, client);
+    }
+    /**
+     * @param {number} info An unsigned 8-bit integer
+     */
+    writeInfo(info) {
+      writeUint8(this.restEncoder, info);
+    }
+    /**
+     * @param {string} s
+     */
+    writeString(s) {
+      writeVarString(this.restEncoder, s);
+    }
+    /**
+     * @param {boolean} isYKey
+     */
+    writeParentInfo(isYKey) {
+      writeVarUint(this.restEncoder, isYKey ? 1 : 0);
+    }
+    /**
+     * @param {number} info An unsigned 8-bit integer
+     */
+    writeTypeRef(info) {
+      writeVarUint(this.restEncoder, info);
+    }
+    /**
+     * Write len of a struct - well suited for Opt RLE encoder.
+     *
+     * @param {number} len
+     */
+    writeLen(len) {
+      writeVarUint(this.restEncoder, len);
+    }
+    /**
+     * @param {any} any
+     */
+    writeAny(any2) {
+      writeAny(this.restEncoder, any2);
+    }
+    /**
+     * @param {Uint8Array} buf
+     */
+    writeBuf(buf) {
+      writeVarUint8Array(this.restEncoder, buf);
+    }
+    /**
+     * @param {any} embed
+     */
+    writeJSON(embed) {
+      writeVarString(this.restEncoder, JSON.stringify(embed));
+    }
+    /**
+     * @param {string} key
+     */
+    writeKey(key2) {
+      writeVarString(this.restEncoder, key2);
+    }
+  };
+  var DSEncoderV2 = class {
+    constructor() {
+      this.restEncoder = createEncoder();
+      this.dsCurrVal = 0;
+    }
+    toUint8Array() {
+      return toUint8Array(this.restEncoder);
+    }
+    resetDsCurVal() {
+      this.dsCurrVal = 0;
+    }
+    /**
+     * @param {number} clock
+     */
+    writeDsClock(clock) {
+      const diff = clock - this.dsCurrVal;
+      this.dsCurrVal = clock;
+      writeVarUint(this.restEncoder, diff);
+    }
+    /**
+     * @param {number} len
+     */
+    writeDsLen(len) {
+      if (len === 0) {
+        unexpectedCase();
+      }
+      writeVarUint(this.restEncoder, len - 1);
+      this.dsCurrVal += len;
+    }
+  };
+  var UpdateEncoderV2 = class extends DSEncoderV2 {
+    constructor() {
+      super();
+      this.keyMap = /* @__PURE__ */ new Map();
+      this.keyClock = 0;
+      this.keyClockEncoder = new IntDiffOptRleEncoder();
+      this.clientEncoder = new UintOptRleEncoder();
+      this.leftClockEncoder = new IntDiffOptRleEncoder();
+      this.rightClockEncoder = new IntDiffOptRleEncoder();
+      this.infoEncoder = new RleEncoder(writeUint8);
+      this.stringEncoder = new StringEncoder();
+      this.parentInfoEncoder = new RleEncoder(writeUint8);
+      this.typeRefEncoder = new UintOptRleEncoder();
+      this.lenEncoder = new UintOptRleEncoder();
+    }
+    toUint8Array() {
+      const encoder = createEncoder();
+      writeVarUint(encoder, 0);
+      writeVarUint8Array(encoder, this.keyClockEncoder.toUint8Array());
+      writeVarUint8Array(encoder, this.clientEncoder.toUint8Array());
+      writeVarUint8Array(encoder, this.leftClockEncoder.toUint8Array());
+      writeVarUint8Array(encoder, this.rightClockEncoder.toUint8Array());
+      writeVarUint8Array(encoder, toUint8Array(this.infoEncoder));
+      writeVarUint8Array(encoder, this.stringEncoder.toUint8Array());
+      writeVarUint8Array(encoder, toUint8Array(this.parentInfoEncoder));
+      writeVarUint8Array(encoder, this.typeRefEncoder.toUint8Array());
+      writeVarUint8Array(encoder, this.lenEncoder.toUint8Array());
+      writeUint8Array(encoder, toUint8Array(this.restEncoder));
+      return toUint8Array(encoder);
+    }
+    /**
+     * @param {ID} id
+     */
+    writeLeftID(id2) {
+      this.clientEncoder.write(id2.client);
+      this.leftClockEncoder.write(id2.clock);
+    }
+    /**
+     * @param {ID} id
+     */
+    writeRightID(id2) {
+      this.clientEncoder.write(id2.client);
+      this.rightClockEncoder.write(id2.clock);
+    }
+    /**
+     * @param {number} client
+     */
+    writeClient(client) {
+      this.clientEncoder.write(client);
+    }
+    /**
+     * @param {number} info An unsigned 8-bit integer
+     */
+    writeInfo(info) {
+      this.infoEncoder.write(info);
+    }
+    /**
+     * @param {string} s
+     */
+    writeString(s) {
+      this.stringEncoder.write(s);
+    }
+    /**
+     * @param {boolean} isYKey
+     */
+    writeParentInfo(isYKey) {
+      this.parentInfoEncoder.write(isYKey ? 1 : 0);
+    }
+    /**
+     * @param {number} info An unsigned 8-bit integer
+     */
+    writeTypeRef(info) {
+      this.typeRefEncoder.write(info);
+    }
+    /**
+     * Write len of a struct - well suited for Opt RLE encoder.
+     *
+     * @param {number} len
+     */
+    writeLen(len) {
+      this.lenEncoder.write(len);
+    }
+    /**
+     * @param {any} any
+     */
+    writeAny(any2) {
+      writeAny(this.restEncoder, any2);
+    }
+    /**
+     * @param {Uint8Array} buf
+     */
+    writeBuf(buf) {
+      writeVarUint8Array(this.restEncoder, buf);
+    }
+    /**
+     * This is mainly here for legacy purposes.
+     *
+     * Initial we incoded objects using JSON. Now we use the much faster lib0/any-encoder. This method mainly exists for legacy purposes for the v1 encoder.
+     *
+     * @param {any} embed
+     */
+    writeJSON(embed) {
+      writeAny(this.restEncoder, embed);
+    }
+    /**
+     * Property keys are often reused. For example, in y-prosemirror the key `bold` might
+     * occur very often. For a 3d application, the key `position` might occur very often.
+     *
+     * We cache these keys in a Map and refer to them via a unique number.
+     *
+     * @param {string} key
+     */
+    writeKey(key2) {
+      const clock = this.keyMap.get(key2);
+      if (clock === void 0) {
+        this.keyClockEncoder.write(this.keyClock++);
+        this.stringEncoder.write(key2);
+      } else {
+        this.keyClockEncoder.write(clock);
+      }
+    }
+  };
+  var writeStructs = (encoder, structs, client, clock) => {
+    clock = max(clock, structs[0].id.clock);
+    const startNewStructs = findIndexSS(structs, clock);
+    writeVarUint(encoder.restEncoder, structs.length - startNewStructs);
+    encoder.writeClient(client);
+    writeVarUint(encoder.restEncoder, clock);
+    const firstStruct = structs[startNewStructs];
+    firstStruct.write(encoder, clock - firstStruct.id.clock);
+    for (let i2 = startNewStructs + 1; i2 < structs.length; i2++) {
+      structs[i2].write(encoder, 0);
+    }
+  };
+  var writeClientsStructs = (encoder, store, _sm) => {
+    const sm = /* @__PURE__ */ new Map();
+    _sm.forEach((clock, client) => {
+      if (getState(store, client) > clock) {
+        sm.set(client, clock);
+      }
+    });
+    getStateVector(store).forEach((_clock, client) => {
+      if (!_sm.has(client)) {
+        sm.set(client, 0);
+      }
+    });
+    writeVarUint(encoder.restEncoder, sm.size);
+    from2(sm.entries()).sort((a, b) => b[0] - a[0]).forEach(([client, clock]) => {
+      writeStructs(
+        encoder,
+        /** @type {Array<GC|Item>} */
+        store.clients.get(client),
+        client,
+        clock
+      );
+    });
+  };
+  var readClientsStructRefs = (decoder, doc4) => {
+    const clientRefs = create();
+    const numOfStateUpdates = readVarUint(decoder.restDecoder);
+    for (let i2 = 0; i2 < numOfStateUpdates; i2++) {
+      const numberOfStructs = readVarUint(decoder.restDecoder);
+      const refs = new Array(numberOfStructs);
+      const client = decoder.readClient();
+      let clock = readVarUint(decoder.restDecoder);
+      clientRefs.set(client, { i: 0, refs });
+      for (let i3 = 0; i3 < numberOfStructs; i3++) {
+        const info = decoder.readInfo();
+        switch (BITS5 & info) {
+          case 0: {
+            const len = decoder.readLen();
+            refs[i3] = new GC(createID(client, clock), len);
+            clock += len;
+            break;
+          }
+          case 10: {
+            const len = readVarUint(decoder.restDecoder);
+            refs[i3] = new Skip(createID(client, clock), len);
+            clock += len;
+            break;
+          }
+          default: {
+            const cantCopyParentInfo = (info & (BIT7 | BIT8)) === 0;
+            const struct = new Item2(
+              createID(client, clock),
+              null,
+              // left
+              (info & BIT8) === BIT8 ? decoder.readLeftID() : null,
+              // origin
+              null,
+              // right
+              (info & BIT7) === BIT7 ? decoder.readRightID() : null,
+              // right origin
+              cantCopyParentInfo ? decoder.readParentInfo() ? doc4.get(decoder.readString()) : decoder.readLeftID() : null,
+              // parent
+              cantCopyParentInfo && (info & BIT6) === BIT6 ? decoder.readString() : null,
+              // parentSub
+              readItemContent(decoder, info)
+              // item content
+            );
+            refs[i3] = struct;
+            clock += struct.length;
+          }
+        }
+      }
+    }
+    return clientRefs;
+  };
+  var integrateStructs = (transaction, store, clientsStructRefs) => {
+    const stack = [];
+    let clientsStructRefsIds = from2(clientsStructRefs.keys()).sort((a, b) => a - b);
+    if (clientsStructRefsIds.length === 0) {
+      return null;
+    }
+    const getNextStructTarget = () => {
+      if (clientsStructRefsIds.length === 0) {
+        return null;
+      }
+      let nextStructsTarget = (
+        /** @type {{i:number,refs:Array<GC|Item>}} */
+        clientsStructRefs.get(clientsStructRefsIds[clientsStructRefsIds.length - 1])
+      );
+      while (nextStructsTarget.refs.length === nextStructsTarget.i) {
+        clientsStructRefsIds.pop();
+        if (clientsStructRefsIds.length > 0) {
+          nextStructsTarget = /** @type {{i:number,refs:Array<GC|Item>}} */
+          clientsStructRefs.get(clientsStructRefsIds[clientsStructRefsIds.length - 1]);
+        } else {
+          return null;
+        }
+      }
+      return nextStructsTarget;
+    };
+    let curStructsTarget = getNextStructTarget();
+    if (curStructsTarget === null) {
+      return null;
+    }
+    const restStructs = new StructStore();
+    const missingSV = /* @__PURE__ */ new Map();
+    const updateMissingSv = (client, clock) => {
+      const mclock = missingSV.get(client);
+      if (mclock == null || mclock > clock) {
+        missingSV.set(client, clock);
+      }
+    };
+    let stackHead = (
+      /** @type {any} */
+      curStructsTarget.refs[
+        /** @type {any} */
+        curStructsTarget.i++
+      ]
+    );
+    const state = /* @__PURE__ */ new Map();
+    const addStackToRestSS = () => {
+      for (const item of stack) {
+        const client = item.id.client;
+        const inapplicableItems = clientsStructRefs.get(client);
+        if (inapplicableItems) {
+          inapplicableItems.i--;
+          restStructs.clients.set(client, inapplicableItems.refs.slice(inapplicableItems.i));
+          clientsStructRefs.delete(client);
+          inapplicableItems.i = 0;
+          inapplicableItems.refs = [];
+        } else {
+          restStructs.clients.set(client, [item]);
+        }
+        clientsStructRefsIds = clientsStructRefsIds.filter((c) => c !== client);
+      }
+      stack.length = 0;
+    };
+    while (true) {
+      if (stackHead.constructor !== Skip) {
+        const localClock = setIfUndefined(state, stackHead.id.client, () => getState(store, stackHead.id.client));
+        const offset = localClock - stackHead.id.clock;
+        if (offset < 0) {
+          stack.push(stackHead);
+          updateMissingSv(stackHead.id.client, stackHead.id.clock - 1);
+          addStackToRestSS();
+        } else {
+          const missing = stackHead.getMissing(transaction, store);
+          if (missing !== null) {
+            stack.push(stackHead);
+            const structRefs = clientsStructRefs.get(
+              /** @type {number} */
+              missing
+            ) || { refs: [], i: 0 };
+            if (structRefs.refs.length === structRefs.i) {
+              updateMissingSv(
+                /** @type {number} */
+                missing,
+                getState(store, missing)
+              );
+              addStackToRestSS();
+            } else {
+              stackHead = structRefs.refs[structRefs.i++];
+              continue;
+            }
+          } else if (offset === 0 || offset < stackHead.length) {
+            stackHead.integrate(transaction, offset);
+            state.set(stackHead.id.client, stackHead.id.clock + stackHead.length);
+          }
+        }
+      }
+      if (stack.length > 0) {
+        stackHead = /** @type {GC|Item} */
+        stack.pop();
+      } else if (curStructsTarget !== null && curStructsTarget.i < curStructsTarget.refs.length) {
+        stackHead = /** @type {GC|Item} */
+        curStructsTarget.refs[curStructsTarget.i++];
+      } else {
+        curStructsTarget = getNextStructTarget();
+        if (curStructsTarget === null) {
+          break;
+        } else {
+          stackHead = /** @type {GC|Item} */
+          curStructsTarget.refs[curStructsTarget.i++];
+        }
+      }
+    }
+    if (restStructs.clients.size > 0) {
+      const encoder = new UpdateEncoderV2();
+      writeClientsStructs(encoder, restStructs, /* @__PURE__ */ new Map());
+      writeVarUint(encoder.restEncoder, 0);
+      return { missing: missingSV, update: encoder.toUint8Array() };
+    }
+    return null;
+  };
+  var writeStructsFromTransaction = (encoder, transaction) => writeClientsStructs(encoder, transaction.doc.store, transaction.beforeState);
+  var readUpdateV2 = (decoder, ydoc, transactionOrigin, structDecoder = new UpdateDecoderV2(decoder)) => transact(ydoc, (transaction) => {
+    transaction.local = false;
+    let retry = false;
+    const doc4 = transaction.doc;
+    const store = doc4.store;
+    const ss = readClientsStructRefs(structDecoder, doc4);
+    const restStructs = integrateStructs(transaction, store, ss);
+    const pending = store.pendingStructs;
+    if (pending) {
+      for (const [client, clock] of pending.missing) {
+        if (clock < getState(store, client)) {
+          retry = true;
+          break;
+        }
+      }
+      if (restStructs) {
+        for (const [client, clock] of restStructs.missing) {
+          const mclock = pending.missing.get(client);
+          if (mclock == null || mclock > clock) {
+            pending.missing.set(client, clock);
+          }
+        }
+        pending.update = mergeUpdatesV2([pending.update, restStructs.update]);
+      }
+    } else {
+      store.pendingStructs = restStructs;
+    }
+    const dsRest = readAndApplyDeleteSet(structDecoder, transaction, store);
+    if (store.pendingDs) {
+      const pendingDSUpdate = new UpdateDecoderV2(createDecoder(store.pendingDs));
+      readVarUint(pendingDSUpdate.restDecoder);
+      const dsRest2 = readAndApplyDeleteSet(pendingDSUpdate, transaction, store);
+      if (dsRest && dsRest2) {
+        store.pendingDs = mergeUpdatesV2([dsRest, dsRest2]);
+      } else {
+        store.pendingDs = dsRest || dsRest2;
+      }
+    } else {
+      store.pendingDs = dsRest;
+    }
+    if (retry) {
+      const update = (
+        /** @type {{update: Uint8Array}} */
+        store.pendingStructs.update
+      );
+      store.pendingStructs = null;
+      applyUpdateV2(transaction.doc, update);
+    }
+  }, transactionOrigin, false);
+  var applyUpdateV2 = (ydoc, update, transactionOrigin, YDecoder = UpdateDecoderV2) => {
+    const decoder = createDecoder(update);
+    readUpdateV2(decoder, ydoc, transactionOrigin, new YDecoder(decoder));
+  };
+  var applyUpdate = (ydoc, update, transactionOrigin) => applyUpdateV2(ydoc, update, transactionOrigin, UpdateDecoderV1);
+  var writeStateAsUpdate = (encoder, doc4, targetStateVector = /* @__PURE__ */ new Map()) => {
+    writeClientsStructs(encoder, doc4.store, targetStateVector);
+    writeDeleteSet(encoder, createDeleteSetFromStructStore(doc4.store));
+  };
+  var encodeStateAsUpdateV2 = (doc4, encodedTargetStateVector = new Uint8Array([0]), encoder = new UpdateEncoderV2()) => {
+    const targetStateVector = decodeStateVector(encodedTargetStateVector);
+    writeStateAsUpdate(encoder, doc4, targetStateVector);
+    const updates = [encoder.toUint8Array()];
+    if (doc4.store.pendingDs) {
+      updates.push(doc4.store.pendingDs);
+    }
+    if (doc4.store.pendingStructs) {
+      updates.push(diffUpdateV2(doc4.store.pendingStructs.update, encodedTargetStateVector));
+    }
+    if (updates.length > 1) {
+      if (encoder.constructor === UpdateEncoderV1) {
+        return mergeUpdates(updates.map((update, i2) => i2 === 0 ? update : convertUpdateFormatV2ToV1(update)));
+      } else if (encoder.constructor === UpdateEncoderV2) {
+        return mergeUpdatesV2(updates);
+      }
+    }
+    return updates[0];
+  };
+  var encodeStateAsUpdate = (doc4, encodedTargetStateVector) => encodeStateAsUpdateV2(doc4, encodedTargetStateVector, new UpdateEncoderV1());
+  var readStateVector = (decoder) => {
+    const ss = /* @__PURE__ */ new Map();
+    const ssLength = readVarUint(decoder.restDecoder);
+    for (let i2 = 0; i2 < ssLength; i2++) {
+      const client = readVarUint(decoder.restDecoder);
+      const clock = readVarUint(decoder.restDecoder);
+      ss.set(client, clock);
+    }
+    return ss;
+  };
+  var decodeStateVector = (decodedState) => readStateVector(new DSDecoderV1(createDecoder(decodedState)));
+  var EventHandler = class {
+    constructor() {
+      this.l = [];
+    }
+  };
+  var createEventHandler = () => new EventHandler();
+  var addEventHandlerListener = (eventHandler, f) => eventHandler.l.push(f);
+  var removeEventHandlerListener = (eventHandler, f) => {
+    const l = eventHandler.l;
+    const len = l.length;
+    eventHandler.l = l.filter((g) => f !== g);
+    if (len === eventHandler.l.length) {
+      console.error("[yjs] Tried to remove event handler that doesn't exist.");
+    }
+  };
+  var callEventHandlerListeners = (eventHandler, arg0, arg1) => callAll(eventHandler.l, [arg0, arg1]);
+  var ID = class {
+    /**
+     * @param {number} client client id
+     * @param {number} clock unique per client id, continuous number
+     */
+    constructor(client, clock) {
+      this.client = client;
+      this.clock = clock;
+    }
+  };
+  var compareIDs = (a, b) => a === b || a !== null && b !== null && a.client === b.client && a.clock === b.clock;
+  var createID = (client, clock) => new ID(client, clock);
+  var findRootTypeKey = (type) => {
+    for (const [key2, value] of type.doc.share.entries()) {
+      if (value === type) {
+        return key2;
+      }
+    }
+    throw unexpectedCase();
+  };
+  var isParentOf = (parent, child) => {
+    while (child !== null) {
+      if (child.parent === parent) {
+        return true;
+      }
+      child = /** @type {AbstractType<any>} */
+      child.parent._item;
+    }
+    return false;
+  };
+  var RelativePosition = class {
+    /**
+     * @param {ID|null} type
+     * @param {string|null} tname
+     * @param {ID|null} item
+     * @param {number} assoc
+     */
+    constructor(type, tname, item, assoc = 0) {
+      this.type = type;
+      this.tname = tname;
+      this.item = item;
+      this.assoc = assoc;
+    }
+  };
+  var createRelativePositionFromJSON = (json) => new RelativePosition(json.type == null ? null : createID(json.type.client, json.type.clock), json.tname ?? null, json.item == null ? null : createID(json.item.client, json.item.clock), json.assoc == null ? 0 : json.assoc);
+  var AbsolutePosition = class {
+    /**
+     * @param {AbstractType<any>} type
+     * @param {number} index
+     * @param {number} [assoc]
+     */
+    constructor(type, index, assoc = 0) {
+      this.type = type;
+      this.index = index;
+      this.assoc = assoc;
+    }
+  };
+  var createAbsolutePosition = (type, index, assoc = 0) => new AbsolutePosition(type, index, assoc);
+  var createRelativePosition = (type, item, assoc) => {
+    let typeid = null;
+    let tname = null;
+    if (type._item === null) {
+      tname = findRootTypeKey(type);
+    } else {
+      typeid = createID(type._item.id.client, type._item.id.clock);
+    }
+    return new RelativePosition(typeid, tname, item, assoc);
+  };
+  var createRelativePositionFromTypeIndex = (type, index, assoc = 0) => {
+    let t = type._start;
+    if (assoc < 0) {
+      if (index === 0) {
+        return createRelativePosition(type, null, assoc);
+      }
+      index--;
+    }
+    while (t !== null) {
+      if (!t.deleted && t.countable) {
+        if (t.length > index) {
+          return createRelativePosition(type, createID(t.id.client, t.id.clock + index), assoc);
+        }
+        index -= t.length;
+      }
+      if (t.right === null && assoc < 0) {
+        return createRelativePosition(type, t.lastId, assoc);
+      }
+      t = t.right;
+    }
+    return createRelativePosition(type, null, assoc);
+  };
+  var getItemWithOffset = (store, id2) => {
+    const item = getItem(store, id2);
+    const diff = id2.clock - item.id.clock;
+    return {
+      item,
+      diff
+    };
+  };
+  var createAbsolutePositionFromRelativePosition = (rpos, doc4, followUndoneDeletions = true) => {
+    const store = doc4.store;
+    const rightID = rpos.item;
+    const typeID = rpos.type;
+    const tname = rpos.tname;
+    const assoc = rpos.assoc;
+    let type = null;
+    let index = 0;
+    if (rightID !== null) {
+      if (getState(store, rightID.client) <= rightID.clock) {
+        return null;
+      }
+      const res = followUndoneDeletions ? followRedone(store, rightID) : getItemWithOffset(store, rightID);
+      const right = res.item;
+      if (!(right instanceof Item2)) {
+        return null;
+      }
+      type = /** @type {AbstractType<any>} */
+      right.parent;
+      if (type._item === null || !type._item.deleted) {
+        index = right.deleted || !right.countable ? 0 : res.diff + (assoc >= 0 ? 0 : 1);
+        let n = right.left;
+        while (n !== null) {
+          if (!n.deleted && n.countable) {
+            index += n.length;
+          }
+          n = n.left;
+        }
+      }
+    } else {
+      if (tname !== null) {
+        type = doc4.get(tname);
+      } else if (typeID !== null) {
+        if (getState(store, typeID.client) <= typeID.clock) {
+          return null;
+        }
+        const { item } = followUndoneDeletions ? followRedone(store, typeID) : { item: getItem(store, typeID) };
+        if (item instanceof Item2 && item.content instanceof ContentType) {
+          type = item.content.type;
+        } else {
+          return null;
+        }
+      } else {
+        throw unexpectedCase();
+      }
+      if (assoc >= 0) {
+        index = type._length;
+      } else {
+        index = 0;
+      }
+    }
+    return createAbsolutePosition(type, index, rpos.assoc);
+  };
+  var compareRelativePositions = (a, b) => a === b || a !== null && b !== null && a.tname === b.tname && compareIDs(a.item, b.item) && compareIDs(a.type, b.type) && a.assoc === b.assoc;
+  var Snapshot = class {
+    /**
+     * @param {DeleteSet} ds
+     * @param {Map<number,number>} sv state map
+     */
+    constructor(ds, sv) {
+      this.ds = ds;
+      this.sv = sv;
+    }
+  };
+  var createSnapshot = (ds, sm) => new Snapshot(ds, sm);
+  var emptySnapshot = createSnapshot(createDeleteSet(), /* @__PURE__ */ new Map());
+  var snapshot = (doc4) => createSnapshot(createDeleteSetFromStructStore(doc4.store), getStateVector(doc4.store));
+  var isVisible = (item, snapshot2) => snapshot2 === void 0 ? !item.deleted : snapshot2.sv.has(item.id.client) && (snapshot2.sv.get(item.id.client) || 0) > item.id.clock && !isDeleted(snapshot2.ds, item.id);
+  var splitSnapshotAffectedStructs = (transaction, snapshot2) => {
+    const meta = setIfUndefined(transaction.meta, splitSnapshotAffectedStructs, create2);
+    const store = transaction.doc.store;
+    if (!meta.has(snapshot2)) {
+      snapshot2.sv.forEach((clock, client) => {
+        if (clock < getState(store, client)) {
+          getItemCleanStart(transaction, createID(client, clock));
+        }
+      });
+      iterateDeletedStructs(transaction, snapshot2.ds, (_item) => {
+      });
+      meta.add(snapshot2);
+    }
+  };
+  var StructStore = class {
+    constructor() {
+      this.clients = /* @__PURE__ */ new Map();
+      this.pendingStructs = null;
+      this.pendingDs = null;
+    }
+  };
+  var getStateVector = (store) => {
+    const sm = /* @__PURE__ */ new Map();
+    store.clients.forEach((structs, client) => {
+      const struct = structs[structs.length - 1];
+      sm.set(client, struct.id.clock + struct.length);
+    });
+    return sm;
+  };
+  var getState = (store, client) => {
+    const structs = store.clients.get(client);
+    if (structs === void 0) {
+      return 0;
+    }
+    const lastStruct = structs[structs.length - 1];
+    return lastStruct.id.clock + lastStruct.length;
+  };
+  var addStruct = (store, struct) => {
+    let structs = store.clients.get(struct.id.client);
+    if (structs === void 0) {
+      structs = [];
+      store.clients.set(struct.id.client, structs);
+    } else {
+      const lastStruct = structs[structs.length - 1];
+      if (lastStruct.id.clock + lastStruct.length !== struct.id.clock) {
+        throw unexpectedCase();
+      }
+    }
+    structs.push(struct);
+  };
+  var findIndexSS = (structs, clock) => {
+    let left = 0;
+    let right = structs.length - 1;
+    let mid = structs[right];
+    let midclock = mid.id.clock;
+    if (midclock === clock) {
+      return right;
+    }
+    let midindex = floor(clock / (midclock + mid.length - 1) * right);
+    while (left <= right) {
+      mid = structs[midindex];
+      midclock = mid.id.clock;
+      if (midclock <= clock) {
+        if (clock < midclock + mid.length) {
+          return midindex;
+        }
+        left = midindex + 1;
+      } else {
+        right = midindex - 1;
+      }
+      midindex = floor((left + right) / 2);
+    }
+    throw unexpectedCase();
+  };
+  var find = (store, id2) => {
+    const structs = store.clients.get(id2.client);
+    return structs[findIndexSS(structs, id2.clock)];
+  };
+  var getItem = (
+    /** @type {function(StructStore,ID):Item} */
+    find
+  );
+  var findIndexCleanStart = (transaction, structs, clock) => {
+    const index = findIndexSS(structs, clock);
+    const struct = structs[index];
+    if (struct.id.clock < clock && struct instanceof Item2) {
+      structs.splice(index + 1, 0, splitItem(transaction, struct, clock - struct.id.clock));
+      return index + 1;
+    }
+    return index;
+  };
+  var getItemCleanStart = (transaction, id2) => {
+    const structs = (
+      /** @type {Array<Item>} */
+      transaction.doc.store.clients.get(id2.client)
+    );
+    return structs[findIndexCleanStart(transaction, structs, id2.clock)];
+  };
+  var getItemCleanEnd = (transaction, store, id2) => {
+    const structs = store.clients.get(id2.client);
+    const index = findIndexSS(structs, id2.clock);
+    const struct = structs[index];
+    if (id2.clock !== struct.id.clock + struct.length - 1 && struct.constructor !== GC) {
+      structs.splice(index + 1, 0, splitItem(transaction, struct, id2.clock - struct.id.clock + 1));
+    }
+    return struct;
+  };
+  var replaceStruct = (store, struct, newStruct) => {
+    const structs = (
+      /** @type {Array<GC|Item>} */
+      store.clients.get(struct.id.client)
+    );
+    structs[findIndexSS(structs, struct.id.clock)] = newStruct;
+  };
+  var iterateStructs = (transaction, structs, clockStart, len, f) => {
+    if (len === 0) {
+      return;
+    }
+    const clockEnd = clockStart + len;
+    let index = findIndexCleanStart(transaction, structs, clockStart);
+    let struct;
+    do {
+      struct = structs[index++];
+      if (clockEnd < struct.id.clock + struct.length) {
+        findIndexCleanStart(transaction, structs, clockEnd);
+      }
+      f(struct);
+    } while (index < structs.length && structs[index].id.clock < clockEnd);
+  };
+  var Transaction2 = class {
+    /**
+     * @param {Doc} doc
+     * @param {any} origin
+     * @param {boolean} local
+     */
+    constructor(doc4, origin, local) {
+      this.doc = doc4;
+      this.deleteSet = new DeleteSet();
+      this.beforeState = getStateVector(doc4.store);
+      this.afterState = /* @__PURE__ */ new Map();
+      this.changed = /* @__PURE__ */ new Map();
+      this.changedParentTypes = /* @__PURE__ */ new Map();
+      this._mergeStructs = [];
+      this.origin = origin;
+      this.meta = /* @__PURE__ */ new Map();
+      this.local = local;
+      this.subdocsAdded = /* @__PURE__ */ new Set();
+      this.subdocsRemoved = /* @__PURE__ */ new Set();
+      this.subdocsLoaded = /* @__PURE__ */ new Set();
+      this._needFormattingCleanup = false;
+    }
+  };
+  var writeUpdateMessageFromTransaction = (encoder, transaction) => {
+    if (transaction.deleteSet.clients.size === 0 && !any(transaction.afterState, (clock, client) => transaction.beforeState.get(client) !== clock)) {
+      return false;
+    }
+    sortAndMergeDeleteSet(transaction.deleteSet);
+    writeStructsFromTransaction(encoder, transaction);
+    writeDeleteSet(encoder, transaction.deleteSet);
+    return true;
+  };
+  var addChangedTypeToTransaction = (transaction, type, parentSub) => {
+    const item = type._item;
+    if (item === null || item.id.clock < (transaction.beforeState.get(item.id.client) || 0) && !item.deleted) {
+      setIfUndefined(transaction.changed, type, create2).add(parentSub);
+    }
+  };
+  var tryToMergeWithLefts = (structs, pos) => {
+    let right = structs[pos];
+    let left = structs[pos - 1];
+    let i2 = pos;
+    for (; i2 > 0; right = left, left = structs[--i2 - 1]) {
+      if (left.deleted === right.deleted && left.constructor === right.constructor) {
+        if (left.mergeWith(right)) {
+          if (right instanceof Item2 && right.parentSub !== null && /** @type {AbstractType<any>} */
+          right.parent._map.get(right.parentSub) === right) {
+            right.parent._map.set(
+              right.parentSub,
+              /** @type {Item} */
+              left
+            );
+          }
+          continue;
+        }
+      }
+      break;
+    }
+    const merged = pos - i2;
+    if (merged) {
+      structs.splice(pos + 1 - merged, merged);
+    }
+    return merged;
+  };
+  var tryGcDeleteSet = (ds, store, gcFilter) => {
+    for (const [client, deleteItems] of ds.clients.entries()) {
+      const structs = (
+        /** @type {Array<GC|Item>} */
+        store.clients.get(client)
+      );
+      for (let di = deleteItems.length - 1; di >= 0; di--) {
+        const deleteItem = deleteItems[di];
+        const endDeleteItemClock = deleteItem.clock + deleteItem.len;
+        for (let si = findIndexSS(structs, deleteItem.clock), struct = structs[si]; si < structs.length && struct.id.clock < endDeleteItemClock; struct = structs[++si]) {
+          const struct2 = structs[si];
+          if (deleteItem.clock + deleteItem.len <= struct2.id.clock) {
+            break;
+          }
+          if (struct2 instanceof Item2 && struct2.deleted && !struct2.keep && gcFilter(struct2)) {
+            struct2.gc(store, false);
+          }
+        }
+      }
+    }
+  };
+  var tryMergeDeleteSet = (ds, store) => {
+    ds.clients.forEach((deleteItems, client) => {
+      const structs = (
+        /** @type {Array<GC|Item>} */
+        store.clients.get(client)
+      );
+      for (let di = deleteItems.length - 1; di >= 0; di--) {
+        const deleteItem = deleteItems[di];
+        const mostRightIndexToCheck = min(structs.length - 1, 1 + findIndexSS(structs, deleteItem.clock + deleteItem.len - 1));
+        for (let si = mostRightIndexToCheck, struct = structs[si]; si > 0 && struct.id.clock >= deleteItem.clock; struct = structs[si]) {
+          si -= 1 + tryToMergeWithLefts(structs, si);
+        }
+      }
+    });
+  };
+  var cleanupTransactions = (transactionCleanups, i2) => {
+    if (i2 < transactionCleanups.length) {
+      const transaction = transactionCleanups[i2];
+      const doc4 = transaction.doc;
+      const store = doc4.store;
+      const ds = transaction.deleteSet;
+      const mergeStructs = transaction._mergeStructs;
+      try {
+        sortAndMergeDeleteSet(ds);
+        transaction.afterState = getStateVector(transaction.doc.store);
+        doc4.emit("beforeObserverCalls", [transaction, doc4]);
+        const fs = [];
+        transaction.changed.forEach(
+          (subs, itemtype) => fs.push(() => {
+            if (itemtype._item === null || !itemtype._item.deleted) {
+              itemtype._callObserver(transaction, subs);
+            }
+          })
+        );
+        fs.push(() => {
+          transaction.changedParentTypes.forEach((events, type) => {
+            if (type._dEH.l.length > 0 && (type._item === null || !type._item.deleted)) {
+              fs.push(() => {
+                events = events.filter(
+                  (event) => event.target._item === null || !event.target._item.deleted
+                );
+                events.forEach((event) => {
+                  event.currentTarget = type;
+                  event._path = null;
+                });
+                events.sort((event1, event2) => event1.path.length - event2.path.length);
+                callEventHandlerListeners(type._dEH, events, transaction);
+              });
+            }
+          });
+          fs.push(() => doc4.emit("afterTransaction", [transaction, doc4]));
+          fs.push(() => {
+            if (transaction._needFormattingCleanup) {
+              cleanupYTextAfterTransaction(transaction);
+            }
+          });
+        });
+        callAll(fs, []);
+      } finally {
+        if (doc4.gc) {
+          tryGcDeleteSet(ds, store, doc4.gcFilter);
+        }
+        tryMergeDeleteSet(ds, store);
+        transaction.afterState.forEach((clock, client) => {
+          const beforeClock = transaction.beforeState.get(client) || 0;
+          if (beforeClock !== clock) {
+            const structs = (
+              /** @type {Array<GC|Item>} */
+              store.clients.get(client)
+            );
+            const firstChangePos = max(findIndexSS(structs, beforeClock), 1);
+            for (let i3 = structs.length - 1; i3 >= firstChangePos; ) {
+              i3 -= 1 + tryToMergeWithLefts(structs, i3);
+            }
+          }
+        });
+        for (let i3 = mergeStructs.length - 1; i3 >= 0; i3--) {
+          const { client, clock } = mergeStructs[i3].id;
+          const structs = (
+            /** @type {Array<GC|Item>} */
+            store.clients.get(client)
+          );
+          const replacedStructPos = findIndexSS(structs, clock);
+          if (replacedStructPos + 1 < structs.length) {
+            if (tryToMergeWithLefts(structs, replacedStructPos + 1) > 1) {
+              continue;
+            }
+          }
+          if (replacedStructPos > 0) {
+            tryToMergeWithLefts(structs, replacedStructPos);
+          }
+        }
+        if (!transaction.local && transaction.afterState.get(doc4.clientID) !== transaction.beforeState.get(doc4.clientID)) {
+          print(ORANGE, BOLD, "[yjs] ", UNBOLD, RED, "Changed the client-id because another client seems to be using it.");
+          doc4.clientID = generateNewClientId();
+        }
+        doc4.emit("afterTransactionCleanup", [transaction, doc4]);
+        if (doc4._observers.has("update")) {
+          const encoder = new UpdateEncoderV1();
+          const hasContent2 = writeUpdateMessageFromTransaction(encoder, transaction);
+          if (hasContent2) {
+            doc4.emit("update", [encoder.toUint8Array(), transaction.origin, doc4, transaction]);
+          }
+        }
+        if (doc4._observers.has("updateV2")) {
+          const encoder = new UpdateEncoderV2();
+          const hasContent2 = writeUpdateMessageFromTransaction(encoder, transaction);
+          if (hasContent2) {
+            doc4.emit("updateV2", [encoder.toUint8Array(), transaction.origin, doc4, transaction]);
+          }
+        }
+        const { subdocsAdded, subdocsLoaded, subdocsRemoved } = transaction;
+        if (subdocsAdded.size > 0 || subdocsRemoved.size > 0 || subdocsLoaded.size > 0) {
+          subdocsAdded.forEach((subdoc) => {
+            subdoc.clientID = doc4.clientID;
+            if (subdoc.collectionid == null) {
+              subdoc.collectionid = doc4.collectionid;
+            }
+            doc4.subdocs.add(subdoc);
+          });
+          subdocsRemoved.forEach((subdoc) => doc4.subdocs.delete(subdoc));
+          doc4.emit("subdocs", [{ loaded: subdocsLoaded, added: subdocsAdded, removed: subdocsRemoved }, doc4, transaction]);
+          subdocsRemoved.forEach((subdoc) => subdoc.destroy());
+        }
+        if (transactionCleanups.length <= i2 + 1) {
+          doc4._transactionCleanups = [];
+          doc4.emit("afterAllTransactions", [doc4, transactionCleanups]);
+        } else {
+          cleanupTransactions(transactionCleanups, i2 + 1);
+        }
+      }
+    }
+  };
+  var transact = (doc4, f, origin = null, local = true) => {
+    const transactionCleanups = doc4._transactionCleanups;
+    let initialCall = false;
+    let result = null;
+    if (doc4._transaction === null) {
+      initialCall = true;
+      doc4._transaction = new Transaction2(doc4, origin, local);
+      transactionCleanups.push(doc4._transaction);
+      if (transactionCleanups.length === 1) {
+        doc4.emit("beforeAllTransactions", [doc4]);
+      }
+      doc4.emit("beforeTransaction", [doc4._transaction, doc4]);
+    }
+    try {
+      result = f(doc4._transaction);
+    } finally {
+      if (initialCall) {
+        const finishCleanup = doc4._transaction === transactionCleanups[0];
+        doc4._transaction = null;
+        if (finishCleanup) {
+          cleanupTransactions(transactionCleanups, 0);
+        }
+      }
+    }
+    return result;
+  };
+  var StackItem = class {
+    /**
+     * @param {DeleteSet} deletions
+     * @param {DeleteSet} insertions
+     */
+    constructor(deletions, insertions) {
+      this.insertions = insertions;
+      this.deletions = deletions;
+      this.meta = /* @__PURE__ */ new Map();
+    }
+  };
+  var clearUndoManagerStackItem = (tr2, um, stackItem) => {
+    iterateDeletedStructs(tr2, stackItem.deletions, (item) => {
+      if (item instanceof Item2 && um.scope.some((type) => type === tr2.doc || isParentOf(
+        /** @type {AbstractType<any>} */
+        type,
+        item
+      ))) {
+        keepItem(item, false);
+      }
+    });
+  };
+  var popStackItem = (undoManager, stack, eventType) => {
+    let _tr = null;
+    const doc4 = undoManager.doc;
+    const scope = undoManager.scope;
+    transact(doc4, (transaction) => {
+      while (stack.length > 0 && undoManager.currStackItem === null) {
+        const store = doc4.store;
+        const stackItem = (
+          /** @type {StackItem} */
+          stack.pop()
+        );
+        const itemsToRedo = /* @__PURE__ */ new Set();
+        const itemsToDelete = [];
+        let performedChange = false;
+        iterateDeletedStructs(transaction, stackItem.insertions, (struct) => {
+          if (struct instanceof Item2) {
+            if (struct.redone !== null) {
+              let { item, diff } = followRedone(store, struct.id);
+              if (diff > 0) {
+                item = getItemCleanStart(transaction, createID(item.id.client, item.id.clock + diff));
+              }
+              struct = item;
+            }
+            if (!struct.deleted && scope.some((type) => type === transaction.doc || isParentOf(
+              /** @type {AbstractType<any>} */
+              type,
+              /** @type {Item} */
+              struct
+            ))) {
+              itemsToDelete.push(struct);
+            }
+          }
+        });
+        iterateDeletedStructs(transaction, stackItem.deletions, (struct) => {
+          if (struct instanceof Item2 && scope.some((type) => type === transaction.doc || isParentOf(
+            /** @type {AbstractType<any>} */
+            type,
+            struct
+          )) && // Never redo structs in stackItem.insertions because they were created and deleted in the same capture interval.
+          !isDeleted(stackItem.insertions, struct.id)) {
+            itemsToRedo.add(struct);
+          }
+        });
+        itemsToRedo.forEach((struct) => {
+          performedChange = redoItem(transaction, struct, itemsToRedo, stackItem.insertions, undoManager.ignoreRemoteMapChanges, undoManager) !== null || performedChange;
+        });
+        for (let i2 = itemsToDelete.length - 1; i2 >= 0; i2--) {
+          const item = itemsToDelete[i2];
+          if (undoManager.deleteFilter(item)) {
+            item.delete(transaction);
+            performedChange = true;
+          }
+        }
+        undoManager.currStackItem = performedChange ? stackItem : null;
+      }
+      transaction.changed.forEach((subProps, type) => {
+        if (subProps.has(null) && type._searchMarker) {
+          type._searchMarker.length = 0;
+        }
+      });
+      _tr = transaction;
+    }, undoManager);
+    const res = undoManager.currStackItem;
+    if (res != null) {
+      const changedParentTypes = _tr.changedParentTypes;
+      undoManager.emit("stack-item-popped", [{ stackItem: res, type: eventType, changedParentTypes, origin: undoManager }, undoManager]);
+      undoManager.currStackItem = null;
+    }
+    return res;
+  };
+  var UndoManager = class extends ObservableV2 {
+    /**
+     * @param {Doc|AbstractType<any>|Array<AbstractType<any>>} typeScope Limits the scope of the UndoManager. If this is set to a ydoc instance, all changes on that ydoc will be undone. If set to a specific type, only changes on that type or its children will be undone. Also accepts an array of types.
+     * @param {UndoManagerOptions} options
+     */
+    constructor(typeScope, {
+      captureTimeout = 500,
+      captureTransaction = (_tr) => true,
+      deleteFilter = () => true,
+      trackedOrigins = /* @__PURE__ */ new Set([null]),
+      ignoreRemoteMapChanges = false,
+      doc: doc4 = (
+        /** @type {Doc} */
+        isArray(typeScope) ? typeScope[0].doc : typeScope instanceof Doc ? typeScope : typeScope.doc
+      )
+    } = {}) {
+      super();
+      this.scope = [];
+      this.doc = doc4;
+      this.addToScope(typeScope);
+      this.deleteFilter = deleteFilter;
+      trackedOrigins.add(this);
+      this.trackedOrigins = trackedOrigins;
+      this.captureTransaction = captureTransaction;
+      this.undoStack = [];
+      this.redoStack = [];
+      this.undoing = false;
+      this.redoing = false;
+      this.currStackItem = null;
+      this.lastChange = 0;
+      this.ignoreRemoteMapChanges = ignoreRemoteMapChanges;
+      this.captureTimeout = captureTimeout;
+      this.afterTransactionHandler = (transaction) => {
+        if (!this.captureTransaction(transaction) || !this.scope.some((type) => transaction.changedParentTypes.has(
+          /** @type {AbstractType<any>} */
+          type
+        ) || type === this.doc) || !this.trackedOrigins.has(transaction.origin) && (!transaction.origin || !this.trackedOrigins.has(transaction.origin.constructor))) {
+          return;
+        }
+        const undoing = this.undoing;
+        const redoing = this.redoing;
+        const stack = undoing ? this.redoStack : this.undoStack;
+        if (undoing) {
+          this.stopCapturing();
+        } else if (!redoing) {
+          this.clear(false, true);
+        }
+        const insertions = new DeleteSet();
+        transaction.afterState.forEach((endClock, client) => {
+          const startClock = transaction.beforeState.get(client) || 0;
+          const len = endClock - startClock;
+          if (len > 0) {
+            addToDeleteSet(insertions, client, startClock, len);
+          }
+        });
+        const now = getUnixTime();
+        let didAdd = false;
+        if (this.lastChange > 0 && now - this.lastChange < this.captureTimeout && stack.length > 0 && !undoing && !redoing) {
+          const lastOp = stack[stack.length - 1];
+          lastOp.deletions = mergeDeleteSets([lastOp.deletions, transaction.deleteSet]);
+          lastOp.insertions = mergeDeleteSets([lastOp.insertions, insertions]);
+        } else {
+          stack.push(new StackItem(transaction.deleteSet, insertions));
+          didAdd = true;
+        }
+        if (!undoing && !redoing) {
+          this.lastChange = now;
+        }
+        iterateDeletedStructs(
+          transaction,
+          transaction.deleteSet,
+          /** @param {Item|GC} item */
+          (item) => {
+            if (item instanceof Item2 && this.scope.some((type) => type === transaction.doc || isParentOf(
+              /** @type {AbstractType<any>} */
+              type,
+              item
+            ))) {
+              keepItem(item, true);
+            }
+          }
+        );
+        const changeEvent = [{ stackItem: stack[stack.length - 1], origin: transaction.origin, type: undoing ? "redo" : "undo", changedParentTypes: transaction.changedParentTypes }, this];
+        if (didAdd) {
+          this.emit("stack-item-added", changeEvent);
+        } else {
+          this.emit("stack-item-updated", changeEvent);
+        }
+      };
+      this.destroy = this.destroy.bind(this);
+      this.doc.on("afterTransaction", this.afterTransactionHandler);
+      this.doc.on("destroy", this.destroy);
+    }
+    /**
+     * Extend the scope.
+     *
+     * @param {Array<AbstractType<any> | Doc> | AbstractType<any> | Doc} ytypes
+     */
+    addToScope(ytypes) {
+      const tmpSet = new Set(this.scope);
+      ytypes = isArray(ytypes) ? ytypes : [ytypes];
+      ytypes.forEach((ytype) => {
+        if (!tmpSet.has(ytype)) {
+          tmpSet.add(ytype);
+          if (ytype instanceof AbstractType ? ytype.doc !== this.doc : ytype !== this.doc) warn("[yjs#509] Not same Y.Doc");
+          this.scope.push(ytype);
+        }
+      });
+    }
+    /**
+     * @param {any} origin
+     */
+    addTrackedOrigin(origin) {
+      this.trackedOrigins.add(origin);
+    }
+    /**
+     * @param {any} origin
+     */
+    removeTrackedOrigin(origin) {
+      this.trackedOrigins.delete(origin);
+    }
+    clear(clearUndoStack = true, clearRedoStack = true) {
+      if (clearUndoStack && this.canUndo() || clearRedoStack && this.canRedo()) {
+        this.doc.transact((tr2) => {
+          if (clearUndoStack) {
+            this.undoStack.forEach((item) => clearUndoManagerStackItem(tr2, this, item));
+            this.undoStack = [];
+          }
+          if (clearRedoStack) {
+            this.redoStack.forEach((item) => clearUndoManagerStackItem(tr2, this, item));
+            this.redoStack = [];
+          }
+          this.emit("stack-cleared", [{ undoStackCleared: clearUndoStack, redoStackCleared: clearRedoStack }]);
+        });
+      }
+    }
+    /**
+     * UndoManager merges Undo-StackItem if they are created within time-gap
+     * smaller than `options.captureTimeout`. Call `um.stopCapturing()` so that the next
+     * StackItem won't be merged.
+     *
+     *
+     * @example
+     *     // without stopCapturing
+     *     ytext.insert(0, 'a')
+     *     ytext.insert(1, 'b')
+     *     um.undo()
+     *     ytext.toString() // => '' (note that 'ab' was removed)
+     *     // with stopCapturing
+     *     ytext.insert(0, 'a')
+     *     um.stopCapturing()
+     *     ytext.insert(0, 'b')
+     *     um.undo()
+     *     ytext.toString() // => 'a' (note that only 'b' was removed)
+     *
+     */
+    stopCapturing() {
+      this.lastChange = 0;
+    }
+    /**
+     * Undo last changes on type.
+     *
+     * @return {StackItem?} Returns StackItem if a change was applied
+     */
+    undo() {
+      this.undoing = true;
+      let res;
+      try {
+        res = popStackItem(this, this.undoStack, "undo");
+      } finally {
+        this.undoing = false;
+      }
+      return res;
+    }
+    /**
+     * Redo last undo operation.
+     *
+     * @return {StackItem?} Returns StackItem if a change was applied
+     */
+    redo() {
+      this.redoing = true;
+      let res;
+      try {
+        res = popStackItem(this, this.redoStack, "redo");
+      } finally {
+        this.redoing = false;
+      }
+      return res;
+    }
+    /**
+     * Are undo steps available?
+     *
+     * @return {boolean} `true` if undo is possible
+     */
+    canUndo() {
+      return this.undoStack.length > 0;
+    }
+    /**
+     * Are redo steps available?
+     *
+     * @return {boolean} `true` if redo is possible
+     */
+    canRedo() {
+      return this.redoStack.length > 0;
+    }
+    destroy() {
+      this.trackedOrigins.delete(this);
+      this.doc.off("afterTransaction", this.afterTransactionHandler);
+      this.doc.off("destroy", this.destroy);
+      super.destroy();
+    }
+  };
+  function* lazyStructReaderGenerator(decoder) {
+    const numOfStateUpdates = readVarUint(decoder.restDecoder);
+    for (let i2 = 0; i2 < numOfStateUpdates; i2++) {
+      const numberOfStructs = readVarUint(decoder.restDecoder);
+      const client = decoder.readClient();
+      let clock = readVarUint(decoder.restDecoder);
+      for (let i3 = 0; i3 < numberOfStructs; i3++) {
+        const info = decoder.readInfo();
+        if (info === 10) {
+          const len = readVarUint(decoder.restDecoder);
+          yield new Skip(createID(client, clock), len);
+          clock += len;
+        } else if ((BITS5 & info) !== 0) {
+          const cantCopyParentInfo = (info & (BIT7 | BIT8)) === 0;
+          const struct = new Item2(
+            createID(client, clock),
+            null,
+            // left
+            (info & BIT8) === BIT8 ? decoder.readLeftID() : null,
+            // origin
+            null,
+            // right
+            (info & BIT7) === BIT7 ? decoder.readRightID() : null,
+            // right origin
+            // @ts-ignore Force writing a string here.
+            cantCopyParentInfo ? decoder.readParentInfo() ? decoder.readString() : decoder.readLeftID() : null,
+            // parent
+            cantCopyParentInfo && (info & BIT6) === BIT6 ? decoder.readString() : null,
+            // parentSub
+            readItemContent(decoder, info)
+            // item content
+          );
+          yield struct;
+          clock += struct.length;
+        } else {
+          const len = decoder.readLen();
+          yield new GC(createID(client, clock), len);
+          clock += len;
+        }
+      }
+    }
+  }
+  var LazyStructReader = class {
+    /**
+     * @param {UpdateDecoderV1 | UpdateDecoderV2} decoder
+     * @param {boolean} filterSkips
+     */
+    constructor(decoder, filterSkips) {
+      this.gen = lazyStructReaderGenerator(decoder);
+      this.curr = null;
+      this.done = false;
+      this.filterSkips = filterSkips;
+      this.next();
+    }
+    /**
+     * @return {Item | GC | Skip |null}
+     */
+    next() {
+      do {
+        this.curr = this.gen.next().value || null;
+      } while (this.filterSkips && this.curr !== null && this.curr.constructor === Skip);
+      return this.curr;
+    }
+  };
+  var LazyStructWriter = class {
+    /**
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder
+     */
+    constructor(encoder) {
+      this.currClient = 0;
+      this.startClock = 0;
+      this.written = 0;
+      this.encoder = encoder;
+      this.clientStructs = [];
+    }
+  };
+  var mergeUpdates = (updates) => mergeUpdatesV2(updates, UpdateDecoderV1, UpdateEncoderV1);
+  var sliceStruct = (left, diff) => {
+    if (left.constructor === GC) {
+      const { client, clock } = left.id;
+      return new GC(createID(client, clock + diff), left.length - diff);
+    } else if (left.constructor === Skip) {
+      const { client, clock } = left.id;
+      return new Skip(createID(client, clock + diff), left.length - diff);
+    } else {
+      const leftItem = (
+        /** @type {Item} */
+        left
+      );
+      const { client, clock } = leftItem.id;
+      return new Item2(
+        createID(client, clock + diff),
+        null,
+        createID(client, clock + diff - 1),
+        null,
+        leftItem.rightOrigin,
+        leftItem.parent,
+        leftItem.parentSub,
+        leftItem.content.splice(diff)
+      );
+    }
+  };
+  var mergeUpdatesV2 = (updates, YDecoder = UpdateDecoderV2, YEncoder = UpdateEncoderV2) => {
+    if (updates.length === 1) {
+      return updates[0];
+    }
+    const updateDecoders = updates.map((update) => new YDecoder(createDecoder(update)));
+    let lazyStructDecoders = updateDecoders.map((decoder) => new LazyStructReader(decoder, true));
+    let currWrite = null;
+    const updateEncoder = new YEncoder();
+    const lazyStructEncoder = new LazyStructWriter(updateEncoder);
+    while (true) {
+      lazyStructDecoders = lazyStructDecoders.filter((dec) => dec.curr !== null);
+      lazyStructDecoders.sort(
+        /** @type {function(any,any):number} */
+        (dec1, dec2) => {
+          if (dec1.curr.id.client === dec2.curr.id.client) {
+            const clockDiff = dec1.curr.id.clock - dec2.curr.id.clock;
+            if (clockDiff === 0) {
+              return dec1.curr.constructor === dec2.curr.constructor ? 0 : dec1.curr.constructor === Skip ? 1 : -1;
+            } else {
+              return clockDiff;
+            }
+          } else {
+            return dec2.curr.id.client - dec1.curr.id.client;
+          }
+        }
+      );
+      if (lazyStructDecoders.length === 0) {
+        break;
+      }
+      const currDecoder = lazyStructDecoders[0];
+      const firstClient = (
+        /** @type {Item | GC} */
+        currDecoder.curr.id.client
+      );
+      if (currWrite !== null) {
+        let curr = (
+          /** @type {Item | GC | null} */
+          currDecoder.curr
+        );
+        let iterated = false;
+        while (curr !== null && curr.id.clock + curr.length <= currWrite.struct.id.clock + currWrite.struct.length && curr.id.client >= currWrite.struct.id.client) {
+          curr = currDecoder.next();
+          iterated = true;
+        }
+        if (curr === null || // current decoder is empty
+        curr.id.client !== firstClient || // check whether there is another decoder that has has updates from `firstClient`
+        iterated && curr.id.clock > currWrite.struct.id.clock + currWrite.struct.length) {
+          continue;
+        }
+        if (firstClient !== currWrite.struct.id.client) {
+          writeStructToLazyStructWriter(lazyStructEncoder, currWrite.struct, currWrite.offset);
+          currWrite = { struct: curr, offset: 0 };
+          currDecoder.next();
+        } else {
+          if (currWrite.struct.id.clock + currWrite.struct.length < curr.id.clock) {
+            if (currWrite.struct.constructor === Skip) {
+              currWrite.struct.length = curr.id.clock + curr.length - currWrite.struct.id.clock;
+            } else {
+              writeStructToLazyStructWriter(lazyStructEncoder, currWrite.struct, currWrite.offset);
+              const diff = curr.id.clock - currWrite.struct.id.clock - currWrite.struct.length;
+              const struct = new Skip(createID(firstClient, currWrite.struct.id.clock + currWrite.struct.length), diff);
+              currWrite = { struct, offset: 0 };
+            }
+          } else {
+            const diff = currWrite.struct.id.clock + currWrite.struct.length - curr.id.clock;
+            if (diff > 0) {
+              if (currWrite.struct.constructor === Skip) {
+                currWrite.struct.length -= diff;
+              } else {
+                curr = sliceStruct(curr, diff);
+              }
+            }
+            if (!currWrite.struct.mergeWith(
+              /** @type {any} */
+              curr
+            )) {
+              writeStructToLazyStructWriter(lazyStructEncoder, currWrite.struct, currWrite.offset);
+              currWrite = { struct: curr, offset: 0 };
+              currDecoder.next();
+            }
+          }
+        }
+      } else {
+        currWrite = { struct: (
+          /** @type {Item | GC} */
+          currDecoder.curr
+        ), offset: 0 };
+        currDecoder.next();
+      }
+      for (let next = currDecoder.curr; next !== null && next.id.client === firstClient && next.id.clock === currWrite.struct.id.clock + currWrite.struct.length && next.constructor !== Skip; next = currDecoder.next()) {
+        writeStructToLazyStructWriter(lazyStructEncoder, currWrite.struct, currWrite.offset);
+        currWrite = { struct: next, offset: 0 };
+      }
+    }
+    if (currWrite !== null) {
+      writeStructToLazyStructWriter(lazyStructEncoder, currWrite.struct, currWrite.offset);
+      currWrite = null;
+    }
+    finishLazyStructWriting(lazyStructEncoder);
+    const dss = updateDecoders.map((decoder) => readDeleteSet(decoder));
+    const ds = mergeDeleteSets(dss);
+    writeDeleteSet(updateEncoder, ds);
+    return updateEncoder.toUint8Array();
+  };
+  var diffUpdateV2 = (update, sv, YDecoder = UpdateDecoderV2, YEncoder = UpdateEncoderV2) => {
+    const state = decodeStateVector(sv);
+    const encoder = new YEncoder();
+    const lazyStructWriter = new LazyStructWriter(encoder);
+    const decoder = new YDecoder(createDecoder(update));
+    const reader = new LazyStructReader(decoder, false);
+    while (reader.curr) {
+      const curr = reader.curr;
+      const currClient = curr.id.client;
+      const svClock = state.get(currClient) || 0;
+      if (reader.curr.constructor === Skip) {
+        reader.next();
+        continue;
+      }
+      if (curr.id.clock + curr.length > svClock) {
+        writeStructToLazyStructWriter(lazyStructWriter, curr, max(svClock - curr.id.clock, 0));
+        reader.next();
+        while (reader.curr && reader.curr.id.client === currClient) {
+          writeStructToLazyStructWriter(lazyStructWriter, reader.curr, 0);
+          reader.next();
+        }
+      } else {
+        while (reader.curr && reader.curr.id.client === currClient && reader.curr.id.clock + reader.curr.length <= svClock) {
+          reader.next();
+        }
+      }
+    }
+    finishLazyStructWriting(lazyStructWriter);
+    const ds = readDeleteSet(decoder);
+    writeDeleteSet(encoder, ds);
+    return encoder.toUint8Array();
+  };
+  var flushLazyStructWriter = (lazyWriter) => {
+    if (lazyWriter.written > 0) {
+      lazyWriter.clientStructs.push({ written: lazyWriter.written, restEncoder: toUint8Array(lazyWriter.encoder.restEncoder) });
+      lazyWriter.encoder.restEncoder = createEncoder();
+      lazyWriter.written = 0;
+    }
+  };
+  var writeStructToLazyStructWriter = (lazyWriter, struct, offset) => {
+    if (lazyWriter.written > 0 && lazyWriter.currClient !== struct.id.client) {
+      flushLazyStructWriter(lazyWriter);
+    }
+    if (lazyWriter.written === 0) {
+      lazyWriter.currClient = struct.id.client;
+      lazyWriter.encoder.writeClient(struct.id.client);
+      writeVarUint(lazyWriter.encoder.restEncoder, struct.id.clock + offset);
+    }
+    struct.write(lazyWriter.encoder, offset);
+    lazyWriter.written++;
+  };
+  var finishLazyStructWriting = (lazyWriter) => {
+    flushLazyStructWriter(lazyWriter);
+    const restEncoder = lazyWriter.encoder.restEncoder;
+    writeVarUint(restEncoder, lazyWriter.clientStructs.length);
+    for (let i2 = 0; i2 < lazyWriter.clientStructs.length; i2++) {
+      const partStructs = lazyWriter.clientStructs[i2];
+      writeVarUint(restEncoder, partStructs.written);
+      writeUint8Array(restEncoder, partStructs.restEncoder);
+    }
+  };
+  var convertUpdateFormat = (update, blockTransformer, YDecoder, YEncoder) => {
+    const updateDecoder = new YDecoder(createDecoder(update));
+    const lazyDecoder = new LazyStructReader(updateDecoder, false);
+    const updateEncoder = new YEncoder();
+    const lazyWriter = new LazyStructWriter(updateEncoder);
+    for (let curr = lazyDecoder.curr; curr !== null; curr = lazyDecoder.next()) {
+      writeStructToLazyStructWriter(lazyWriter, blockTransformer(curr), 0);
+    }
+    finishLazyStructWriting(lazyWriter);
+    const ds = readDeleteSet(updateDecoder);
+    writeDeleteSet(updateEncoder, ds);
+    return updateEncoder.toUint8Array();
+  };
+  var convertUpdateFormatV2ToV1 = (update) => convertUpdateFormat(update, id, UpdateDecoderV2, UpdateEncoderV1);
+  var errorComputeChanges = "You must not compute changes after the event-handler fired.";
+  var YEvent = class {
+    /**
+     * @param {T} target The changed type.
+     * @param {Transaction} transaction
+     */
+    constructor(target, transaction) {
+      this.target = target;
+      this.currentTarget = target;
+      this.transaction = transaction;
+      this._changes = null;
+      this._keys = null;
+      this._delta = null;
+      this._path = null;
+    }
+    /**
+     * Computes the path from `y` to the changed type.
+     *
+     * @todo v14 should standardize on path: Array<{parent, index}> because that is easier to work with.
+     *
+     * The following property holds:
+     * @example
+     *   let type = y
+     *   event.path.forEach(dir => {
+     *     type = type.get(dir)
+     *   })
+     *   type === event.target // => true
+     */
+    get path() {
+      return this._path || (this._path = getPathTo(this.currentTarget, this.target));
+    }
+    /**
+     * Check if a struct is deleted by this event.
+     *
+     * In contrast to change.deleted, this method also returns true if the struct was added and then deleted.
+     *
+     * @param {AbstractStruct} struct
+     * @return {boolean}
+     */
+    deletes(struct) {
+      return isDeleted(this.transaction.deleteSet, struct.id);
+    }
+    /**
+     * @type {Map<string, { action: 'add' | 'update' | 'delete', oldValue: any }>}
+     */
+    get keys() {
+      if (this._keys === null) {
+        if (this.transaction.doc._transactionCleanups.length === 0) {
+          throw create3(errorComputeChanges);
+        }
+        const keys3 = /* @__PURE__ */ new Map();
+        const target = this.target;
+        const changed = (
+          /** @type Set<string|null> */
+          this.transaction.changed.get(target)
+        );
+        changed.forEach((key2) => {
+          if (key2 !== null) {
+            const item = (
+              /** @type {Item} */
+              target._map.get(key2)
+            );
+            let action;
+            let oldValue;
+            if (this.adds(item)) {
+              let prev = item.left;
+              while (prev !== null && this.adds(prev)) {
+                prev = prev.left;
+              }
+              if (this.deletes(item)) {
+                if (prev !== null && this.deletes(prev)) {
+                  action = "delete";
+                  oldValue = last(prev.content.getContent());
+                } else {
+                  return;
+                }
+              } else {
+                if (prev !== null && this.deletes(prev)) {
+                  action = "update";
+                  oldValue = last(prev.content.getContent());
+                } else {
+                  action = "add";
+                  oldValue = void 0;
+                }
+              }
+            } else {
+              if (this.deletes(item)) {
+                action = "delete";
+                oldValue = last(
+                  /** @type {Item} */
+                  item.content.getContent()
+                );
+              } else {
+                return;
+              }
+            }
+            keys3.set(key2, { action, oldValue });
+          }
+        });
+        this._keys = keys3;
+      }
+      return this._keys;
+    }
+    /**
+     * This is a computed property. Note that this can only be safely computed during the
+     * event call. Computing this property after other changes happened might result in
+     * unexpected behavior (incorrect computation of deltas). A safe way to collect changes
+     * is to store the `changes` or the `delta` object. Avoid storing the `transaction` object.
+     *
+     * @type {Array<{insert?: string | Array<any> | object | AbstractType<any>, retain?: number, delete?: number, attributes?: Object<string, any>}>}
+     */
+    get delta() {
+      return this.changes.delta;
+    }
+    /**
+     * Check if a struct is added by this event.
+     *
+     * In contrast to change.deleted, this method also returns true if the struct was added and then deleted.
+     *
+     * @param {AbstractStruct} struct
+     * @return {boolean}
+     */
+    adds(struct) {
+      return struct.id.clock >= (this.transaction.beforeState.get(struct.id.client) || 0);
+    }
+    /**
+     * This is a computed property. Note that this can only be safely computed during the
+     * event call. Computing this property after other changes happened might result in
+     * unexpected behavior (incorrect computation of deltas). A safe way to collect changes
+     * is to store the `changes` or the `delta` object. Avoid storing the `transaction` object.
+     *
+     * @type {{added:Set<Item>,deleted:Set<Item>,keys:Map<string,{action:'add'|'update'|'delete',oldValue:any}>,delta:Array<{insert?:Array<any>|string, delete?:number, retain?:number}>}}
+     */
+    get changes() {
+      let changes = this._changes;
+      if (changes === null) {
+        if (this.transaction.doc._transactionCleanups.length === 0) {
+          throw create3(errorComputeChanges);
+        }
+        const target = this.target;
+        const added = create2();
+        const deleted = create2();
+        const delta = [];
+        changes = {
+          added,
+          deleted,
+          delta,
+          keys: this.keys
+        };
+        const changed = (
+          /** @type Set<string|null> */
+          this.transaction.changed.get(target)
+        );
+        if (changed.has(null)) {
+          let lastOp = null;
+          const packOp = () => {
+            if (lastOp) {
+              delta.push(lastOp);
+            }
+          };
+          for (let item = target._start; item !== null; item = item.right) {
+            if (item.deleted) {
+              if (this.deletes(item) && !this.adds(item)) {
+                if (lastOp === null || lastOp.delete === void 0) {
+                  packOp();
+                  lastOp = { delete: 0 };
+                }
+                lastOp.delete += item.length;
+                deleted.add(item);
+              }
+            } else {
+              if (this.adds(item)) {
+                if (lastOp === null || lastOp.insert === void 0) {
+                  packOp();
+                  lastOp = { insert: [] };
+                }
+                lastOp.insert = lastOp.insert.concat(item.content.getContent());
+                added.add(item);
+              } else {
+                if (lastOp === null || lastOp.retain === void 0) {
+                  packOp();
+                  lastOp = { retain: 0 };
+                }
+                lastOp.retain += item.length;
+              }
+            }
+          }
+          if (lastOp !== null && lastOp.retain === void 0) {
+            packOp();
+          }
+        }
+        this._changes = changes;
+      }
+      return (
+        /** @type {any} */
+        changes
+      );
+    }
+  };
+  var getPathTo = (parent, child) => {
+    const path = [];
+    while (child._item !== null && child !== parent) {
+      if (child._item.parentSub !== null) {
+        path.unshift(child._item.parentSub);
+      } else {
+        let i2 = 0;
+        let c = (
+          /** @type {AbstractType<any>} */
+          child._item.parent._start
+        );
+        while (c !== child._item && c !== null) {
+          if (!c.deleted && c.countable) {
+            i2 += c.length;
+          }
+          c = c.right;
+        }
+        path.unshift(i2);
+      }
+      child = /** @type {AbstractType<any>} */
+      child._item.parent;
+    }
+    return path;
+  };
+  var warnPrematureAccess = () => {
+    warn("Invalid access: Add Yjs type to a document before reading data.");
+  };
+  var maxSearchMarker = 80;
+  var globalSearchMarkerTimestamp = 0;
+  var ArraySearchMarker = class {
+    /**
+     * @param {Item} p
+     * @param {number} index
+     */
+    constructor(p, index) {
+      p.marker = true;
+      this.p = p;
+      this.index = index;
+      this.timestamp = globalSearchMarkerTimestamp++;
+    }
+  };
+  var refreshMarkerTimestamp = (marker) => {
+    marker.timestamp = globalSearchMarkerTimestamp++;
+  };
+  var overwriteMarker = (marker, p, index) => {
+    marker.p.marker = false;
+    marker.p = p;
+    p.marker = true;
+    marker.index = index;
+    marker.timestamp = globalSearchMarkerTimestamp++;
+  };
+  var markPosition = (searchMarker, p, index) => {
+    if (searchMarker.length >= maxSearchMarker) {
+      const marker = searchMarker.reduce((a, b) => a.timestamp < b.timestamp ? a : b);
+      overwriteMarker(marker, p, index);
+      return marker;
+    } else {
+      const pm = new ArraySearchMarker(p, index);
+      searchMarker.push(pm);
+      return pm;
+    }
+  };
+  var findMarker = (yarray, index) => {
+    if (yarray._start === null || index === 0 || yarray._searchMarker === null) {
+      return null;
+    }
+    const marker = yarray._searchMarker.length === 0 ? null : yarray._searchMarker.reduce((a, b) => abs(index - a.index) < abs(index - b.index) ? a : b);
+    let p = yarray._start;
+    let pindex = 0;
+    if (marker !== null) {
+      p = marker.p;
+      pindex = marker.index;
+      refreshMarkerTimestamp(marker);
+    }
+    while (p.right !== null && pindex < index) {
+      if (!p.deleted && p.countable) {
+        if (index < pindex + p.length) {
+          break;
+        }
+        pindex += p.length;
+      }
+      p = p.right;
+    }
+    while (p.left !== null && pindex > index) {
+      p = p.left;
+      if (!p.deleted && p.countable) {
+        pindex -= p.length;
+      }
+    }
+    while (p.left !== null && p.left.id.client === p.id.client && p.left.id.clock + p.left.length === p.id.clock) {
+      p = p.left;
+      if (!p.deleted && p.countable) {
+        pindex -= p.length;
+      }
+    }
+    if (marker !== null && abs(marker.index - pindex) < /** @type {YText|YArray<any>} */
+    p.parent.length / maxSearchMarker) {
+      overwriteMarker(marker, p, pindex);
+      return marker;
+    } else {
+      return markPosition(yarray._searchMarker, p, pindex);
+    }
+  };
+  var updateMarkerChanges = (searchMarker, index, len) => {
+    for (let i2 = searchMarker.length - 1; i2 >= 0; i2--) {
+      const m = searchMarker[i2];
+      if (len > 0) {
+        let p = m.p;
+        p.marker = false;
+        while (p && (p.deleted || !p.countable)) {
+          p = p.left;
+          if (p && !p.deleted && p.countable) {
+            m.index -= p.length;
+          }
+        }
+        if (p === null || p.marker === true) {
+          searchMarker.splice(i2, 1);
+          continue;
+        }
+        m.p = p;
+        p.marker = true;
+      }
+      if (index < m.index || len > 0 && index === m.index) {
+        m.index = max(index, m.index + len);
+      }
+    }
+  };
+  var callTypeObservers = (type, transaction, event) => {
+    const changedType = type;
+    const changedParentTypes = transaction.changedParentTypes;
+    while (true) {
+      setIfUndefined(changedParentTypes, type, () => []).push(event);
+      if (type._item === null) {
+        break;
+      }
+      type = /** @type {AbstractType<any>} */
+      type._item.parent;
+    }
+    callEventHandlerListeners(changedType._eH, event, transaction);
+  };
+  var AbstractType = class {
+    constructor() {
+      this._item = null;
+      this._map = /* @__PURE__ */ new Map();
+      this._start = null;
+      this.doc = null;
+      this._length = 0;
+      this._eH = createEventHandler();
+      this._dEH = createEventHandler();
+      this._searchMarker = null;
+    }
+    /**
+     * @return {AbstractType<any>|null}
+     */
+    get parent() {
+      return this._item ? (
+        /** @type {AbstractType<any>} */
+        this._item.parent
+      ) : null;
+    }
+    /**
+     * Integrate this type into the Yjs instance.
+     *
+     * * Save this struct in the os
+     * * This type is sent to other client
+     * * Observer functions are fired
+     *
+     * @param {Doc} y The Yjs instance
+     * @param {Item|null} item
+     */
+    _integrate(y, item) {
+      this.doc = y;
+      this._item = item;
+    }
+    /**
+     * @return {AbstractType<EventType>}
+     */
+    _copy() {
+      throw methodUnimplemented();
+    }
+    /**
+     * Makes a copy of this data type that can be included somewhere else.
+     *
+     * Note that the content is only readable _after_ it has been included somewhere in the Ydoc.
+     *
+     * @return {AbstractType<EventType>}
+     */
+    clone() {
+      throw methodUnimplemented();
+    }
+    /**
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} _encoder
+     */
+    _write(_encoder) {
+    }
+    /**
+     * The first non-deleted item
+     */
+    get _first() {
+      let n = this._start;
+      while (n !== null && n.deleted) {
+        n = n.right;
+      }
+      return n;
+    }
+    /**
+     * Creates YEvent and calls all type observers.
+     * Must be implemented by each type.
+     *
+     * @param {Transaction} transaction
+     * @param {Set<null|string>} _parentSubs Keys changed on this type. `null` if list was modified.
+     */
+    _callObserver(transaction, _parentSubs) {
+      if (!transaction.local && this._searchMarker) {
+        this._searchMarker.length = 0;
+      }
+    }
+    /**
+     * Observe all events that are created on this type.
+     *
+     * @param {function(EventType, Transaction):void} f Observer function
+     */
+    observe(f) {
+      addEventHandlerListener(this._eH, f);
+    }
+    /**
+     * Observe all events that are created by this type and its children.
+     *
+     * @param {function(Array<YEvent<any>>,Transaction):void} f Observer function
+     */
+    observeDeep(f) {
+      addEventHandlerListener(this._dEH, f);
+    }
+    /**
+     * Unregister an observer function.
+     *
+     * @param {function(EventType,Transaction):void} f Observer function
+     */
+    unobserve(f) {
+      removeEventHandlerListener(this._eH, f);
+    }
+    /**
+     * Unregister an observer function.
+     *
+     * @param {function(Array<YEvent<any>>,Transaction):void} f Observer function
+     */
+    unobserveDeep(f) {
+      removeEventHandlerListener(this._dEH, f);
+    }
+    /**
+     * @abstract
+     * @return {any}
+     */
+    toJSON() {
+    }
+  };
+  var typeListSlice = (type, start, end) => {
+    type.doc ?? warnPrematureAccess();
+    if (start < 0) {
+      start = type._length + start;
+    }
+    if (end < 0) {
+      end = type._length + end;
+    }
+    let len = end - start;
+    const cs = [];
+    let n = type._start;
+    while (n !== null && len > 0) {
+      if (n.countable && !n.deleted) {
+        const c = n.content.getContent();
+        if (c.length <= start) {
+          start -= c.length;
+        } else {
+          for (let i2 = start; i2 < c.length && len > 0; i2++) {
+            cs.push(c[i2]);
+            len--;
+          }
+          start = 0;
+        }
+      }
+      n = n.right;
+    }
+    return cs;
+  };
+  var typeListToArray = (type) => {
+    type.doc ?? warnPrematureAccess();
+    const cs = [];
+    let n = type._start;
+    while (n !== null) {
+      if (n.countable && !n.deleted) {
+        const c = n.content.getContent();
+        for (let i2 = 0; i2 < c.length; i2++) {
+          cs.push(c[i2]);
+        }
+      }
+      n = n.right;
+    }
+    return cs;
+  };
+  var typeListToArraySnapshot = (type, snapshot2) => {
+    const cs = [];
+    let n = type._start;
+    while (n !== null) {
+      if (n.countable && isVisible(n, snapshot2)) {
+        const c = n.content.getContent();
+        for (let i2 = 0; i2 < c.length; i2++) {
+          cs.push(c[i2]);
+        }
+      }
+      n = n.right;
+    }
+    return cs;
+  };
+  var typeListForEach = (type, f) => {
+    let index = 0;
+    let n = type._start;
+    type.doc ?? warnPrematureAccess();
+    while (n !== null) {
+      if (n.countable && !n.deleted) {
+        const c = n.content.getContent();
+        for (let i2 = 0; i2 < c.length; i2++) {
+          f(c[i2], index++, type);
+        }
+      }
+      n = n.right;
+    }
+  };
+  var typeListMap = (type, f) => {
+    const result = [];
+    typeListForEach(type, (c, i2) => {
+      result.push(f(c, i2, type));
+    });
+    return result;
+  };
+  var typeListCreateIterator = (type) => {
+    let n = type._start;
+    let currentContent = null;
+    let currentContentIndex = 0;
+    return {
+      [Symbol.iterator]() {
+        return this;
+      },
+      next: () => {
+        if (currentContent === null) {
+          while (n !== null && n.deleted) {
+            n = n.right;
+          }
+          if (n === null) {
+            return {
+              done: true,
+              value: void 0
+            };
+          }
+          currentContent = n.content.getContent();
+          currentContentIndex = 0;
+          n = n.right;
+        }
+        const value = currentContent[currentContentIndex++];
+        if (currentContent.length <= currentContentIndex) {
+          currentContent = null;
+        }
+        return {
+          done: false,
+          value
+        };
+      }
+    };
+  };
+  var typeListGet = (type, index) => {
+    type.doc ?? warnPrematureAccess();
+    const marker = findMarker(type, index);
+    let n = type._start;
+    if (marker !== null) {
+      n = marker.p;
+      index -= marker.index;
+    }
+    for (; n !== null; n = n.right) {
+      if (!n.deleted && n.countable) {
+        if (index < n.length) {
+          return n.content.getContent()[index];
+        }
+        index -= n.length;
+      }
+    }
+  };
+  var typeListInsertGenericsAfter = (transaction, parent, referenceItem, content) => {
+    let left = referenceItem;
+    const doc4 = transaction.doc;
+    const ownClientId = doc4.clientID;
+    const store = doc4.store;
+    const right = referenceItem === null ? parent._start : referenceItem.right;
+    let jsonContent = [];
+    const packJsonContent = () => {
+      if (jsonContent.length > 0) {
+        left = new Item2(createID(ownClientId, getState(store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentAny(jsonContent));
+        left.integrate(transaction, 0);
+        jsonContent = [];
+      }
+    };
+    content.forEach((c) => {
+      if (c === null) {
+        jsonContent.push(c);
+      } else {
+        switch (c.constructor) {
+          case Number:
+          case Object:
+          case Boolean:
+          case Array:
+          case String:
+            jsonContent.push(c);
+            break;
+          default:
+            packJsonContent();
+            switch (c.constructor) {
+              case Uint8Array:
+              case ArrayBuffer:
+                left = new Item2(createID(ownClientId, getState(store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentBinary(new Uint8Array(
+                  /** @type {Uint8Array} */
+                  c
+                )));
+                left.integrate(transaction, 0);
+                break;
+              case Doc:
+                left = new Item2(createID(ownClientId, getState(store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentDoc(
+                  /** @type {Doc} */
+                  c
+                ));
+                left.integrate(transaction, 0);
+                break;
+              default:
+                if (c instanceof AbstractType) {
+                  left = new Item2(createID(ownClientId, getState(store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentType(c));
+                  left.integrate(transaction, 0);
+                } else {
+                  throw new Error("Unexpected content type in insert operation");
+                }
+            }
+        }
+      }
+    });
+    packJsonContent();
+  };
+  var lengthExceeded = () => create3("Length exceeded!");
+  var typeListInsertGenerics = (transaction, parent, index, content) => {
+    if (index > parent._length) {
+      throw lengthExceeded();
+    }
+    if (index === 0) {
+      if (parent._searchMarker) {
+        updateMarkerChanges(parent._searchMarker, index, content.length);
+      }
+      return typeListInsertGenericsAfter(transaction, parent, null, content);
+    }
+    const startIndex = index;
+    const marker = findMarker(parent, index);
+    let n = parent._start;
+    if (marker !== null) {
+      n = marker.p;
+      index -= marker.index;
+      if (index === 0) {
+        n = n.prev;
+        index += n && n.countable && !n.deleted ? n.length : 0;
+      }
+    }
+    for (; n !== null; n = n.right) {
+      if (!n.deleted && n.countable) {
+        if (index <= n.length) {
+          if (index < n.length) {
+            getItemCleanStart(transaction, createID(n.id.client, n.id.clock + index));
+          }
+          break;
+        }
+        index -= n.length;
+      }
+    }
+    if (parent._searchMarker) {
+      updateMarkerChanges(parent._searchMarker, startIndex, content.length);
+    }
+    return typeListInsertGenericsAfter(transaction, parent, n, content);
+  };
+  var typeListPushGenerics = (transaction, parent, content) => {
+    const marker = (parent._searchMarker || []).reduce((maxMarker, currMarker) => currMarker.index > maxMarker.index ? currMarker : maxMarker, { index: 0, p: parent._start });
+    let n = marker.p;
+    if (n) {
+      while (n.right) {
+        n = n.right;
+      }
+    }
+    return typeListInsertGenericsAfter(transaction, parent, n, content);
+  };
+  var typeListDelete = (transaction, parent, index, length2) => {
+    if (length2 === 0) {
+      return;
+    }
+    const startIndex = index;
+    const startLength = length2;
+    const marker = findMarker(parent, index);
+    let n = parent._start;
+    if (marker !== null) {
+      n = marker.p;
+      index -= marker.index;
+    }
+    for (; n !== null && index > 0; n = n.right) {
+      if (!n.deleted && n.countable) {
+        if (index < n.length) {
+          getItemCleanStart(transaction, createID(n.id.client, n.id.clock + index));
+        }
+        index -= n.length;
+      }
+    }
+    while (length2 > 0 && n !== null) {
+      if (!n.deleted) {
+        if (length2 < n.length) {
+          getItemCleanStart(transaction, createID(n.id.client, n.id.clock + length2));
+        }
+        n.delete(transaction);
+        length2 -= n.length;
+      }
+      n = n.right;
+    }
+    if (length2 > 0) {
+      throw lengthExceeded();
+    }
+    if (parent._searchMarker) {
+      updateMarkerChanges(
+        parent._searchMarker,
+        startIndex,
+        -startLength + length2
+        /* in case we remove the above exception */
+      );
+    }
+  };
+  var typeMapDelete = (transaction, parent, key2) => {
+    const c = parent._map.get(key2);
+    if (c !== void 0) {
+      c.delete(transaction);
+    }
+  };
+  var typeMapSet = (transaction, parent, key2, value) => {
+    const left = parent._map.get(key2) || null;
+    const doc4 = transaction.doc;
+    const ownClientId = doc4.clientID;
+    let content;
+    if (value == null) {
+      content = new ContentAny([value]);
+    } else {
+      switch (value.constructor) {
+        case Number:
+        case Object:
+        case Boolean:
+        case Array:
+        case String:
+        case Date:
+        case BigInt:
+          content = new ContentAny([value]);
+          break;
+        case Uint8Array:
+          content = new ContentBinary(
+            /** @type {Uint8Array} */
+            value
+          );
+          break;
+        case Doc:
+          content = new ContentDoc(
+            /** @type {Doc} */
+            value
+          );
+          break;
+        default:
+          if (value instanceof AbstractType) {
+            content = new ContentType(value);
+          } else {
+            throw new Error("Unexpected content type");
+          }
+      }
+    }
+    new Item2(createID(ownClientId, getState(doc4.store, ownClientId)), left, left && left.lastId, null, null, parent, key2, content).integrate(transaction, 0);
+  };
+  var typeMapGet = (parent, key2) => {
+    parent.doc ?? warnPrematureAccess();
+    const val = parent._map.get(key2);
+    return val !== void 0 && !val.deleted ? val.content.getContent()[val.length - 1] : void 0;
+  };
+  var typeMapGetAll = (parent) => {
+    const res = {};
+    parent.doc ?? warnPrematureAccess();
+    parent._map.forEach((value, key2) => {
+      if (!value.deleted) {
+        res[key2] = value.content.getContent()[value.length - 1];
+      }
+    });
+    return res;
+  };
+  var typeMapHas = (parent, key2) => {
+    parent.doc ?? warnPrematureAccess();
+    const val = parent._map.get(key2);
+    return val !== void 0 && !val.deleted;
+  };
+  var typeMapGetAllSnapshot = (parent, snapshot2) => {
+    const res = {};
+    parent._map.forEach((value, key2) => {
+      let v = value;
+      while (v !== null && (!snapshot2.sv.has(v.id.client) || v.id.clock >= (snapshot2.sv.get(v.id.client) || 0))) {
+        v = v.left;
+      }
+      if (v !== null && isVisible(v, snapshot2)) {
+        res[key2] = v.content.getContent()[v.length - 1];
+      }
+    });
+    return res;
+  };
+  var createMapIterator = (type) => {
+    type.doc ?? warnPrematureAccess();
+    return iteratorFilter(
+      type._map.entries(),
+      /** @param {any} entry */
+      (entry) => !entry[1].deleted
+    );
+  };
+  var YArrayEvent = class extends YEvent {
+  };
+  var YArray = class _YArray extends AbstractType {
+    constructor() {
+      super();
+      this._prelimContent = [];
+      this._searchMarker = [];
+    }
+    /**
+     * Construct a new YArray containing the specified items.
+     * @template {Object<string,any>|Array<any>|number|null|string|Uint8Array} T
+     * @param {Array<T>} items
+     * @return {YArray<T>}
+     */
+    static from(items) {
+      const a = new _YArray();
+      a.push(items);
+      return a;
+    }
+    /**
+     * Integrate this type into the Yjs instance.
+     *
+     * * Save this struct in the os
+     * * This type is sent to other client
+     * * Observer functions are fired
+     *
+     * @param {Doc} y The Yjs instance
+     * @param {Item} item
+     */
+    _integrate(y, item) {
+      super._integrate(y, item);
+      this.insert(
+        0,
+        /** @type {Array<any>} */
+        this._prelimContent
+      );
+      this._prelimContent = null;
+    }
+    /**
+     * @return {YArray<T>}
+     */
+    _copy() {
+      return new _YArray();
+    }
+    /**
+     * Makes a copy of this data type that can be included somewhere else.
+     *
+     * Note that the content is only readable _after_ it has been included somewhere in the Ydoc.
+     *
+     * @return {YArray<T>}
+     */
+    clone() {
+      const arr = new _YArray();
+      arr.insert(0, this.toArray().map(
+        (el) => el instanceof AbstractType ? (
+          /** @type {typeof el} */
+          el.clone()
+        ) : el
+      ));
+      return arr;
+    }
+    get length() {
+      this.doc ?? warnPrematureAccess();
+      return this._length;
+    }
+    /**
+     * Creates YArrayEvent and calls observers.
+     *
+     * @param {Transaction} transaction
+     * @param {Set<null|string>} parentSubs Keys changed on this type. `null` if list was modified.
+     */
+    _callObserver(transaction, parentSubs) {
+      super._callObserver(transaction, parentSubs);
+      callTypeObservers(this, transaction, new YArrayEvent(this, transaction));
+    }
+    /**
+     * Inserts new content at an index.
+     *
+     * Important: This function expects an array of content. Not just a content
+     * object. The reason for this "weirdness" is that inserting several elements
+     * is very efficient when it is done as a single operation.
+     *
+     * @example
+     *  // Insert character 'a' at position 0
+     *  yarray.insert(0, ['a'])
+     *  // Insert numbers 1, 2 at position 1
+     *  yarray.insert(1, [1, 2])
+     *
+     * @param {number} index The index to insert content at.
+     * @param {Array<T>} content The array of content
+     */
+    insert(index, content) {
+      if (this.doc !== null) {
+        transact(this.doc, (transaction) => {
+          typeListInsertGenerics(
+            transaction,
+            this,
+            index,
+            /** @type {any} */
+            content
+          );
+        });
+      } else {
+        this._prelimContent.splice(index, 0, ...content);
+      }
+    }
+    /**
+     * Appends content to this YArray.
+     *
+     * @param {Array<T>} content Array of content to append.
+     *
+     * @todo Use the following implementation in all types.
+     */
+    push(content) {
+      if (this.doc !== null) {
+        transact(this.doc, (transaction) => {
+          typeListPushGenerics(
+            transaction,
+            this,
+            /** @type {any} */
+            content
+          );
+        });
+      } else {
+        this._prelimContent.push(...content);
+      }
+    }
+    /**
+     * Prepends content to this YArray.
+     *
+     * @param {Array<T>} content Array of content to prepend.
+     */
+    unshift(content) {
+      this.insert(0, content);
+    }
+    /**
+     * Deletes elements starting from an index.
+     *
+     * @param {number} index Index at which to start deleting elements
+     * @param {number} length The number of elements to remove. Defaults to 1.
+     */
+    delete(index, length2 = 1) {
+      if (this.doc !== null) {
+        transact(this.doc, (transaction) => {
+          typeListDelete(transaction, this, index, length2);
+        });
+      } else {
+        this._prelimContent.splice(index, length2);
+      }
+    }
+    /**
+     * Returns the i-th element from a YArray.
+     *
+     * @param {number} index The index of the element to return from the YArray
+     * @return {T}
+     */
+    get(index) {
+      return typeListGet(this, index);
+    }
+    /**
+     * Transforms this YArray to a JavaScript Array.
+     *
+     * @return {Array<T>}
+     */
+    toArray() {
+      return typeListToArray(this);
+    }
+    /**
+     * Returns a portion of this YArray into a JavaScript Array selected
+     * from start to end (end not included).
+     *
+     * @param {number} [start]
+     * @param {number} [end]
+     * @return {Array<T>}
+     */
+    slice(start = 0, end = this.length) {
+      return typeListSlice(this, start, end);
+    }
+    /**
+     * Transforms this Shared Type to a JSON object.
+     *
+     * @return {Array<any>}
+     */
+    toJSON() {
+      return this.map((c) => c instanceof AbstractType ? c.toJSON() : c);
+    }
+    /**
+     * Returns an Array with the result of calling a provided function on every
+     * element of this YArray.
+     *
+     * @template M
+     * @param {function(T,number,YArray<T>):M} f Function that produces an element of the new Array
+     * @return {Array<M>} A new array with each element being the result of the
+     *                 callback function
+     */
+    map(f) {
+      return typeListMap(
+        this,
+        /** @type {any} */
+        f
+      );
+    }
+    /**
+     * Executes a provided function once on every element of this YArray.
+     *
+     * @param {function(T,number,YArray<T>):void} f A function to execute on every element of this YArray.
+     */
+    forEach(f) {
+      typeListForEach(this, f);
+    }
+    /**
+     * @return {IterableIterator<T>}
+     */
+    [Symbol.iterator]() {
+      return typeListCreateIterator(this);
+    }
+    /**
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder
+     */
+    _write(encoder) {
+      encoder.writeTypeRef(YArrayRefID);
+    }
+  };
+  var readYArray = (_decoder) => new YArray();
+  var YMapEvent = class extends YEvent {
+    /**
+     * @param {YMap<T>} ymap The YArray that changed.
+     * @param {Transaction} transaction
+     * @param {Set<any>} subs The keys that changed.
+     */
+    constructor(ymap, transaction, subs) {
+      super(ymap, transaction);
+      this.keysChanged = subs;
+    }
+  };
+  var YMap = class _YMap extends AbstractType {
+    /**
+     *
+     * @param {Iterable<readonly [string, any]>=} entries - an optional iterable to initialize the YMap
+     */
+    constructor(entries) {
+      super();
+      this._prelimContent = null;
+      if (entries === void 0) {
+        this._prelimContent = /* @__PURE__ */ new Map();
+      } else {
+        this._prelimContent = new Map(entries);
+      }
+    }
+    /**
+     * Integrate this type into the Yjs instance.
+     *
+     * * Save this struct in the os
+     * * This type is sent to other client
+     * * Observer functions are fired
+     *
+     * @param {Doc} y The Yjs instance
+     * @param {Item} item
+     */
+    _integrate(y, item) {
+      super._integrate(y, item);
+      this._prelimContent.forEach((value, key2) => {
+        this.set(key2, value);
+      });
+      this._prelimContent = null;
+    }
+    /**
+     * @return {YMap<MapType>}
+     */
+    _copy() {
+      return new _YMap();
+    }
+    /**
+     * Makes a copy of this data type that can be included somewhere else.
+     *
+     * Note that the content is only readable _after_ it has been included somewhere in the Ydoc.
+     *
+     * @return {YMap<MapType>}
+     */
+    clone() {
+      const map3 = new _YMap();
+      this.forEach((value, key2) => {
+        map3.set(key2, value instanceof AbstractType ? (
+          /** @type {typeof value} */
+          value.clone()
+        ) : value);
+      });
+      return map3;
+    }
+    /**
+     * Creates YMapEvent and calls observers.
+     *
+     * @param {Transaction} transaction
+     * @param {Set<null|string>} parentSubs Keys changed on this type. `null` if list was modified.
+     */
+    _callObserver(transaction, parentSubs) {
+      callTypeObservers(this, transaction, new YMapEvent(this, transaction, parentSubs));
+    }
+    /**
+     * Transforms this Shared Type to a JSON object.
+     *
+     * @return {Object<string,any>}
+     */
+    toJSON() {
+      this.doc ?? warnPrematureAccess();
+      const map3 = {};
+      this._map.forEach((item, key2) => {
+        if (!item.deleted) {
+          const v = item.content.getContent()[item.length - 1];
+          map3[key2] = v instanceof AbstractType ? v.toJSON() : v;
+        }
+      });
+      return map3;
+    }
+    /**
+     * Returns the size of the YMap (count of key/value pairs)
+     *
+     * @return {number}
+     */
+    get size() {
+      return [...createMapIterator(this)].length;
+    }
+    /**
+     * Returns the keys for each element in the YMap Type.
+     *
+     * @return {IterableIterator<string>}
+     */
+    keys() {
+      return iteratorMap(
+        createMapIterator(this),
+        /** @param {any} v */
+        (v) => v[0]
+      );
+    }
+    /**
+     * Returns the values for each element in the YMap Type.
+     *
+     * @return {IterableIterator<MapType>}
+     */
+    values() {
+      return iteratorMap(
+        createMapIterator(this),
+        /** @param {any} v */
+        (v) => v[1].content.getContent()[v[1].length - 1]
+      );
+    }
+    /**
+     * Returns an Iterator of [key, value] pairs
+     *
+     * @return {IterableIterator<[string, MapType]>}
+     */
+    entries() {
+      return iteratorMap(
+        createMapIterator(this),
+        /** @param {any} v */
+        (v) => (
+          /** @type {any} */
+          [v[0], v[1].content.getContent()[v[1].length - 1]]
+        )
+      );
+    }
+    /**
+     * Executes a provided function on once on every key-value pair.
+     *
+     * @param {function(MapType,string,YMap<MapType>):void} f A function to execute on every element of this YArray.
+     */
+    forEach(f) {
+      this.doc ?? warnPrematureAccess();
+      this._map.forEach((item, key2) => {
+        if (!item.deleted) {
+          f(item.content.getContent()[item.length - 1], key2, this);
+        }
+      });
+    }
+    /**
+     * Returns an Iterator of [key, value] pairs
+     *
+     * @return {IterableIterator<[string, MapType]>}
+     */
+    [Symbol.iterator]() {
+      return this.entries();
+    }
+    /**
+     * Remove a specified element from this YMap.
+     *
+     * @param {string} key The key of the element to remove.
+     */
+    delete(key2) {
+      if (this.doc !== null) {
+        transact(this.doc, (transaction) => {
+          typeMapDelete(transaction, this, key2);
+        });
+      } else {
+        this._prelimContent.delete(key2);
+      }
+    }
+    /**
+     * Adds or updates an element with a specified key and value.
+     * @template {MapType} VAL
+     *
+     * @param {string} key The key of the element to add to this YMap
+     * @param {VAL} value The value of the element to add
+     * @return {VAL}
+     */
+    set(key2, value) {
+      if (this.doc !== null) {
+        transact(this.doc, (transaction) => {
+          typeMapSet(
+            transaction,
+            this,
+            key2,
+            /** @type {any} */
+            value
+          );
+        });
+      } else {
+        this._prelimContent.set(key2, value);
+      }
+      return value;
+    }
+    /**
+     * Returns a specified element from this YMap.
+     *
+     * @param {string} key
+     * @return {MapType|undefined}
+     */
+    get(key2) {
+      return (
+        /** @type {any} */
+        typeMapGet(this, key2)
+      );
+    }
+    /**
+     * Returns a boolean indicating whether the specified key exists or not.
+     *
+     * @param {string} key The key to test.
+     * @return {boolean}
+     */
+    has(key2) {
+      return typeMapHas(this, key2);
+    }
+    /**
+     * Removes all elements from this YMap.
+     */
+    clear() {
+      if (this.doc !== null) {
+        transact(this.doc, (transaction) => {
+          this.forEach(function(_value, key2, map3) {
+            typeMapDelete(transaction, map3, key2);
+          });
+        });
+      } else {
+        this._prelimContent.clear();
+      }
+    }
+    /**
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder
+     */
+    _write(encoder) {
+      encoder.writeTypeRef(YMapRefID);
+    }
+  };
+  var readYMap = (_decoder) => new YMap();
+  var equalAttrs = (a, b) => a === b || typeof a === "object" && typeof b === "object" && a && b && equalFlat(a, b);
+  var ItemTextListPosition = class {
+    /**
+     * @param {Item|null} left
+     * @param {Item|null} right
+     * @param {number} index
+     * @param {Map<string,any>} currentAttributes
+     */
+    constructor(left, right, index, currentAttributes) {
+      this.left = left;
+      this.right = right;
+      this.index = index;
+      this.currentAttributes = currentAttributes;
+    }
+    /**
+     * Only call this if you know that this.right is defined
+     */
+    forward() {
+      if (this.right === null) {
+        unexpectedCase();
+      }
+      switch (this.right.content.constructor) {
+        case ContentFormat:
+          if (!this.right.deleted) {
+            updateCurrentAttributes(
+              this.currentAttributes,
+              /** @type {ContentFormat} */
+              this.right.content
+            );
+          }
+          break;
+        default:
+          if (!this.right.deleted) {
+            this.index += this.right.length;
+          }
+          break;
+      }
+      this.left = this.right;
+      this.right = this.right.right;
+    }
+  };
+  var findNextPosition = (transaction, pos, count) => {
+    while (pos.right !== null && count > 0) {
+      switch (pos.right.content.constructor) {
+        case ContentFormat:
+          if (!pos.right.deleted) {
+            updateCurrentAttributes(
+              pos.currentAttributes,
+              /** @type {ContentFormat} */
+              pos.right.content
+            );
+          }
+          break;
+        default:
+          if (!pos.right.deleted) {
+            if (count < pos.right.length) {
+              getItemCleanStart(transaction, createID(pos.right.id.client, pos.right.id.clock + count));
+            }
+            pos.index += pos.right.length;
+            count -= pos.right.length;
+          }
+          break;
+      }
+      pos.left = pos.right;
+      pos.right = pos.right.right;
+    }
+    return pos;
+  };
+  var findPosition = (transaction, parent, index, useSearchMarker) => {
+    const currentAttributes = /* @__PURE__ */ new Map();
+    const marker = useSearchMarker ? findMarker(parent, index) : null;
+    if (marker) {
+      const pos = new ItemTextListPosition(marker.p.left, marker.p, marker.index, currentAttributes);
+      return findNextPosition(transaction, pos, index - marker.index);
+    } else {
+      const pos = new ItemTextListPosition(null, parent._start, 0, currentAttributes);
+      return findNextPosition(transaction, pos, index);
+    }
+  };
+  var insertNegatedAttributes = (transaction, parent, currPos, negatedAttributes) => {
+    while (currPos.right !== null && (currPos.right.deleted === true || currPos.right.content.constructor === ContentFormat && equalAttrs(
+      negatedAttributes.get(
+        /** @type {ContentFormat} */
+        currPos.right.content.key
+      ),
+      /** @type {ContentFormat} */
+      currPos.right.content.value
+    ))) {
+      if (!currPos.right.deleted) {
+        negatedAttributes.delete(
+          /** @type {ContentFormat} */
+          currPos.right.content.key
+        );
+      }
+      currPos.forward();
+    }
+    const doc4 = transaction.doc;
+    const ownClientId = doc4.clientID;
+    negatedAttributes.forEach((val, key2) => {
+      const left = currPos.left;
+      const right = currPos.right;
+      const nextFormat = new Item2(createID(ownClientId, getState(doc4.store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentFormat(key2, val));
+      nextFormat.integrate(transaction, 0);
+      currPos.right = nextFormat;
+      currPos.forward();
+    });
+  };
+  var updateCurrentAttributes = (currentAttributes, format) => {
+    const { key: key2, value } = format;
+    if (value === null) {
+      currentAttributes.delete(key2);
+    } else {
+      currentAttributes.set(key2, value);
+    }
+  };
+  var minimizeAttributeChanges = (currPos, attributes) => {
+    while (true) {
+      if (currPos.right === null) {
+        break;
+      } else if (currPos.right.deleted || currPos.right.content.constructor === ContentFormat && equalAttrs(
+        attributes[
+          /** @type {ContentFormat} */
+          currPos.right.content.key
+        ] ?? null,
+        /** @type {ContentFormat} */
+        currPos.right.content.value
+      )) ;
+      else {
+        break;
+      }
+      currPos.forward();
+    }
+  };
+  var insertAttributes = (transaction, parent, currPos, attributes) => {
+    const doc4 = transaction.doc;
+    const ownClientId = doc4.clientID;
+    const negatedAttributes = /* @__PURE__ */ new Map();
+    for (const key2 in attributes) {
+      const val = attributes[key2];
+      const currentVal = currPos.currentAttributes.get(key2) ?? null;
+      if (!equalAttrs(currentVal, val)) {
+        negatedAttributes.set(key2, currentVal);
+        const { left, right } = currPos;
+        currPos.right = new Item2(createID(ownClientId, getState(doc4.store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentFormat(key2, val));
+        currPos.right.integrate(transaction, 0);
+        currPos.forward();
+      }
+    }
+    return negatedAttributes;
+  };
+  var insertText = (transaction, parent, currPos, text2, attributes) => {
+    currPos.currentAttributes.forEach((_val, key2) => {
+      if (attributes[key2] === void 0) {
+        attributes[key2] = null;
+      }
+    });
+    const doc4 = transaction.doc;
+    const ownClientId = doc4.clientID;
+    minimizeAttributeChanges(currPos, attributes);
+    const negatedAttributes = insertAttributes(transaction, parent, currPos, attributes);
+    const content = text2.constructor === String ? new ContentString(
+      /** @type {string} */
+      text2
+    ) : text2 instanceof AbstractType ? new ContentType(text2) : new ContentEmbed(text2);
+    let { left, right, index } = currPos;
+    if (parent._searchMarker) {
+      updateMarkerChanges(parent._searchMarker, currPos.index, content.getLength());
+    }
+    right = new Item2(createID(ownClientId, getState(doc4.store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, content);
+    right.integrate(transaction, 0);
+    currPos.right = right;
+    currPos.index = index;
+    currPos.forward();
+    insertNegatedAttributes(transaction, parent, currPos, negatedAttributes);
+  };
+  var formatText = (transaction, parent, currPos, length2, attributes) => {
+    const doc4 = transaction.doc;
+    const ownClientId = doc4.clientID;
+    minimizeAttributeChanges(currPos, attributes);
+    const negatedAttributes = insertAttributes(transaction, parent, currPos, attributes);
+    iterationLoop: while (currPos.right !== null && (length2 > 0 || negatedAttributes.size > 0 && (currPos.right.deleted || currPos.right.content.constructor === ContentFormat))) {
+      if (!currPos.right.deleted) {
+        switch (currPos.right.content.constructor) {
+          case ContentFormat: {
+            const { key: key2, value } = (
+              /** @type {ContentFormat} */
+              currPos.right.content
+            );
+            const attr = attributes[key2];
+            if (attr !== void 0) {
+              if (equalAttrs(attr, value)) {
+                negatedAttributes.delete(key2);
+              } else {
+                if (length2 === 0) {
+                  break iterationLoop;
+                }
+                negatedAttributes.set(key2, value);
+              }
+              currPos.right.delete(transaction);
+            } else {
+              currPos.currentAttributes.set(key2, value);
+            }
+            break;
+          }
+          default:
+            if (length2 < currPos.right.length) {
+              getItemCleanStart(transaction, createID(currPos.right.id.client, currPos.right.id.clock + length2));
+            }
+            length2 -= currPos.right.length;
+            break;
+        }
+      }
+      currPos.forward();
+    }
+    if (length2 > 0) {
+      let newlines = "";
+      for (; length2 > 0; length2--) {
+        newlines += "\n";
+      }
+      currPos.right = new Item2(createID(ownClientId, getState(doc4.store, ownClientId)), currPos.left, currPos.left && currPos.left.lastId, currPos.right, currPos.right && currPos.right.id, parent, null, new ContentString(newlines));
+      currPos.right.integrate(transaction, 0);
+      currPos.forward();
+    }
+    insertNegatedAttributes(transaction, parent, currPos, negatedAttributes);
+  };
+  var cleanupFormattingGap = (transaction, start, curr, startAttributes, currAttributes) => {
+    let end = start;
+    const endFormats = create();
+    while (end && (!end.countable || end.deleted)) {
+      if (!end.deleted && end.content.constructor === ContentFormat) {
+        const cf = (
+          /** @type {ContentFormat} */
+          end.content
+        );
+        endFormats.set(cf.key, cf);
+      }
+      end = end.right;
+    }
+    let cleanups = 0;
+    let reachedCurr = false;
+    while (start !== end) {
+      if (curr === start) {
+        reachedCurr = true;
+      }
+      if (!start.deleted) {
+        const content = start.content;
+        switch (content.constructor) {
+          case ContentFormat: {
+            const { key: key2, value } = (
+              /** @type {ContentFormat} */
+              content
+            );
+            const startAttrValue = startAttributes.get(key2) ?? null;
+            if (endFormats.get(key2) !== content || startAttrValue === value) {
+              start.delete(transaction);
+              cleanups++;
+              if (!reachedCurr && (currAttributes.get(key2) ?? null) === value && startAttrValue !== value) {
+                if (startAttrValue === null) {
+                  currAttributes.delete(key2);
+                } else {
+                  currAttributes.set(key2, startAttrValue);
+                }
+              }
+            }
+            if (!reachedCurr && !start.deleted) {
+              updateCurrentAttributes(
+                currAttributes,
+                /** @type {ContentFormat} */
+                content
+              );
+            }
+            break;
+          }
+        }
+      }
+      start = /** @type {Item} */
+      start.right;
+    }
+    return cleanups;
+  };
+  var cleanupContextlessFormattingGap = (transaction, item) => {
+    while (item && item.right && (item.right.deleted || !item.right.countable)) {
+      item = item.right;
+    }
+    const attrs = /* @__PURE__ */ new Set();
+    while (item && (item.deleted || !item.countable)) {
+      if (!item.deleted && item.content.constructor === ContentFormat) {
+        const key2 = (
+          /** @type {ContentFormat} */
+          item.content.key
+        );
+        if (attrs.has(key2)) {
+          item.delete(transaction);
+        } else {
+          attrs.add(key2);
+        }
+      }
+      item = item.left;
+    }
+  };
+  var cleanupYTextFormatting = (type) => {
+    let res = 0;
+    transact(
+      /** @type {Doc} */
+      type.doc,
+      (transaction) => {
+        let start = (
+          /** @type {Item} */
+          type._start
+        );
+        let end = type._start;
+        let startAttributes = create();
+        const currentAttributes = copy2(startAttributes);
+        while (end) {
+          if (end.deleted === false) {
+            switch (end.content.constructor) {
+              case ContentFormat:
+                updateCurrentAttributes(
+                  currentAttributes,
+                  /** @type {ContentFormat} */
+                  end.content
+                );
+                break;
+              default:
+                res += cleanupFormattingGap(transaction, start, end, startAttributes, currentAttributes);
+                startAttributes = copy2(currentAttributes);
+                start = end;
+                break;
+            }
+          }
+          end = end.right;
+        }
+      }
+    );
+    return res;
+  };
+  var cleanupYTextAfterTransaction = (transaction) => {
+    const needFullCleanup = /* @__PURE__ */ new Set();
+    const doc4 = transaction.doc;
+    for (const [client, afterClock] of transaction.afterState.entries()) {
+      const clock = transaction.beforeState.get(client) || 0;
+      if (afterClock === clock) {
+        continue;
+      }
+      iterateStructs(
+        transaction,
+        /** @type {Array<Item|GC>} */
+        doc4.store.clients.get(client),
+        clock,
+        afterClock,
+        (item) => {
+          if (!item.deleted && /** @type {Item} */
+          item.content.constructor === ContentFormat && item.constructor !== GC) {
+            needFullCleanup.add(
+              /** @type {any} */
+              item.parent
+            );
+          }
+        }
+      );
+    }
+    transact(doc4, (t) => {
+      iterateDeletedStructs(transaction, transaction.deleteSet, (item) => {
+        if (item instanceof GC || !/** @type {YText} */
+        item.parent._hasFormatting || needFullCleanup.has(
+          /** @type {YText} */
+          item.parent
+        )) {
+          return;
+        }
+        const parent = (
+          /** @type {YText} */
+          item.parent
+        );
+        if (item.content.constructor === ContentFormat) {
+          needFullCleanup.add(parent);
+        } else {
+          cleanupContextlessFormattingGap(t, item);
+        }
+      });
+      for (const yText of needFullCleanup) {
+        cleanupYTextFormatting(yText);
+      }
+    });
+  };
+  var deleteText = (transaction, currPos, length2) => {
+    const startLength = length2;
+    const startAttrs = copy2(currPos.currentAttributes);
+    const start = currPos.right;
+    while (length2 > 0 && currPos.right !== null) {
+      if (currPos.right.deleted === false) {
+        switch (currPos.right.content.constructor) {
+          case ContentType:
+          case ContentEmbed:
+          case ContentString:
+            if (length2 < currPos.right.length) {
+              getItemCleanStart(transaction, createID(currPos.right.id.client, currPos.right.id.clock + length2));
+            }
+            length2 -= currPos.right.length;
+            currPos.right.delete(transaction);
+            break;
+        }
+      }
+      currPos.forward();
+    }
+    if (start) {
+      cleanupFormattingGap(transaction, start, currPos.right, startAttrs, currPos.currentAttributes);
+    }
+    const parent = (
+      /** @type {AbstractType<any>} */
+      /** @type {Item} */
+      (currPos.left || currPos.right).parent
+    );
+    if (parent._searchMarker) {
+      updateMarkerChanges(parent._searchMarker, currPos.index, -startLength + length2);
+    }
+    return currPos;
+  };
+  var YTextEvent = class extends YEvent {
+    /**
+     * @param {YText} ytext
+     * @param {Transaction} transaction
+     * @param {Set<any>} subs The keys that changed
+     */
+    constructor(ytext, transaction, subs) {
+      super(ytext, transaction);
+      this.childListChanged = false;
+      this.keysChanged = /* @__PURE__ */ new Set();
+      subs.forEach((sub) => {
+        if (sub === null) {
+          this.childListChanged = true;
+        } else {
+          this.keysChanged.add(sub);
+        }
+      });
+    }
+    /**
+     * @type {{added:Set<Item>,deleted:Set<Item>,keys:Map<string,{action:'add'|'update'|'delete',oldValue:any}>,delta:Array<{insert?:Array<any>|string, delete?:number, retain?:number}>}}
+     */
+    get changes() {
+      if (this._changes === null) {
+        const changes = {
+          keys: this.keys,
+          delta: this.delta,
+          added: /* @__PURE__ */ new Set(),
+          deleted: /* @__PURE__ */ new Set()
+        };
+        this._changes = changes;
+      }
+      return (
+        /** @type {any} */
+        this._changes
+      );
+    }
+    /**
+     * Compute the changes in the delta format.
+     * A {@link https://quilljs.com/docs/delta/|Quill Delta}) that represents the changes on the document.
+     *
+     * @type {Array<{insert?:string|object|AbstractType<any>, delete?:number, retain?:number, attributes?: Object<string,any>}>}
+     *
+     * @public
+     */
+    get delta() {
+      if (this._delta === null) {
+        const y = (
+          /** @type {Doc} */
+          this.target.doc
+        );
+        const delta = [];
+        transact(y, (transaction) => {
+          const currentAttributes = /* @__PURE__ */ new Map();
+          const oldAttributes = /* @__PURE__ */ new Map();
+          let item = this.target._start;
+          let action = null;
+          const attributes = {};
+          let insert = "";
+          let retain = 0;
+          let deleteLen = 0;
+          const addOp = () => {
+            if (action !== null) {
+              let op = null;
+              switch (action) {
+                case "delete":
+                  if (deleteLen > 0) {
+                    op = { delete: deleteLen };
+                  }
+                  deleteLen = 0;
+                  break;
+                case "insert":
+                  if (typeof insert === "object" || insert.length > 0) {
+                    op = { insert };
+                    if (currentAttributes.size > 0) {
+                      op.attributes = {};
+                      currentAttributes.forEach((value, key2) => {
+                        if (value !== null) {
+                          op.attributes[key2] = value;
+                        }
+                      });
+                    }
+                  }
+                  insert = "";
+                  break;
+                case "retain":
+                  if (retain > 0) {
+                    op = { retain };
+                    if (!isEmpty(attributes)) {
+                      op.attributes = assign({}, attributes);
+                    }
+                  }
+                  retain = 0;
+                  break;
+              }
+              if (op) delta.push(op);
+              action = null;
+            }
+          };
+          while (item !== null) {
+            switch (item.content.constructor) {
+              case ContentType:
+              case ContentEmbed:
+                if (this.adds(item)) {
+                  if (!this.deletes(item)) {
+                    addOp();
+                    action = "insert";
+                    insert = item.content.getContent()[0];
+                    addOp();
+                  }
+                } else if (this.deletes(item)) {
+                  if (action !== "delete") {
+                    addOp();
+                    action = "delete";
+                  }
+                  deleteLen += 1;
+                } else if (!item.deleted) {
+                  if (action !== "retain") {
+                    addOp();
+                    action = "retain";
+                  }
+                  retain += 1;
+                }
+                break;
+              case ContentString:
+                if (this.adds(item)) {
+                  if (!this.deletes(item)) {
+                    if (action !== "insert") {
+                      addOp();
+                      action = "insert";
+                    }
+                    insert += /** @type {ContentString} */
+                    item.content.str;
+                  }
+                } else if (this.deletes(item)) {
+                  if (action !== "delete") {
+                    addOp();
+                    action = "delete";
+                  }
+                  deleteLen += item.length;
+                } else if (!item.deleted) {
+                  if (action !== "retain") {
+                    addOp();
+                    action = "retain";
+                  }
+                  retain += item.length;
+                }
+                break;
+              case ContentFormat: {
+                const { key: key2, value } = (
+                  /** @type {ContentFormat} */
+                  item.content
+                );
+                if (this.adds(item)) {
+                  if (!this.deletes(item)) {
+                    const curVal = currentAttributes.get(key2) ?? null;
+                    if (!equalAttrs(curVal, value)) {
+                      if (action === "retain") {
+                        addOp();
+                      }
+                      if (equalAttrs(value, oldAttributes.get(key2) ?? null)) {
+                        delete attributes[key2];
+                      } else {
+                        attributes[key2] = value;
+                      }
+                    } else if (value !== null) {
+                      item.delete(transaction);
+                    }
+                  }
+                } else if (this.deletes(item)) {
+                  oldAttributes.set(key2, value);
+                  const curVal = currentAttributes.get(key2) ?? null;
+                  if (!equalAttrs(curVal, value)) {
+                    if (action === "retain") {
+                      addOp();
+                    }
+                    attributes[key2] = curVal;
+                  }
+                } else if (!item.deleted) {
+                  oldAttributes.set(key2, value);
+                  const attr = attributes[key2];
+                  if (attr !== void 0) {
+                    if (!equalAttrs(attr, value)) {
+                      if (action === "retain") {
+                        addOp();
+                      }
+                      if (value === null) {
+                        delete attributes[key2];
+                      } else {
+                        attributes[key2] = value;
+                      }
+                    } else if (attr !== null) {
+                      item.delete(transaction);
+                    }
+                  }
+                }
+                if (!item.deleted) {
+                  if (action === "insert") {
+                    addOp();
+                  }
+                  updateCurrentAttributes(
+                    currentAttributes,
+                    /** @type {ContentFormat} */
+                    item.content
+                  );
+                }
+                break;
+              }
+            }
+            item = item.right;
+          }
+          addOp();
+          while (delta.length > 0) {
+            const lastOp = delta[delta.length - 1];
+            if (lastOp.retain !== void 0 && lastOp.attributes === void 0) {
+              delta.pop();
+            } else {
+              break;
+            }
+          }
+        });
+        this._delta = delta;
+      }
+      return (
+        /** @type {any} */
+        this._delta
+      );
+    }
+  };
+  var YText = class _YText extends AbstractType {
+    /**
+     * @param {String} [string] The initial value of the YText.
+     */
+    constructor(string) {
+      super();
+      this._pending = string !== void 0 ? [() => this.insert(0, string)] : [];
+      this._searchMarker = [];
+      this._hasFormatting = false;
+    }
+    /**
+     * Number of characters of this text type.
+     *
+     * @type {number}
+     */
+    get length() {
+      this.doc ?? warnPrematureAccess();
+      return this._length;
+    }
+    /**
+     * @param {Doc} y
+     * @param {Item} item
+     */
+    _integrate(y, item) {
+      super._integrate(y, item);
+      try {
+        this._pending.forEach((f) => f());
+      } catch (e) {
+        console.error(e);
+      }
+      this._pending = null;
+    }
+    _copy() {
+      return new _YText();
+    }
+    /**
+     * Makes a copy of this data type that can be included somewhere else.
+     *
+     * Note that the content is only readable _after_ it has been included somewhere in the Ydoc.
+     *
+     * @return {YText}
+     */
+    clone() {
+      const text2 = new _YText();
+      text2.applyDelta(this.toDelta());
+      return text2;
+    }
+    /**
+     * Creates YTextEvent and calls observers.
+     *
+     * @param {Transaction} transaction
+     * @param {Set<null|string>} parentSubs Keys changed on this type. `null` if list was modified.
+     */
+    _callObserver(transaction, parentSubs) {
+      super._callObserver(transaction, parentSubs);
+      const event = new YTextEvent(this, transaction, parentSubs);
+      callTypeObservers(this, transaction, event);
+      if (!transaction.local && this._hasFormatting) {
+        transaction._needFormattingCleanup = true;
+      }
+    }
+    /**
+     * Returns the unformatted string representation of this YText type.
+     *
+     * @public
+     */
+    toString() {
+      this.doc ?? warnPrematureAccess();
+      let str = "";
+      let n = this._start;
+      while (n !== null) {
+        if (!n.deleted && n.countable && n.content.constructor === ContentString) {
+          str += /** @type {ContentString} */
+          n.content.str;
+        }
+        n = n.right;
+      }
+      return str;
+    }
+    /**
+     * Returns the unformatted string representation of this YText type.
+     *
+     * @return {string}
+     * @public
+     */
+    toJSON() {
+      return this.toString();
+    }
+    /**
+     * Apply a {@link Delta} on this shared YText type.
+     *
+     * @param {Array<any>} delta The changes to apply on this element.
+     * @param {object}  opts
+     * @param {boolean} [opts.sanitize] Sanitize input delta. Removes ending newlines if set to true.
+     *
+     *
+     * @public
+     */
+    applyDelta(delta, { sanitize = true } = {}) {
+      if (this.doc !== null) {
+        transact(this.doc, (transaction) => {
+          const currPos = new ItemTextListPosition(null, this._start, 0, /* @__PURE__ */ new Map());
+          for (let i2 = 0; i2 < delta.length; i2++) {
+            const op = delta[i2];
+            if (op.insert !== void 0) {
+              const ins = !sanitize && typeof op.insert === "string" && i2 === delta.length - 1 && currPos.right === null && op.insert.slice(-1) === "\n" ? op.insert.slice(0, -1) : op.insert;
+              if (typeof ins !== "string" || ins.length > 0) {
+                insertText(transaction, this, currPos, ins, op.attributes || {});
+              }
+            } else if (op.retain !== void 0) {
+              formatText(transaction, this, currPos, op.retain, op.attributes || {});
+            } else if (op.delete !== void 0) {
+              deleteText(transaction, currPos, op.delete);
+            }
+          }
+        });
+      } else {
+        this._pending.push(() => this.applyDelta(delta));
+      }
+    }
+    /**
+     * Returns the Delta representation of this YText type.
+     *
+     * @param {Snapshot} [snapshot]
+     * @param {Snapshot} [prevSnapshot]
+     * @param {function('removed' | 'added', ID):any} [computeYChange]
+     * @return {any} The Delta representation of this type.
+     *
+     * @public
+     */
+    toDelta(snapshot2, prevSnapshot, computeYChange) {
+      this.doc ?? warnPrematureAccess();
+      const ops = [];
+      const currentAttributes = /* @__PURE__ */ new Map();
+      const doc4 = (
+        /** @type {Doc} */
+        this.doc
+      );
+      let str = "";
+      let n = this._start;
+      function packStr() {
+        if (str.length > 0) {
+          const attributes = {};
+          let addAttributes = false;
+          currentAttributes.forEach((value, key2) => {
+            addAttributes = true;
+            attributes[key2] = value;
+          });
+          const op = { insert: str };
+          if (addAttributes) {
+            op.attributes = attributes;
+          }
+          ops.push(op);
+          str = "";
+        }
+      }
+      const computeDelta = () => {
+        while (n !== null) {
+          if (isVisible(n, snapshot2) || prevSnapshot !== void 0 && isVisible(n, prevSnapshot)) {
+            switch (n.content.constructor) {
+              case ContentString: {
+                const cur = currentAttributes.get("ychange");
+                if (snapshot2 !== void 0 && !isVisible(n, snapshot2)) {
+                  if (cur === void 0 || cur.user !== n.id.client || cur.type !== "removed") {
+                    packStr();
+                    currentAttributes.set("ychange", computeYChange ? computeYChange("removed", n.id) : { type: "removed" });
+                  }
+                } else if (prevSnapshot !== void 0 && !isVisible(n, prevSnapshot)) {
+                  if (cur === void 0 || cur.user !== n.id.client || cur.type !== "added") {
+                    packStr();
+                    currentAttributes.set("ychange", computeYChange ? computeYChange("added", n.id) : { type: "added" });
+                  }
+                } else if (cur !== void 0) {
+                  packStr();
+                  currentAttributes.delete("ychange");
+                }
+                str += /** @type {ContentString} */
+                n.content.str;
+                break;
+              }
+              case ContentType:
+              case ContentEmbed: {
+                packStr();
+                const op = {
+                  insert: n.content.getContent()[0]
+                };
+                if (currentAttributes.size > 0) {
+                  const attrs = (
+                    /** @type {Object<string,any>} */
+                    {}
+                  );
+                  op.attributes = attrs;
+                  currentAttributes.forEach((value, key2) => {
+                    attrs[key2] = value;
+                  });
+                }
+                ops.push(op);
+                break;
+              }
+              case ContentFormat:
+                if (isVisible(n, snapshot2)) {
+                  packStr();
+                  updateCurrentAttributes(
+                    currentAttributes,
+                    /** @type {ContentFormat} */
+                    n.content
+                  );
+                }
+                break;
+            }
+          }
+          n = n.right;
+        }
+        packStr();
+      };
+      if (snapshot2 || prevSnapshot) {
+        transact(doc4, (transaction) => {
+          if (snapshot2) {
+            splitSnapshotAffectedStructs(transaction, snapshot2);
+          }
+          if (prevSnapshot) {
+            splitSnapshotAffectedStructs(transaction, prevSnapshot);
+          }
+          computeDelta();
+        }, "cleanup");
+      } else {
+        computeDelta();
+      }
+      return ops;
+    }
+    /**
+     * Insert text at a given index.
+     *
+     * @param {number} index The index at which to start inserting.
+     * @param {String} text The text to insert at the specified position.
+     * @param {TextAttributes} [attributes] Optionally define some formatting
+     *                                    information to apply on the inserted
+     *                                    Text.
+     * @public
+     */
+    insert(index, text2, attributes) {
+      if (text2.length <= 0) {
+        return;
+      }
+      const y = this.doc;
+      if (y !== null) {
+        transact(y, (transaction) => {
+          const pos = findPosition(transaction, this, index, !attributes);
+          if (!attributes) {
+            attributes = {};
+            pos.currentAttributes.forEach((v, k) => {
+              attributes[k] = v;
+            });
+          }
+          insertText(transaction, this, pos, text2, attributes);
+        });
+      } else {
+        this._pending.push(() => this.insert(index, text2, attributes));
+      }
+    }
+    /**
+     * Inserts an embed at a index.
+     *
+     * @param {number} index The index to insert the embed at.
+     * @param {Object | AbstractType<any>} embed The Object that represents the embed.
+     * @param {TextAttributes} [attributes] Attribute information to apply on the
+     *                                    embed
+     *
+     * @public
+     */
+    insertEmbed(index, embed, attributes) {
+      const y = this.doc;
+      if (y !== null) {
+        transact(y, (transaction) => {
+          const pos = findPosition(transaction, this, index, !attributes);
+          insertText(transaction, this, pos, embed, attributes || {});
+        });
+      } else {
+        this._pending.push(() => this.insertEmbed(index, embed, attributes || {}));
+      }
+    }
+    /**
+     * Deletes text starting from an index.
+     *
+     * @param {number} index Index at which to start deleting.
+     * @param {number} length The number of characters to remove. Defaults to 1.
+     *
+     * @public
+     */
+    delete(index, length2) {
+      if (length2 === 0) {
+        return;
+      }
+      const y = this.doc;
+      if (y !== null) {
+        transact(y, (transaction) => {
+          deleteText(transaction, findPosition(transaction, this, index, true), length2);
+        });
+      } else {
+        this._pending.push(() => this.delete(index, length2));
+      }
+    }
+    /**
+     * Assigns properties to a range of text.
+     *
+     * @param {number} index The position where to start formatting.
+     * @param {number} length The amount of characters to assign properties to.
+     * @param {TextAttributes} attributes Attribute information to apply on the
+     *                                    text.
+     *
+     * @public
+     */
+    format(index, length2, attributes) {
+      if (length2 === 0) {
+        return;
+      }
+      const y = this.doc;
+      if (y !== null) {
+        transact(y, (transaction) => {
+          const pos = findPosition(transaction, this, index, false);
+          if (pos.right === null) {
+            return;
+          }
+          formatText(transaction, this, pos, length2, attributes);
+        });
+      } else {
+        this._pending.push(() => this.format(index, length2, attributes));
+      }
+    }
+    /**
+     * Removes an attribute.
+     *
+     * @note Xml-Text nodes don't have attributes. You can use this feature to assign properties to complete text-blocks.
+     *
+     * @param {String} attributeName The attribute name that is to be removed.
+     *
+     * @public
+     */
+    removeAttribute(attributeName) {
+      if (this.doc !== null) {
+        transact(this.doc, (transaction) => {
+          typeMapDelete(transaction, this, attributeName);
+        });
+      } else {
+        this._pending.push(() => this.removeAttribute(attributeName));
+      }
+    }
+    /**
+     * Sets or updates an attribute.
+     *
+     * @note Xml-Text nodes don't have attributes. You can use this feature to assign properties to complete text-blocks.
+     *
+     * @param {String} attributeName The attribute name that is to be set.
+     * @param {any} attributeValue The attribute value that is to be set.
+     *
+     * @public
+     */
+    setAttribute(attributeName, attributeValue) {
+      if (this.doc !== null) {
+        transact(this.doc, (transaction) => {
+          typeMapSet(transaction, this, attributeName, attributeValue);
+        });
+      } else {
+        this._pending.push(() => this.setAttribute(attributeName, attributeValue));
+      }
+    }
+    /**
+     * Returns an attribute value that belongs to the attribute name.
+     *
+     * @note Xml-Text nodes don't have attributes. You can use this feature to assign properties to complete text-blocks.
+     *
+     * @param {String} attributeName The attribute name that identifies the
+     *                               queried value.
+     * @return {any} The queried attribute value.
+     *
+     * @public
+     */
+    getAttribute(attributeName) {
+      return (
+        /** @type {any} */
+        typeMapGet(this, attributeName)
+      );
+    }
+    /**
+     * Returns all attribute name/value pairs in a JSON Object.
+     *
+     * @note Xml-Text nodes don't have attributes. You can use this feature to assign properties to complete text-blocks.
+     *
+     * @return {Object<string, any>} A JSON Object that describes the attributes.
+     *
+     * @public
+     */
+    getAttributes() {
+      return typeMapGetAll(this);
+    }
+    /**
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder
+     */
+    _write(encoder) {
+      encoder.writeTypeRef(YTextRefID);
+    }
+  };
+  var readYText = (_decoder) => new YText();
+  var YXmlTreeWalker = class {
+    /**
+     * @param {YXmlFragment | YXmlElement} root
+     * @param {function(AbstractType<any>):boolean} [f]
+     */
+    constructor(root, f = () => true) {
+      this._filter = f;
+      this._root = root;
+      this._currentNode = /** @type {Item} */
+      root._start;
+      this._firstCall = true;
+      root.doc ?? warnPrematureAccess();
+    }
+    [Symbol.iterator]() {
+      return this;
+    }
+    /**
+     * Get the next node.
+     *
+     * @return {IteratorResult<YXmlElement|YXmlText|YXmlHook>} The next node.
+     *
+     * @public
+     */
+    next() {
+      let n = this._currentNode;
+      let type = n && n.content && /** @type {any} */
+      n.content.type;
+      if (n !== null && (!this._firstCall || n.deleted || !this._filter(type))) {
+        do {
+          type = /** @type {any} */
+          n.content.type;
+          if (!n.deleted && (type.constructor === YXmlElement || type.constructor === YXmlFragment) && type._start !== null) {
+            n = type._start;
+          } else {
+            while (n !== null) {
+              const nxt = n.next;
+              if (nxt !== null) {
+                n = nxt;
+                break;
+              } else if (n.parent === this._root) {
+                n = null;
+              } else {
+                n = /** @type {AbstractType<any>} */
+                n.parent._item;
+              }
+            }
+          }
+        } while (n !== null && (n.deleted || !this._filter(
+          /** @type {ContentType} */
+          n.content.type
+        )));
+      }
+      this._firstCall = false;
+      if (n === null) {
+        return { value: void 0, done: true };
+      }
+      this._currentNode = n;
+      return { value: (
+        /** @type {any} */
+        n.content.type
+      ), done: false };
+    }
+  };
+  var YXmlFragment = class _YXmlFragment extends AbstractType {
+    constructor() {
+      super();
+      this._prelimContent = [];
+    }
+    /**
+     * @type {YXmlElement|YXmlText|null}
+     */
+    get firstChild() {
+      const first2 = this._first;
+      return first2 ? first2.content.getContent()[0] : null;
+    }
+    /**
+     * Integrate this type into the Yjs instance.
+     *
+     * * Save this struct in the os
+     * * This type is sent to other client
+     * * Observer functions are fired
+     *
+     * @param {Doc} y The Yjs instance
+     * @param {Item} item
+     */
+    _integrate(y, item) {
+      super._integrate(y, item);
+      this.insert(
+        0,
+        /** @type {Array<any>} */
+        this._prelimContent
+      );
+      this._prelimContent = null;
+    }
+    _copy() {
+      return new _YXmlFragment();
+    }
+    /**
+     * Makes a copy of this data type that can be included somewhere else.
+     *
+     * Note that the content is only readable _after_ it has been included somewhere in the Ydoc.
+     *
+     * @return {YXmlFragment}
+     */
+    clone() {
+      const el = new _YXmlFragment();
+      el.insert(0, this.toArray().map((item) => item instanceof AbstractType ? item.clone() : item));
+      return el;
+    }
+    get length() {
+      this.doc ?? warnPrematureAccess();
+      return this._prelimContent === null ? this._length : this._prelimContent.length;
+    }
+    /**
+     * Create a subtree of childNodes.
+     *
+     * @example
+     * const walker = elem.createTreeWalker(dom => dom.nodeName === 'div')
+     * for (let node in walker) {
+     *   // `node` is a div node
+     *   nop(node)
+     * }
+     *
+     * @param {function(AbstractType<any>):boolean} filter Function that is called on each child element and
+     *                          returns a Boolean indicating whether the child
+     *                          is to be included in the subtree.
+     * @return {YXmlTreeWalker} A subtree and a position within it.
+     *
+     * @public
+     */
+    createTreeWalker(filter) {
+      return new YXmlTreeWalker(this, filter);
+    }
+    /**
+     * Returns the first YXmlElement that matches the query.
+     * Similar to DOM's {@link querySelector}.
+     *
+     * Query support:
+     *   - tagname
+     * TODO:
+     *   - id
+     *   - attribute
+     *
+     * @param {CSS_Selector} query The query on the children.
+     * @return {YXmlElement|YXmlText|YXmlHook|null} The first element that matches the query or null.
+     *
+     * @public
+     */
+    querySelector(query) {
+      query = query.toUpperCase();
+      const iterator = new YXmlTreeWalker(this, (element2) => element2.nodeName && element2.nodeName.toUpperCase() === query);
+      const next = iterator.next();
+      if (next.done) {
+        return null;
+      } else {
+        return next.value;
+      }
+    }
+    /**
+     * Returns all YXmlElements that match the query.
+     * Similar to Dom's {@link querySelectorAll}.
+     *
+     * @todo Does not yet support all queries. Currently only query by tagName.
+     *
+     * @param {CSS_Selector} query The query on the children
+     * @return {Array<YXmlElement|YXmlText|YXmlHook|null>} The elements that match this query.
+     *
+     * @public
+     */
+    querySelectorAll(query) {
+      query = query.toUpperCase();
+      return from2(new YXmlTreeWalker(this, (element2) => element2.nodeName && element2.nodeName.toUpperCase() === query));
+    }
+    /**
+     * Creates YXmlEvent and calls observers.
+     *
+     * @param {Transaction} transaction
+     * @param {Set<null|string>} parentSubs Keys changed on this type. `null` if list was modified.
+     */
+    _callObserver(transaction, parentSubs) {
+      callTypeObservers(this, transaction, new YXmlEvent(this, parentSubs, transaction));
+    }
+    /**
+     * Get the string representation of all the children of this YXmlFragment.
+     *
+     * @return {string} The string representation of all children.
+     */
+    toString() {
+      return typeListMap(this, (xml) => xml.toString()).join("");
+    }
+    /**
+     * @return {string}
+     */
+    toJSON() {
+      return this.toString();
+    }
+    /**
+     * Creates a Dom Element that mirrors this YXmlElement.
+     *
+     * @param {Document} [_document=document] The document object (you must define
+     *                                        this when calling this method in
+     *                                        nodejs)
+     * @param {Object<string, any>} [hooks={}] Optional property to customize how hooks
+     *                                             are presented in the DOM
+     * @param {any} [binding] You should not set this property. This is
+     *                               used if DomBinding wants to create a
+     *                               association to the created DOM type.
+     * @return {Node} The {@link https://developer.mozilla.org/en-US/docs/Web/API/Element|Dom Element}
+     *
+     * @public
+     */
+    toDOM(_document = document, hooks = {}, binding) {
+      const fragment = _document.createDocumentFragment();
+      if (binding !== void 0) {
+        binding._createAssociation(fragment, this);
+      }
+      typeListForEach(this, (xmlType) => {
+        fragment.insertBefore(xmlType.toDOM(_document, hooks, binding), null);
+      });
+      return fragment;
+    }
+    /**
+     * Inserts new content at an index.
+     *
+     * @example
+     *  // Insert character 'a' at position 0
+     *  xml.insert(0, [new Y.XmlText('text')])
+     *
+     * @param {number} index The index to insert content at
+     * @param {Array<YXmlElement|YXmlText>} content The array of content
+     */
+    insert(index, content) {
+      if (this.doc !== null) {
+        transact(this.doc, (transaction) => {
+          typeListInsertGenerics(transaction, this, index, content);
+        });
+      } else {
+        this._prelimContent.splice(index, 0, ...content);
+      }
+    }
+    /**
+     * Inserts new content at an index.
+     *
+     * @example
+     *  // Insert character 'a' at position 0
+     *  xml.insert(0, [new Y.XmlText('text')])
+     *
+     * @param {null|Item|YXmlElement|YXmlText} ref The index to insert content at
+     * @param {Array<YXmlElement|YXmlText>} content The array of content
+     */
+    insertAfter(ref2, content) {
+      if (this.doc !== null) {
+        transact(this.doc, (transaction) => {
+          const refItem = ref2 && ref2 instanceof AbstractType ? ref2._item : ref2;
+          typeListInsertGenericsAfter(transaction, this, refItem, content);
+        });
+      } else {
+        const pc = (
+          /** @type {Array<any>} */
+          this._prelimContent
+        );
+        const index = ref2 === null ? 0 : pc.findIndex((el) => el === ref2) + 1;
+        if (index === 0 && ref2 !== null) {
+          throw create3("Reference item not found");
+        }
+        pc.splice(index, 0, ...content);
+      }
+    }
+    /**
+     * Deletes elements starting from an index.
+     *
+     * @param {number} index Index at which to start deleting elements
+     * @param {number} [length=1] The number of elements to remove. Defaults to 1.
+     */
+    delete(index, length2 = 1) {
+      if (this.doc !== null) {
+        transact(this.doc, (transaction) => {
+          typeListDelete(transaction, this, index, length2);
+        });
+      } else {
+        this._prelimContent.splice(index, length2);
+      }
+    }
+    /**
+     * Transforms this YArray to a JavaScript Array.
+     *
+     * @return {Array<YXmlElement|YXmlText|YXmlHook>}
+     */
+    toArray() {
+      return typeListToArray(this);
+    }
+    /**
+     * Appends content to this YArray.
+     *
+     * @param {Array<YXmlElement|YXmlText>} content Array of content to append.
+     */
+    push(content) {
+      this.insert(this.length, content);
+    }
+    /**
+     * Prepends content to this YArray.
+     *
+     * @param {Array<YXmlElement|YXmlText>} content Array of content to prepend.
+     */
+    unshift(content) {
+      this.insert(0, content);
+    }
+    /**
+     * Returns the i-th element from a YArray.
+     *
+     * @param {number} index The index of the element to return from the YArray
+     * @return {YXmlElement|YXmlText}
+     */
+    get(index) {
+      return typeListGet(this, index);
+    }
+    /**
+     * Returns a portion of this YXmlFragment into a JavaScript Array selected
+     * from start to end (end not included).
+     *
+     * @param {number} [start]
+     * @param {number} [end]
+     * @return {Array<YXmlElement|YXmlText>}
+     */
+    slice(start = 0, end = this.length) {
+      return typeListSlice(this, start, end);
+    }
+    /**
+     * Executes a provided function on once on every child element.
+     *
+     * @param {function(YXmlElement|YXmlText,number, typeof self):void} f A function to execute on every element of this YArray.
+     */
+    forEach(f) {
+      typeListForEach(this, f);
+    }
+    /**
+     * Transform the properties of this type to binary and write it to an
+     * BinaryEncoder.
+     *
+     * This is called when this Item is sent to a remote peer.
+     *
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder The encoder to write data to.
+     */
+    _write(encoder) {
+      encoder.writeTypeRef(YXmlFragmentRefID);
+    }
+  };
+  var readYXmlFragment = (_decoder) => new YXmlFragment();
+  var YXmlElement = class _YXmlElement extends YXmlFragment {
+    constructor(nodeName = "UNDEFINED") {
+      super();
+      this.nodeName = nodeName;
+      this._prelimAttrs = /* @__PURE__ */ new Map();
+    }
+    /**
+     * @type {YXmlElement|YXmlText|null}
+     */
+    get nextSibling() {
+      const n = this._item ? this._item.next : null;
+      return n ? (
+        /** @type {YXmlElement|YXmlText} */
+        /** @type {ContentType} */
+        n.content.type
+      ) : null;
+    }
+    /**
+     * @type {YXmlElement|YXmlText|null}
+     */
+    get prevSibling() {
+      const n = this._item ? this._item.prev : null;
+      return n ? (
+        /** @type {YXmlElement|YXmlText} */
+        /** @type {ContentType} */
+        n.content.type
+      ) : null;
+    }
+    /**
+     * Integrate this type into the Yjs instance.
+     *
+     * * Save this struct in the os
+     * * This type is sent to other client
+     * * Observer functions are fired
+     *
+     * @param {Doc} y The Yjs instance
+     * @param {Item} item
+     */
+    _integrate(y, item) {
+      super._integrate(y, item);
+      /** @type {Map<string, any>} */
+      this._prelimAttrs.forEach((value, key2) => {
+        this.setAttribute(key2, value);
+      });
+      this._prelimAttrs = null;
+    }
+    /**
+     * Creates an Item with the same effect as this Item (without position effect)
+     *
+     * @return {YXmlElement}
+     */
+    _copy() {
+      return new _YXmlElement(this.nodeName);
+    }
+    /**
+     * Makes a copy of this data type that can be included somewhere else.
+     *
+     * Note that the content is only readable _after_ it has been included somewhere in the Ydoc.
+     *
+     * @return {YXmlElement<KV>}
+     */
+    clone() {
+      const el = new _YXmlElement(this.nodeName);
+      const attrs = this.getAttributes();
+      forEach3(attrs, (value, key2) => {
+        el.setAttribute(
+          key2,
+          /** @type {any} */
+          value
+        );
+      });
+      el.insert(0, this.toArray().map((v) => v instanceof AbstractType ? v.clone() : v));
+      return el;
+    }
+    /**
+     * Returns the XML serialization of this YXmlElement.
+     * The attributes are ordered by attribute-name, so you can easily use this
+     * method to compare YXmlElements
+     *
+     * @return {string} The string representation of this type.
+     *
+     * @public
+     */
+    toString() {
+      const attrs = this.getAttributes();
+      const stringBuilder = [];
+      const keys3 = [];
+      for (const key2 in attrs) {
+        keys3.push(key2);
+      }
+      keys3.sort();
+      const keysLen = keys3.length;
+      for (let i2 = 0; i2 < keysLen; i2++) {
+        const key2 = keys3[i2];
+        stringBuilder.push(key2 + '="' + attrs[key2] + '"');
+      }
+      const nodeName = this.nodeName.toLocaleLowerCase();
+      const attrsString = stringBuilder.length > 0 ? " " + stringBuilder.join(" ") : "";
+      return `<${nodeName}${attrsString}>${super.toString()}</${nodeName}>`;
+    }
+    /**
+     * Removes an attribute from this YXmlElement.
+     *
+     * @param {string} attributeName The attribute name that is to be removed.
+     *
+     * @public
+     */
+    removeAttribute(attributeName) {
+      if (this.doc !== null) {
+        transact(this.doc, (transaction) => {
+          typeMapDelete(transaction, this, attributeName);
+        });
+      } else {
+        this._prelimAttrs.delete(attributeName);
+      }
+    }
+    /**
+     * Sets or updates an attribute.
+     *
+     * @template {keyof KV & string} KEY
+     *
+     * @param {KEY} attributeName The attribute name that is to be set.
+     * @param {KV[KEY]} attributeValue The attribute value that is to be set.
+     *
+     * @public
+     */
+    setAttribute(attributeName, attributeValue) {
+      if (this.doc !== null) {
+        transact(this.doc, (transaction) => {
+          typeMapSet(transaction, this, attributeName, attributeValue);
+        });
+      } else {
+        this._prelimAttrs.set(attributeName, attributeValue);
+      }
+    }
+    /**
+     * Returns an attribute value that belongs to the attribute name.
+     *
+     * @template {keyof KV & string} KEY
+     *
+     * @param {KEY} attributeName The attribute name that identifies the
+     *                               queried value.
+     * @return {KV[KEY]|undefined} The queried attribute value.
+     *
+     * @public
+     */
+    getAttribute(attributeName) {
+      return (
+        /** @type {any} */
+        typeMapGet(this, attributeName)
+      );
+    }
+    /**
+     * Returns whether an attribute exists
+     *
+     * @param {string} attributeName The attribute name to check for existence.
+     * @return {boolean} whether the attribute exists.
+     *
+     * @public
+     */
+    hasAttribute(attributeName) {
+      return (
+        /** @type {any} */
+        typeMapHas(this, attributeName)
+      );
+    }
+    /**
+     * Returns all attribute name/value pairs in a JSON Object.
+     *
+     * @param {Snapshot} [snapshot]
+     * @return {{ [Key in Extract<keyof KV,string>]?: KV[Key]}} A JSON Object that describes the attributes.
+     *
+     * @public
+     */
+    getAttributes(snapshot2) {
+      return (
+        /** @type {any} */
+        snapshot2 ? typeMapGetAllSnapshot(this, snapshot2) : typeMapGetAll(this)
+      );
+    }
+    /**
+     * Creates a Dom Element that mirrors this YXmlElement.
+     *
+     * @param {Document} [_document=document] The document object (you must define
+     *                                        this when calling this method in
+     *                                        nodejs)
+     * @param {Object<string, any>} [hooks={}] Optional property to customize how hooks
+     *                                             are presented in the DOM
+     * @param {any} [binding] You should not set this property. This is
+     *                               used if DomBinding wants to create a
+     *                               association to the created DOM type.
+     * @return {Node} The {@link https://developer.mozilla.org/en-US/docs/Web/API/Element|Dom Element}
+     *
+     * @public
+     */
+    toDOM(_document = document, hooks = {}, binding) {
+      const dom = _document.createElement(this.nodeName);
+      const attrs = this.getAttributes();
+      for (const key2 in attrs) {
+        const value = attrs[key2];
+        if (typeof value === "string") {
+          dom.setAttribute(key2, value);
+        }
+      }
+      typeListForEach(this, (yxml) => {
+        dom.appendChild(yxml.toDOM(_document, hooks, binding));
+      });
+      if (binding !== void 0) {
+        binding._createAssociation(dom, this);
+      }
+      return dom;
+    }
+    /**
+     * Transform the properties of this type to binary and write it to an
+     * BinaryEncoder.
+     *
+     * This is called when this Item is sent to a remote peer.
+     *
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder The encoder to write data to.
+     */
+    _write(encoder) {
+      encoder.writeTypeRef(YXmlElementRefID);
+      encoder.writeKey(this.nodeName);
+    }
+  };
+  var readYXmlElement = (decoder) => new YXmlElement(decoder.readKey());
+  var YXmlEvent = class extends YEvent {
+    /**
+     * @param {YXmlElement|YXmlText|YXmlFragment} target The target on which the event is created.
+     * @param {Set<string|null>} subs The set of changed attributes. `null` is included if the
+     *                   child list changed.
+     * @param {Transaction} transaction The transaction instance with which the
+     *                                  change was created.
+     */
+    constructor(target, subs, transaction) {
+      super(target, transaction);
+      this.childListChanged = false;
+      this.attributesChanged = /* @__PURE__ */ new Set();
+      subs.forEach((sub) => {
+        if (sub === null) {
+          this.childListChanged = true;
+        } else {
+          this.attributesChanged.add(sub);
+        }
+      });
+    }
+  };
+  var YXmlHook = class _YXmlHook extends YMap {
+    /**
+     * @param {string} hookName nodeName of the Dom Node.
+     */
+    constructor(hookName) {
+      super();
+      this.hookName = hookName;
+    }
+    /**
+     * Creates an Item with the same effect as this Item (without position effect)
+     */
+    _copy() {
+      return new _YXmlHook(this.hookName);
+    }
+    /**
+     * Makes a copy of this data type that can be included somewhere else.
+     *
+     * Note that the content is only readable _after_ it has been included somewhere in the Ydoc.
+     *
+     * @return {YXmlHook}
+     */
+    clone() {
+      const el = new _YXmlHook(this.hookName);
+      this.forEach((value, key2) => {
+        el.set(key2, value);
+      });
+      return el;
+    }
+    /**
+     * Creates a Dom Element that mirrors this YXmlElement.
+     *
+     * @param {Document} [_document=document] The document object (you must define
+     *                                        this when calling this method in
+     *                                        nodejs)
+     * @param {Object.<string, any>} [hooks] Optional property to customize how hooks
+     *                                             are presented in the DOM
+     * @param {any} [binding] You should not set this property. This is
+     *                               used if DomBinding wants to create a
+     *                               association to the created DOM type
+     * @return {Element} The {@link https://developer.mozilla.org/en-US/docs/Web/API/Element|Dom Element}
+     *
+     * @public
+     */
+    toDOM(_document = document, hooks = {}, binding) {
+      const hook = hooks[this.hookName];
+      let dom;
+      if (hook !== void 0) {
+        dom = hook.createDom(this);
+      } else {
+        dom = document.createElement(this.hookName);
+      }
+      dom.setAttribute("data-yjs-hook", this.hookName);
+      if (binding !== void 0) {
+        binding._createAssociation(dom, this);
+      }
+      return dom;
+    }
+    /**
+     * Transform the properties of this type to binary and write it to an
+     * BinaryEncoder.
+     *
+     * This is called when this Item is sent to a remote peer.
+     *
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder The encoder to write data to.
+     */
+    _write(encoder) {
+      encoder.writeTypeRef(YXmlHookRefID);
+      encoder.writeKey(this.hookName);
+    }
+  };
+  var readYXmlHook = (decoder) => new YXmlHook(decoder.readKey());
+  var YXmlText = class _YXmlText extends YText {
+    /**
+     * @type {YXmlElement|YXmlText|null}
+     */
+    get nextSibling() {
+      const n = this._item ? this._item.next : null;
+      return n ? (
+        /** @type {YXmlElement|YXmlText} */
+        /** @type {ContentType} */
+        n.content.type
+      ) : null;
+    }
+    /**
+     * @type {YXmlElement|YXmlText|null}
+     */
+    get prevSibling() {
+      const n = this._item ? this._item.prev : null;
+      return n ? (
+        /** @type {YXmlElement|YXmlText} */
+        /** @type {ContentType} */
+        n.content.type
+      ) : null;
+    }
+    _copy() {
+      return new _YXmlText();
+    }
+    /**
+     * Makes a copy of this data type that can be included somewhere else.
+     *
+     * Note that the content is only readable _after_ it has been included somewhere in the Ydoc.
+     *
+     * @return {YXmlText}
+     */
+    clone() {
+      const text2 = new _YXmlText();
+      text2.applyDelta(this.toDelta());
+      return text2;
+    }
+    /**
+     * Creates a Dom Element that mirrors this YXmlText.
+     *
+     * @param {Document} [_document=document] The document object (you must define
+     *                                        this when calling this method in
+     *                                        nodejs)
+     * @param {Object<string, any>} [hooks] Optional property to customize how hooks
+     *                                             are presented in the DOM
+     * @param {any} [binding] You should not set this property. This is
+     *                               used if DomBinding wants to create a
+     *                               association to the created DOM type.
+     * @return {Text} The {@link https://developer.mozilla.org/en-US/docs/Web/API/Element|Dom Element}
+     *
+     * @public
+     */
+    toDOM(_document = document, hooks, binding) {
+      const dom = _document.createTextNode(this.toString());
+      if (binding !== void 0) {
+        binding._createAssociation(dom, this);
+      }
+      return dom;
+    }
+    toString() {
+      return this.toDelta().map((delta) => {
+        const nestedNodes = [];
+        for (const nodeName in delta.attributes) {
+          const attrs = [];
+          for (const key2 in delta.attributes[nodeName]) {
+            attrs.push({ key: key2, value: delta.attributes[nodeName][key2] });
+          }
+          attrs.sort((a, b) => a.key < b.key ? -1 : 1);
+          nestedNodes.push({ nodeName, attrs });
+        }
+        nestedNodes.sort((a, b) => a.nodeName < b.nodeName ? -1 : 1);
+        let str = "";
+        for (let i2 = 0; i2 < nestedNodes.length; i2++) {
+          const node = nestedNodes[i2];
+          str += `<${node.nodeName}`;
+          for (let j = 0; j < node.attrs.length; j++) {
+            const attr = node.attrs[j];
+            str += ` ${attr.key}="${attr.value}"`;
+          }
+          str += ">";
+        }
+        str += delta.insert;
+        for (let i2 = nestedNodes.length - 1; i2 >= 0; i2--) {
+          str += `</${nestedNodes[i2].nodeName}>`;
+        }
+        return str;
+      }).join("");
+    }
+    /**
+     * @return {string}
+     */
+    toJSON() {
+      return this.toString();
+    }
+    /**
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder
+     */
+    _write(encoder) {
+      encoder.writeTypeRef(YXmlTextRefID);
+    }
+  };
+  var readYXmlText = (decoder) => new YXmlText();
+  var AbstractStruct = class {
+    /**
+     * @param {ID} id
+     * @param {number} length
+     */
+    constructor(id2, length2) {
+      this.id = id2;
+      this.length = length2;
+    }
+    /**
+     * @type {boolean}
+     */
+    get deleted() {
+      throw methodUnimplemented();
+    }
+    /**
+     * Merge this struct with the item to the right.
+     * This method is already assuming that `this.id.clock + this.length === this.id.clock`.
+     * Also this method does *not* remove right from StructStore!
+     * @param {AbstractStruct} right
+     * @return {boolean} whether this merged with right
+     */
+    mergeWith(right) {
+      return false;
+    }
+    /**
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder The encoder to write data to.
+     * @param {number} offset
+     * @param {number} encodingRef
+     */
+    write(encoder, offset, encodingRef) {
+      throw methodUnimplemented();
+    }
+    /**
+     * @param {Transaction} transaction
+     * @param {number} offset
+     */
+    integrate(transaction, offset) {
+      throw methodUnimplemented();
+    }
+  };
+  var structGCRefNumber = 0;
+  var GC = class extends AbstractStruct {
+    get deleted() {
+      return true;
+    }
+    delete() {
+    }
+    /**
+     * @param {GC} right
+     * @return {boolean}
+     */
+    mergeWith(right) {
+      if (this.constructor !== right.constructor) {
+        return false;
+      }
+      this.length += right.length;
+      return true;
+    }
+    /**
+     * @param {Transaction} transaction
+     * @param {number} offset
+     */
+    integrate(transaction, offset) {
+      if (offset > 0) {
+        this.id.clock += offset;
+        this.length -= offset;
+      }
+      addStruct(transaction.doc.store, this);
+    }
+    /**
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder
+     * @param {number} offset
+     */
+    write(encoder, offset) {
+      encoder.writeInfo(structGCRefNumber);
+      encoder.writeLen(this.length - offset);
+    }
+    /**
+     * @param {Transaction} transaction
+     * @param {StructStore} store
+     * @return {null | number}
+     */
+    getMissing(transaction, store) {
+      return null;
+    }
+  };
+  var ContentBinary = class _ContentBinary {
+    /**
+     * @param {Uint8Array} content
+     */
+    constructor(content) {
+      this.content = content;
+    }
+    /**
+     * @return {number}
+     */
+    getLength() {
+      return 1;
+    }
+    /**
+     * @return {Array<any>}
+     */
+    getContent() {
+      return [this.content];
+    }
+    /**
+     * @return {boolean}
+     */
+    isCountable() {
+      return true;
+    }
+    /**
+     * @return {ContentBinary}
+     */
+    copy() {
+      return new _ContentBinary(this.content);
+    }
+    /**
+     * @param {number} offset
+     * @return {ContentBinary}
+     */
+    splice(offset) {
+      throw methodUnimplemented();
+    }
+    /**
+     * @param {ContentBinary} right
+     * @return {boolean}
+     */
+    mergeWith(right) {
+      return false;
+    }
+    /**
+     * @param {Transaction} transaction
+     * @param {Item} item
+     */
+    integrate(transaction, item) {
+    }
+    /**
+     * @param {Transaction} transaction
+     */
+    delete(transaction) {
+    }
+    /**
+     * @param {StructStore} store
+     */
+    gc(store) {
+    }
+    /**
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder
+     * @param {number} offset
+     */
+    write(encoder, offset) {
+      encoder.writeBuf(this.content);
+    }
+    /**
+     * @return {number}
+     */
+    getRef() {
+      return 3;
+    }
+  };
+  var readContentBinary = (decoder) => new ContentBinary(decoder.readBuf());
+  var ContentDeleted = class _ContentDeleted {
+    /**
+     * @param {number} len
+     */
+    constructor(len) {
+      this.len = len;
+    }
+    /**
+     * @return {number}
+     */
+    getLength() {
+      return this.len;
+    }
+    /**
+     * @return {Array<any>}
+     */
+    getContent() {
+      return [];
+    }
+    /**
+     * @return {boolean}
+     */
+    isCountable() {
+      return false;
+    }
+    /**
+     * @return {ContentDeleted}
+     */
+    copy() {
+      return new _ContentDeleted(this.len);
+    }
+    /**
+     * @param {number} offset
+     * @return {ContentDeleted}
+     */
+    splice(offset) {
+      const right = new _ContentDeleted(this.len - offset);
+      this.len = offset;
+      return right;
+    }
+    /**
+     * @param {ContentDeleted} right
+     * @return {boolean}
+     */
+    mergeWith(right) {
+      this.len += right.len;
+      return true;
+    }
+    /**
+     * @param {Transaction} transaction
+     * @param {Item} item
+     */
+    integrate(transaction, item) {
+      addToDeleteSet(transaction.deleteSet, item.id.client, item.id.clock, this.len);
+      item.markDeleted();
+    }
+    /**
+     * @param {Transaction} transaction
+     */
+    delete(transaction) {
+    }
+    /**
+     * @param {StructStore} store
+     */
+    gc(store) {
+    }
+    /**
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder
+     * @param {number} offset
+     */
+    write(encoder, offset) {
+      encoder.writeLen(this.len - offset);
+    }
+    /**
+     * @return {number}
+     */
+    getRef() {
+      return 1;
+    }
+  };
+  var readContentDeleted = (decoder) => new ContentDeleted(decoder.readLen());
+  var createDocFromOpts = (guid, opts) => new Doc({ guid, ...opts, shouldLoad: opts.shouldLoad || opts.autoLoad || false });
+  var ContentDoc = class _ContentDoc {
+    /**
+     * @param {Doc} doc
+     */
+    constructor(doc4) {
+      if (doc4._item) {
+        console.error("This document was already integrated as a sub-document. You should create a second instance instead with the same guid.");
+      }
+      this.doc = doc4;
+      const opts = {};
+      this.opts = opts;
+      if (!doc4.gc) {
+        opts.gc = false;
+      }
+      if (doc4.autoLoad) {
+        opts.autoLoad = true;
+      }
+      if (doc4.meta !== null) {
+        opts.meta = doc4.meta;
+      }
+    }
+    /**
+     * @return {number}
+     */
+    getLength() {
+      return 1;
+    }
+    /**
+     * @return {Array<any>}
+     */
+    getContent() {
+      return [this.doc];
+    }
+    /**
+     * @return {boolean}
+     */
+    isCountable() {
+      return true;
+    }
+    /**
+     * @return {ContentDoc}
+     */
+    copy() {
+      return new _ContentDoc(createDocFromOpts(this.doc.guid, this.opts));
+    }
+    /**
+     * @param {number} offset
+     * @return {ContentDoc}
+     */
+    splice(offset) {
+      throw methodUnimplemented();
+    }
+    /**
+     * @param {ContentDoc} right
+     * @return {boolean}
+     */
+    mergeWith(right) {
+      return false;
+    }
+    /**
+     * @param {Transaction} transaction
+     * @param {Item} item
+     */
+    integrate(transaction, item) {
+      this.doc._item = item;
+      transaction.subdocsAdded.add(this.doc);
+      if (this.doc.shouldLoad) {
+        transaction.subdocsLoaded.add(this.doc);
+      }
+    }
+    /**
+     * @param {Transaction} transaction
+     */
+    delete(transaction) {
+      if (transaction.subdocsAdded.has(this.doc)) {
+        transaction.subdocsAdded.delete(this.doc);
+      } else {
+        transaction.subdocsRemoved.add(this.doc);
+      }
+    }
+    /**
+     * @param {StructStore} store
+     */
+    gc(store) {
+    }
+    /**
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder
+     * @param {number} offset
+     */
+    write(encoder, offset) {
+      encoder.writeString(this.doc.guid);
+      encoder.writeAny(this.opts);
+    }
+    /**
+     * @return {number}
+     */
+    getRef() {
+      return 9;
+    }
+  };
+  var readContentDoc = (decoder) => new ContentDoc(createDocFromOpts(decoder.readString(), decoder.readAny()));
+  var ContentEmbed = class _ContentEmbed {
+    /**
+     * @param {Object} embed
+     */
+    constructor(embed) {
+      this.embed = embed;
+    }
+    /**
+     * @return {number}
+     */
+    getLength() {
+      return 1;
+    }
+    /**
+     * @return {Array<any>}
+     */
+    getContent() {
+      return [this.embed];
+    }
+    /**
+     * @return {boolean}
+     */
+    isCountable() {
+      return true;
+    }
+    /**
+     * @return {ContentEmbed}
+     */
+    copy() {
+      return new _ContentEmbed(this.embed);
+    }
+    /**
+     * @param {number} offset
+     * @return {ContentEmbed}
+     */
+    splice(offset) {
+      throw methodUnimplemented();
+    }
+    /**
+     * @param {ContentEmbed} right
+     * @return {boolean}
+     */
+    mergeWith(right) {
+      return false;
+    }
+    /**
+     * @param {Transaction} transaction
+     * @param {Item} item
+     */
+    integrate(transaction, item) {
+    }
+    /**
+     * @param {Transaction} transaction
+     */
+    delete(transaction) {
+    }
+    /**
+     * @param {StructStore} store
+     */
+    gc(store) {
+    }
+    /**
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder
+     * @param {number} offset
+     */
+    write(encoder, offset) {
+      encoder.writeJSON(this.embed);
+    }
+    /**
+     * @return {number}
+     */
+    getRef() {
+      return 5;
+    }
+  };
+  var readContentEmbed = (decoder) => new ContentEmbed(decoder.readJSON());
+  var ContentFormat = class _ContentFormat {
+    /**
+     * @param {string} key
+     * @param {Object} value
+     */
+    constructor(key2, value) {
+      this.key = key2;
+      this.value = value;
+    }
+    /**
+     * @return {number}
+     */
+    getLength() {
+      return 1;
+    }
+    /**
+     * @return {Array<any>}
+     */
+    getContent() {
+      return [];
+    }
+    /**
+     * @return {boolean}
+     */
+    isCountable() {
+      return false;
+    }
+    /**
+     * @return {ContentFormat}
+     */
+    copy() {
+      return new _ContentFormat(this.key, this.value);
+    }
+    /**
+     * @param {number} _offset
+     * @return {ContentFormat}
+     */
+    splice(_offset) {
+      throw methodUnimplemented();
+    }
+    /**
+     * @param {ContentFormat} _right
+     * @return {boolean}
+     */
+    mergeWith(_right) {
+      return false;
+    }
+    /**
+     * @param {Transaction} _transaction
+     * @param {Item} item
+     */
+    integrate(_transaction, item) {
+      const p = (
+        /** @type {YText} */
+        item.parent
+      );
+      p._searchMarker = null;
+      p._hasFormatting = true;
+    }
+    /**
+     * @param {Transaction} transaction
+     */
+    delete(transaction) {
+    }
+    /**
+     * @param {StructStore} store
+     */
+    gc(store) {
+    }
+    /**
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder
+     * @param {number} offset
+     */
+    write(encoder, offset) {
+      encoder.writeKey(this.key);
+      encoder.writeJSON(this.value);
+    }
+    /**
+     * @return {number}
+     */
+    getRef() {
+      return 6;
+    }
+  };
+  var readContentFormat = (decoder) => new ContentFormat(decoder.readKey(), decoder.readJSON());
+  var ContentJSON = class _ContentJSON {
+    /**
+     * @param {Array<any>} arr
+     */
+    constructor(arr) {
+      this.arr = arr;
+    }
+    /**
+     * @return {number}
+     */
+    getLength() {
+      return this.arr.length;
+    }
+    /**
+     * @return {Array<any>}
+     */
+    getContent() {
+      return this.arr;
+    }
+    /**
+     * @return {boolean}
+     */
+    isCountable() {
+      return true;
+    }
+    /**
+     * @return {ContentJSON}
+     */
+    copy() {
+      return new _ContentJSON(this.arr);
+    }
+    /**
+     * @param {number} offset
+     * @return {ContentJSON}
+     */
+    splice(offset) {
+      const right = new _ContentJSON(this.arr.slice(offset));
+      this.arr = this.arr.slice(0, offset);
+      return right;
+    }
+    /**
+     * @param {ContentJSON} right
+     * @return {boolean}
+     */
+    mergeWith(right) {
+      this.arr = this.arr.concat(right.arr);
+      return true;
+    }
+    /**
+     * @param {Transaction} transaction
+     * @param {Item} item
+     */
+    integrate(transaction, item) {
+    }
+    /**
+     * @param {Transaction} transaction
+     */
+    delete(transaction) {
+    }
+    /**
+     * @param {StructStore} store
+     */
+    gc(store) {
+    }
+    /**
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder
+     * @param {number} offset
+     */
+    write(encoder, offset) {
+      const len = this.arr.length;
+      encoder.writeLen(len - offset);
+      for (let i2 = offset; i2 < len; i2++) {
+        const c = this.arr[i2];
+        encoder.writeString(c === void 0 ? "undefined" : JSON.stringify(c));
+      }
+    }
+    /**
+     * @return {number}
+     */
+    getRef() {
+      return 2;
+    }
+  };
+  var readContentJSON = (decoder) => {
+    const len = decoder.readLen();
+    const cs = [];
+    for (let i2 = 0; i2 < len; i2++) {
+      const c = decoder.readString();
+      if (c === "undefined") {
+        cs.push(void 0);
+      } else {
+        cs.push(JSON.parse(c));
+      }
+    }
+    return new ContentJSON(cs);
+  };
+  var isDevMode = getVariable("node_env") === "development";
+  var ContentAny = class _ContentAny {
+    /**
+     * @param {Array<any>} arr
+     */
+    constructor(arr) {
+      this.arr = arr;
+      isDevMode && deepFreeze(arr);
+    }
+    /**
+     * @return {number}
+     */
+    getLength() {
+      return this.arr.length;
+    }
+    /**
+     * @return {Array<any>}
+     */
+    getContent() {
+      return this.arr;
+    }
+    /**
+     * @return {boolean}
+     */
+    isCountable() {
+      return true;
+    }
+    /**
+     * @return {ContentAny}
+     */
+    copy() {
+      return new _ContentAny(this.arr);
+    }
+    /**
+     * @param {number} offset
+     * @return {ContentAny}
+     */
+    splice(offset) {
+      const right = new _ContentAny(this.arr.slice(offset));
+      this.arr = this.arr.slice(0, offset);
+      return right;
+    }
+    /**
+     * @param {ContentAny} right
+     * @return {boolean}
+     */
+    mergeWith(right) {
+      this.arr = this.arr.concat(right.arr);
+      return true;
+    }
+    /**
+     * @param {Transaction} transaction
+     * @param {Item} item
+     */
+    integrate(transaction, item) {
+    }
+    /**
+     * @param {Transaction} transaction
+     */
+    delete(transaction) {
+    }
+    /**
+     * @param {StructStore} store
+     */
+    gc(store) {
+    }
+    /**
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder
+     * @param {number} offset
+     */
+    write(encoder, offset) {
+      const len = this.arr.length;
+      encoder.writeLen(len - offset);
+      for (let i2 = offset; i2 < len; i2++) {
+        const c = this.arr[i2];
+        encoder.writeAny(c);
+      }
+    }
+    /**
+     * @return {number}
+     */
+    getRef() {
+      return 8;
+    }
+  };
+  var readContentAny = (decoder) => {
+    const len = decoder.readLen();
+    const cs = [];
+    for (let i2 = 0; i2 < len; i2++) {
+      cs.push(decoder.readAny());
+    }
+    return new ContentAny(cs);
+  };
+  var ContentString = class _ContentString {
+    /**
+     * @param {string} str
+     */
+    constructor(str) {
+      this.str = str;
+    }
+    /**
+     * @return {number}
+     */
+    getLength() {
+      return this.str.length;
+    }
+    /**
+     * @return {Array<any>}
+     */
+    getContent() {
+      return this.str.split("");
+    }
+    /**
+     * @return {boolean}
+     */
+    isCountable() {
+      return true;
+    }
+    /**
+     * @return {ContentString}
+     */
+    copy() {
+      return new _ContentString(this.str);
+    }
+    /**
+     * @param {number} offset
+     * @return {ContentString}
+     */
+    splice(offset) {
+      const right = new _ContentString(this.str.slice(offset));
+      this.str = this.str.slice(0, offset);
+      const firstCharCode = this.str.charCodeAt(offset - 1);
+      if (firstCharCode >= 55296 && firstCharCode <= 56319) {
+        this.str = this.str.slice(0, offset - 1) + "\uFFFD";
+        right.str = "\uFFFD" + right.str.slice(1);
+      }
+      return right;
+    }
+    /**
+     * @param {ContentString} right
+     * @return {boolean}
+     */
+    mergeWith(right) {
+      this.str += right.str;
+      return true;
+    }
+    /**
+     * @param {Transaction} transaction
+     * @param {Item} item
+     */
+    integrate(transaction, item) {
+    }
+    /**
+     * @param {Transaction} transaction
+     */
+    delete(transaction) {
+    }
+    /**
+     * @param {StructStore} store
+     */
+    gc(store) {
+    }
+    /**
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder
+     * @param {number} offset
+     */
+    write(encoder, offset) {
+      encoder.writeString(offset === 0 ? this.str : this.str.slice(offset));
+    }
+    /**
+     * @return {number}
+     */
+    getRef() {
+      return 4;
+    }
+  };
+  var readContentString = (decoder) => new ContentString(decoder.readString());
+  var typeRefs = [
+    readYArray,
+    readYMap,
+    readYText,
+    readYXmlElement,
+    readYXmlFragment,
+    readYXmlHook,
+    readYXmlText
+  ];
+  var YArrayRefID = 0;
+  var YMapRefID = 1;
+  var YTextRefID = 2;
+  var YXmlElementRefID = 3;
+  var YXmlFragmentRefID = 4;
+  var YXmlHookRefID = 5;
+  var YXmlTextRefID = 6;
+  var ContentType = class _ContentType {
+    /**
+     * @param {AbstractType<any>} type
+     */
+    constructor(type) {
+      this.type = type;
+    }
+    /**
+     * @return {number}
+     */
+    getLength() {
+      return 1;
+    }
+    /**
+     * @return {Array<any>}
+     */
+    getContent() {
+      return [this.type];
+    }
+    /**
+     * @return {boolean}
+     */
+    isCountable() {
+      return true;
+    }
+    /**
+     * @return {ContentType}
+     */
+    copy() {
+      return new _ContentType(this.type._copy());
+    }
+    /**
+     * @param {number} offset
+     * @return {ContentType}
+     */
+    splice(offset) {
+      throw methodUnimplemented();
+    }
+    /**
+     * @param {ContentType} right
+     * @return {boolean}
+     */
+    mergeWith(right) {
+      return false;
+    }
+    /**
+     * @param {Transaction} transaction
+     * @param {Item} item
+     */
+    integrate(transaction, item) {
+      this.type._integrate(transaction.doc, item);
+    }
+    /**
+     * @param {Transaction} transaction
+     */
+    delete(transaction) {
+      let item = this.type._start;
+      while (item !== null) {
+        if (!item.deleted) {
+          item.delete(transaction);
+        } else if (item.id.clock < (transaction.beforeState.get(item.id.client) || 0)) {
+          transaction._mergeStructs.push(item);
+        }
+        item = item.right;
+      }
+      this.type._map.forEach((item2) => {
+        if (!item2.deleted) {
+          item2.delete(transaction);
+        } else if (item2.id.clock < (transaction.beforeState.get(item2.id.client) || 0)) {
+          transaction._mergeStructs.push(item2);
+        }
+      });
+      transaction.changed.delete(this.type);
+    }
+    /**
+     * @param {StructStore} store
+     */
+    gc(store) {
+      let item = this.type._start;
+      while (item !== null) {
+        item.gc(store, true);
+        item = item.right;
+      }
+      this.type._start = null;
+      this.type._map.forEach(
+        /** @param {Item | null} item */
+        (item2) => {
+          while (item2 !== null) {
+            item2.gc(store, true);
+            item2 = item2.left;
+          }
+        }
+      );
+      this.type._map = /* @__PURE__ */ new Map();
+    }
+    /**
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder
+     * @param {number} offset
+     */
+    write(encoder, offset) {
+      this.type._write(encoder);
+    }
+    /**
+     * @return {number}
+     */
+    getRef() {
+      return 7;
+    }
+  };
+  var readContentType = (decoder) => new ContentType(typeRefs[decoder.readTypeRef()](decoder));
+  var followRedone = (store, id2) => {
+    let nextID = id2;
+    let diff = 0;
+    let item;
+    do {
+      if (diff > 0) {
+        nextID = createID(nextID.client, nextID.clock + diff);
+      }
+      item = getItem(store, nextID);
+      diff = nextID.clock - item.id.clock;
+      nextID = item.redone;
+    } while (nextID !== null && item instanceof Item2);
+    return {
+      item,
+      diff
+    };
+  };
+  var keepItem = (item, keep) => {
+    while (item !== null && item.keep !== keep) {
+      item.keep = keep;
+      item = /** @type {AbstractType<any>} */
+      item.parent._item;
+    }
+  };
+  var splitItem = (transaction, leftItem, diff) => {
+    const { client, clock } = leftItem.id;
+    const rightItem = new Item2(
+      createID(client, clock + diff),
+      leftItem,
+      createID(client, clock + diff - 1),
+      leftItem.right,
+      leftItem.rightOrigin,
+      leftItem.parent,
+      leftItem.parentSub,
+      leftItem.content.splice(diff)
+    );
+    if (leftItem.deleted) {
+      rightItem.markDeleted();
+    }
+    if (leftItem.keep) {
+      rightItem.keep = true;
+    }
+    if (leftItem.redone !== null) {
+      rightItem.redone = createID(leftItem.redone.client, leftItem.redone.clock + diff);
+    }
+    leftItem.right = rightItem;
+    if (rightItem.right !== null) {
+      rightItem.right.left = rightItem;
+    }
+    transaction._mergeStructs.push(rightItem);
+    if (rightItem.parentSub !== null && rightItem.right === null) {
+      rightItem.parent._map.set(rightItem.parentSub, rightItem);
+    }
+    leftItem.length = diff;
+    return rightItem;
+  };
+  var isDeletedByUndoStack = (stack, id2) => some(
+    stack,
+    /** @param {StackItem} s */
+    (s) => isDeleted(s.deletions, id2)
+  );
+  var redoItem = (transaction, item, redoitems, itemsToDelete, ignoreRemoteMapChanges, um) => {
+    const doc4 = transaction.doc;
+    const store = doc4.store;
+    const ownClientID = doc4.clientID;
+    const redone = item.redone;
+    if (redone !== null) {
+      return getItemCleanStart(transaction, redone);
+    }
+    let parentItem = (
+      /** @type {AbstractType<any>} */
+      item.parent._item
+    );
+    let left = null;
+    let right;
+    if (parentItem !== null && parentItem.deleted === true) {
+      if (parentItem.redone === null && (!redoitems.has(parentItem) || redoItem(transaction, parentItem, redoitems, itemsToDelete, ignoreRemoteMapChanges, um) === null)) {
+        return null;
+      }
+      while (parentItem.redone !== null) {
+        parentItem = getItemCleanStart(transaction, parentItem.redone);
+      }
+    }
+    const parentType = parentItem === null ? (
+      /** @type {AbstractType<any>} */
+      item.parent
+    ) : (
+      /** @type {ContentType} */
+      parentItem.content.type
+    );
+    if (item.parentSub === null) {
+      left = item.left;
+      right = item;
+      while (left !== null) {
+        let leftTrace = left;
+        while (leftTrace !== null && /** @type {AbstractType<any>} */
+        leftTrace.parent._item !== parentItem) {
+          leftTrace = leftTrace.redone === null ? null : getItemCleanStart(transaction, leftTrace.redone);
+        }
+        if (leftTrace !== null && /** @type {AbstractType<any>} */
+        leftTrace.parent._item === parentItem) {
+          left = leftTrace;
+          break;
+        }
+        left = left.left;
+      }
+      while (right !== null) {
+        let rightTrace = right;
+        while (rightTrace !== null && /** @type {AbstractType<any>} */
+        rightTrace.parent._item !== parentItem) {
+          rightTrace = rightTrace.redone === null ? null : getItemCleanStart(transaction, rightTrace.redone);
+        }
+        if (rightTrace !== null && /** @type {AbstractType<any>} */
+        rightTrace.parent._item === parentItem) {
+          right = rightTrace;
+          break;
+        }
+        right = right.right;
+      }
+    } else {
+      right = null;
+      if (item.right && !ignoreRemoteMapChanges) {
+        left = item;
+        while (left !== null && left.right !== null && (left.right.redone || isDeleted(itemsToDelete, left.right.id) || isDeletedByUndoStack(um.undoStack, left.right.id) || isDeletedByUndoStack(um.redoStack, left.right.id))) {
+          left = left.right;
+          while (left.redone) left = getItemCleanStart(transaction, left.redone);
+        }
+        if (left && left.right !== null) {
+          return null;
+        }
+      } else {
+        left = parentType._map.get(item.parentSub) || null;
+      }
+      if (left !== null && /** @type {AbstractType<any>} */
+      left.parent._item !== parentItem) {
+        left = parentType._map.get(item.parentSub) || null;
+      }
+    }
+    const nextClock = getState(store, ownClientID);
+    const nextId = createID(ownClientID, nextClock);
+    const redoneItem = new Item2(
+      nextId,
+      left,
+      left && left.lastId,
+      right,
+      right && right.id,
+      parentType,
+      item.parentSub,
+      item.content.copy()
+    );
+    item.redone = nextId;
+    keepItem(redoneItem, true);
+    redoneItem.integrate(transaction, 0);
+    return redoneItem;
+  };
+  var Item2 = class _Item extends AbstractStruct {
+    /**
+     * @param {ID} id
+     * @param {Item | null} left
+     * @param {ID | null} origin
+     * @param {Item | null} right
+     * @param {ID | null} rightOrigin
+     * @param {AbstractType<any>|ID|null} parent Is a type if integrated, is null if it is possible to copy parent from left or right, is ID before integration to search for it.
+     * @param {string | null} parentSub
+     * @param {AbstractContent} content
+     */
+    constructor(id2, left, origin, right, rightOrigin, parent, parentSub, content) {
+      super(id2, content.getLength());
+      this.origin = origin;
+      this.left = left;
+      this.right = right;
+      this.rightOrigin = rightOrigin;
+      this.parent = parent;
+      this.parentSub = parentSub;
+      this.redone = null;
+      this.content = content;
+      this.info = this.content.isCountable() ? BIT2 : 0;
+    }
+    /**
+     * This is used to mark the item as an indexed fast-search marker
+     *
+     * @type {boolean}
+     */
+    set marker(isMarked) {
+      if ((this.info & BIT4) > 0 !== isMarked) {
+        this.info ^= BIT4;
+      }
+    }
+    get marker() {
+      return (this.info & BIT4) > 0;
+    }
+    /**
+     * If true, do not garbage collect this Item.
+     */
+    get keep() {
+      return (this.info & BIT1) > 0;
+    }
+    set keep(doKeep) {
+      if (this.keep !== doKeep) {
+        this.info ^= BIT1;
+      }
+    }
+    get countable() {
+      return (this.info & BIT2) > 0;
+    }
+    /**
+     * Whether this item was deleted or not.
+     * @type {Boolean}
+     */
+    get deleted() {
+      return (this.info & BIT3) > 0;
+    }
+    set deleted(doDelete) {
+      if (this.deleted !== doDelete) {
+        this.info ^= BIT3;
+      }
+    }
+    markDeleted() {
+      this.info |= BIT3;
+    }
+    /**
+     * Return the creator clientID of the missing op or define missing items and return null.
+     *
+     * @param {Transaction} transaction
+     * @param {StructStore} store
+     * @return {null | number}
+     */
+    getMissing(transaction, store) {
+      if (this.origin && this.origin.client !== this.id.client && this.origin.clock >= getState(store, this.origin.client)) {
+        return this.origin.client;
+      }
+      if (this.rightOrigin && this.rightOrigin.client !== this.id.client && this.rightOrigin.clock >= getState(store, this.rightOrigin.client)) {
+        return this.rightOrigin.client;
+      }
+      if (this.parent && this.parent.constructor === ID && this.id.client !== this.parent.client && this.parent.clock >= getState(store, this.parent.client)) {
+        return this.parent.client;
+      }
+      if (this.origin) {
+        this.left = getItemCleanEnd(transaction, store, this.origin);
+        this.origin = this.left.lastId;
+      }
+      if (this.rightOrigin) {
+        this.right = getItemCleanStart(transaction, this.rightOrigin);
+        this.rightOrigin = this.right.id;
+      }
+      if (this.left && this.left.constructor === GC || this.right && this.right.constructor === GC) {
+        this.parent = null;
+      } else if (!this.parent) {
+        if (this.left && this.left.constructor === _Item) {
+          this.parent = this.left.parent;
+          this.parentSub = this.left.parentSub;
+        } else if (this.right && this.right.constructor === _Item) {
+          this.parent = this.right.parent;
+          this.parentSub = this.right.parentSub;
+        }
+      } else if (this.parent.constructor === ID) {
+        const parentItem = getItem(store, this.parent);
+        if (parentItem.constructor === GC) {
+          this.parent = null;
+        } else {
+          this.parent = /** @type {ContentType} */
+          parentItem.content.type;
+        }
+      }
+      return null;
+    }
+    /**
+     * @param {Transaction} transaction
+     * @param {number} offset
+     */
+    integrate(transaction, offset) {
+      if (offset > 0) {
+        this.id.clock += offset;
+        this.left = getItemCleanEnd(transaction, transaction.doc.store, createID(this.id.client, this.id.clock - 1));
+        this.origin = this.left.lastId;
+        this.content = this.content.splice(offset);
+        this.length -= offset;
+      }
+      if (this.parent) {
+        if (!this.left && (!this.right || this.right.left !== null) || this.left && this.left.right !== this.right) {
+          let left = this.left;
+          let o;
+          if (left !== null) {
+            o = left.right;
+          } else if (this.parentSub !== null) {
+            o = /** @type {AbstractType<any>} */
+            this.parent._map.get(this.parentSub) || null;
+            while (o !== null && o.left !== null) {
+              o = o.left;
+            }
+          } else {
+            o = /** @type {AbstractType<any>} */
+            this.parent._start;
+          }
+          const conflictingItems = /* @__PURE__ */ new Set();
+          const itemsBeforeOrigin = /* @__PURE__ */ new Set();
+          while (o !== null && o !== this.right) {
+            itemsBeforeOrigin.add(o);
+            conflictingItems.add(o);
+            if (compareIDs(this.origin, o.origin)) {
+              if (o.id.client < this.id.client) {
+                left = o;
+                conflictingItems.clear();
+              } else if (compareIDs(this.rightOrigin, o.rightOrigin)) {
+                break;
+              }
+            } else if (o.origin !== null && itemsBeforeOrigin.has(getItem(transaction.doc.store, o.origin))) {
+              if (!conflictingItems.has(getItem(transaction.doc.store, o.origin))) {
+                left = o;
+                conflictingItems.clear();
+              }
+            } else {
+              break;
+            }
+            o = o.right;
+          }
+          this.left = left;
+        }
+        if (this.left !== null) {
+          const right = this.left.right;
+          this.right = right;
+          this.left.right = this;
+        } else {
+          let r;
+          if (this.parentSub !== null) {
+            r = /** @type {AbstractType<any>} */
+            this.parent._map.get(this.parentSub) || null;
+            while (r !== null && r.left !== null) {
+              r = r.left;
+            }
+          } else {
+            r = /** @type {AbstractType<any>} */
+            this.parent._start;
+            this.parent._start = this;
+          }
+          this.right = r;
+        }
+        if (this.right !== null) {
+          this.right.left = this;
+        } else if (this.parentSub !== null) {
+          this.parent._map.set(this.parentSub, this);
+          if (this.left !== null) {
+            this.left.delete(transaction);
+          }
+        }
+        if (this.parentSub === null && this.countable && !this.deleted) {
+          this.parent._length += this.length;
+        }
+        addStruct(transaction.doc.store, this);
+        this.content.integrate(transaction, this);
+        addChangedTypeToTransaction(
+          transaction,
+          /** @type {AbstractType<any>} */
+          this.parent,
+          this.parentSub
+        );
+        if (
+          /** @type {AbstractType<any>} */
+          this.parent._item !== null && /** @type {AbstractType<any>} */
+          this.parent._item.deleted || this.parentSub !== null && this.right !== null
+        ) {
+          this.delete(transaction);
+        }
+      } else {
+        new GC(this.id, this.length).integrate(transaction, 0);
+      }
+    }
+    /**
+     * Returns the next non-deleted item
+     */
+    get next() {
+      let n = this.right;
+      while (n !== null && n.deleted) {
+        n = n.right;
+      }
+      return n;
+    }
+    /**
+     * Returns the previous non-deleted item
+     */
+    get prev() {
+      let n = this.left;
+      while (n !== null && n.deleted) {
+        n = n.left;
+      }
+      return n;
+    }
+    /**
+     * Computes the last content address of this Item.
+     */
+    get lastId() {
+      return this.length === 1 ? this.id : createID(this.id.client, this.id.clock + this.length - 1);
+    }
+    /**
+     * Try to merge two items
+     *
+     * @param {Item} right
+     * @return {boolean}
+     */
+    mergeWith(right) {
+      if (this.constructor === right.constructor && compareIDs(right.origin, this.lastId) && this.right === right && compareIDs(this.rightOrigin, right.rightOrigin) && this.id.client === right.id.client && this.id.clock + this.length === right.id.clock && this.deleted === right.deleted && this.redone === null && right.redone === null && this.content.constructor === right.content.constructor && this.content.mergeWith(right.content)) {
+        const searchMarker = (
+          /** @type {AbstractType<any>} */
+          this.parent._searchMarker
+        );
+        if (searchMarker) {
+          searchMarker.forEach((marker) => {
+            if (marker.p === right) {
+              marker.p = this;
+              if (!this.deleted && this.countable) {
+                marker.index -= this.length;
+              }
+            }
+          });
+        }
+        if (right.keep) {
+          this.keep = true;
+        }
+        this.right = right.right;
+        if (this.right !== null) {
+          this.right.left = this;
+        }
+        this.length += right.length;
+        return true;
+      }
+      return false;
+    }
+    /**
+     * Mark this Item as deleted.
+     *
+     * @param {Transaction} transaction
+     */
+    delete(transaction) {
+      if (!this.deleted) {
+        const parent = (
+          /** @type {AbstractType<any>} */
+          this.parent
+        );
+        if (this.countable && this.parentSub === null) {
+          parent._length -= this.length;
+        }
+        this.markDeleted();
+        addToDeleteSet(transaction.deleteSet, this.id.client, this.id.clock, this.length);
+        addChangedTypeToTransaction(transaction, parent, this.parentSub);
+        this.content.delete(transaction);
+      }
+    }
+    /**
+     * @param {StructStore} store
+     * @param {boolean} parentGCd
+     */
+    gc(store, parentGCd) {
+      if (!this.deleted) {
+        throw unexpectedCase();
+      }
+      this.content.gc(store);
+      if (parentGCd) {
+        replaceStruct(store, this, new GC(this.id, this.length));
+      } else {
+        this.content = new ContentDeleted(this.length);
+      }
+    }
+    /**
+     * Transform the properties of this type to binary and write it to an
+     * BinaryEncoder.
+     *
+     * This is called when this Item is sent to a remote peer.
+     *
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder The encoder to write data to.
+     * @param {number} offset
+     */
+    write(encoder, offset) {
+      const origin = offset > 0 ? createID(this.id.client, this.id.clock + offset - 1) : this.origin;
+      const rightOrigin = this.rightOrigin;
+      const parentSub = this.parentSub;
+      const info = this.content.getRef() & BITS5 | (origin === null ? 0 : BIT8) | // origin is defined
+      (rightOrigin === null ? 0 : BIT7) | // right origin is defined
+      (parentSub === null ? 0 : BIT6);
+      encoder.writeInfo(info);
+      if (origin !== null) {
+        encoder.writeLeftID(origin);
+      }
+      if (rightOrigin !== null) {
+        encoder.writeRightID(rightOrigin);
+      }
+      if (origin === null && rightOrigin === null) {
+        const parent = (
+          /** @type {AbstractType<any>} */
+          this.parent
+        );
+        if (parent._item !== void 0) {
+          const parentItem = parent._item;
+          if (parentItem === null) {
+            const ykey = findRootTypeKey(parent);
+            encoder.writeParentInfo(true);
+            encoder.writeString(ykey);
+          } else {
+            encoder.writeParentInfo(false);
+            encoder.writeLeftID(parentItem.id);
+          }
+        } else if (parent.constructor === String) {
+          encoder.writeParentInfo(true);
+          encoder.writeString(parent);
+        } else if (parent.constructor === ID) {
+          encoder.writeParentInfo(false);
+          encoder.writeLeftID(parent);
+        } else {
+          unexpectedCase();
+        }
+        if (parentSub !== null) {
+          encoder.writeString(parentSub);
+        }
+      }
+      this.content.write(encoder, offset);
+    }
+  };
+  var readItemContent = (decoder, info) => contentRefs[info & BITS5](decoder);
+  var contentRefs = [
+    () => {
+      unexpectedCase();
+    },
+    // GC is not ItemContent
+    readContentDeleted,
+    // 1
+    readContentJSON,
+    // 2
+    readContentBinary,
+    // 3
+    readContentString,
+    // 4
+    readContentEmbed,
+    // 5
+    readContentFormat,
+    // 6
+    readContentType,
+    // 7
+    readContentAny,
+    // 8
+    readContentDoc,
+    // 9
+    () => {
+      unexpectedCase();
+    }
+    // 10 - Skip is not ItemContent
+  ];
+  var structSkipRefNumber = 10;
+  var Skip = class extends AbstractStruct {
+    get deleted() {
+      return true;
+    }
+    delete() {
+    }
+    /**
+     * @param {Skip} right
+     * @return {boolean}
+     */
+    mergeWith(right) {
+      if (this.constructor !== right.constructor) {
+        return false;
+      }
+      this.length += right.length;
+      return true;
+    }
+    /**
+     * @param {Transaction} transaction
+     * @param {number} offset
+     */
+    integrate(transaction, offset) {
+      unexpectedCase();
+    }
+    /**
+     * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder
+     * @param {number} offset
+     */
+    write(encoder, offset) {
+      encoder.writeInfo(structSkipRefNumber);
+      writeVarUint(encoder.restEncoder, this.length - offset);
+    }
+    /**
+     * @param {Transaction} transaction
+     * @param {StructStore} store
+     * @return {null | number}
+     */
+    getMissing(transaction, store) {
+      return null;
+    }
+  };
+  var glo = (
+    /** @type {any} */
+    typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : {}
+  );
+  var importIdentifier = "__ $YJS$ __";
+  if (glo[importIdentifier] === true) {
+    console.error("Yjs was already imported. This breaks constructor checks and will lead to issues! - https://github.com/yjs/yjs/issues/438");
+  }
+  glo[importIdentifier] = true;
+
+  // node_modules/lib0/mutex.js
+  var createMutex = () => {
+    let token = true;
+    return (f, g) => {
+      if (token) {
+        token = false;
+        try {
+          f();
+        } finally {
+          token = true;
+        }
+      } else if (g !== void 0) {
+        g();
+      }
+    };
+  };
+
+  // node_modules/lib0/hash/sha256.js
+  var rotr = (w, shift2) => w >>> shift2 | w << 32 - shift2;
+  var sum0to256 = (x) => rotr(x, 2) ^ rotr(x, 13) ^ rotr(x, 22);
+  var sum1to256 = (x) => rotr(x, 6) ^ rotr(x, 11) ^ rotr(x, 25);
+  var sigma0to256 = (x) => rotr(x, 7) ^ rotr(x, 18) ^ x >>> 3;
+  var sigma1to256 = (x) => rotr(x, 17) ^ rotr(x, 19) ^ x >>> 10;
+  var K = new Uint32Array([
+    1116352408,
+    1899447441,
+    3049323471,
+    3921009573,
+    961987163,
+    1508970993,
+    2453635748,
+    2870763221,
+    3624381080,
+    310598401,
+    607225278,
+    1426881987,
+    1925078388,
+    2162078206,
+    2614888103,
+    3248222580,
+    3835390401,
+    4022224774,
+    264347078,
+    604807628,
+    770255983,
+    1249150122,
+    1555081692,
+    1996064986,
+    2554220882,
+    2821834349,
+    2952996808,
+    3210313671,
+    3336571891,
+    3584528711,
+    113926993,
+    338241895,
+    666307205,
+    773529912,
+    1294757372,
+    1396182291,
+    1695183700,
+    1986661051,
+    2177026350,
+    2456956037,
+    2730485921,
+    2820302411,
+    3259730800,
+    3345764771,
+    3516065817,
+    3600352804,
+    4094571909,
+    275423344,
+    430227734,
+    506948616,
+    659060556,
+    883997877,
+    958139571,
+    1322822218,
+    1537002063,
+    1747873779,
+    1955562222,
+    2024104815,
+    2227730452,
+    2361852424,
+    2428436474,
+    2756734187,
+    3204031479,
+    3329325298
+  ]);
+  var HINIT = new Uint32Array([
+    1779033703,
+    3144134277,
+    1013904242,
+    2773480762,
+    1359893119,
+    2600822924,
+    528734635,
+    1541459225
+  ]);
+  var Hasher = class {
+    constructor() {
+      const buf = new ArrayBuffer(64 + 64 * 4);
+      this._H = new Uint32Array(buf, 0, 8);
+      this._H.set(HINIT);
+      this._W = new Uint32Array(buf, 64, 64);
+    }
+    _updateHash() {
+      const H = this._H;
+      const W = this._W;
+      for (let t = 16; t < 64; t++) {
+        W[t] = sigma1to256(W[t - 2]) + W[t - 7] + sigma0to256(W[t - 15]) + W[t - 16];
+      }
+      let a = H[0];
+      let b = H[1];
+      let c = H[2];
+      let d = H[3];
+      let e = H[4];
+      let f = H[5];
+      let g = H[6];
+      let h2 = H[7];
+      for (let tt2 = 0, T1, T2; tt2 < 64; tt2++) {
+        T1 = h2 + sum1to256(e) + (e & f ^ ~e & g) + K[tt2] + W[tt2] >>> 0;
+        T2 = sum0to256(a) + (a & b ^ a & c ^ b & c) >>> 0;
+        h2 = g;
+        g = f;
+        f = e;
+        e = d + T1 >>> 0;
+        d = c;
+        c = b;
+        b = a;
+        a = T1 + T2 >>> 0;
+      }
+      H[0] += a;
+      H[1] += b;
+      H[2] += c;
+      H[3] += d;
+      H[4] += e;
+      H[5] += f;
+      H[6] += g;
+      H[7] += h2;
+    }
+    /**
+     * Returns a 32-byte hash.
+     *
+     * @param {Uint8Array} data
+     */
+    digest(data) {
+      let i2 = 0;
+      for (; i2 + 56 <= data.length; ) {
+        let j2 = 0;
+        for (; j2 < 16 && i2 + 3 < data.length; j2++) {
+          this._W[j2] = data[i2++] << 24 | data[i2++] << 16 | data[i2++] << 8 | data[i2++];
+        }
+        if (i2 % 64 !== 0) {
+          this._W.fill(0, j2, 16);
+          while (i2 < data.length) {
+            this._W[j2] |= data[i2] << (3 - i2 % 4) * 8;
+            i2++;
+          }
+          this._W[j2] |= BIT8 << (3 - i2 % 4) * 8;
+        }
+        this._updateHash();
+      }
+      const isPaddedWith1 = i2 % 64 !== 0;
+      this._W.fill(0, 0, 16);
+      let j = 0;
+      for (; i2 < data.length; j++) {
+        for (let ci = 3; ci >= 0 && i2 < data.length; ci--) {
+          this._W[j] |= data[i2++] << ci * 8;
+        }
+      }
+      if (!isPaddedWith1) {
+        this._W[j - (i2 % 4 === 0 ? 0 : 1)] |= BIT8 << (3 - i2 % 4) * 8;
+      }
+      this._W[14] = data.byteLength / BIT30;
+      this._W[15] = data.byteLength * 8;
+      this._updateHash();
+      const dv = new Uint8Array(32);
+      for (let i3 = 0; i3 < this._H.length; i3++) {
+        for (let ci = 0; ci < 4; ci++) {
+          dv[i3 * 4 + ci] = this._H[i3] >>> (3 - ci) * 8;
+        }
+      }
+      return dv;
+    }
+  };
+  var digest = (data) => new Hasher().digest(data);
+
+  // node_modules/lib0/diff.js
+  var highSurrogateRegex = /[\uD800-\uDBFF]/;
+  var lowSurrogateRegex = /[\uDC00-\uDFFF]/;
+  var simpleDiffString = (a, b) => {
+    let left = 0;
+    let right = 0;
+    while (left < a.length && left < b.length && a[left] === b[left]) {
+      left++;
+    }
+    if (left > 0 && highSurrogateRegex.test(a[left - 1])) left--;
+    while (right + left < a.length && right + left < b.length && a[a.length - right - 1] === b[b.length - right - 1]) {
+      right++;
+    }
+    if (right > 0 && lowSurrogateRegex.test(a[a.length - right])) right--;
+    return {
+      index: left,
+      remove: a.length - left - right,
+      insert: b.slice(left, b.length - right)
+    };
+  };
+  var simpleDiff = simpleDiffString;
+
+  // node_modules/@tiptap/y-tiptap/dist/index.js
+  function getYType(item) {
+    if (!item) return null;
+    if (!(item.content instanceof ContentType)) return null;
+    const type = item.content.type;
+    if (!(type instanceof YXmlFragment || type instanceof YText || type instanceof YXmlHook)) throw new Error("Expected a Yjs XML type");
+    return type;
+  }
+  function getYParent(item) {
+    if (item === null) return null;
+    if (!(item.parent instanceof AbstractType)) throw new Error("Expected an integrated Yjs parent");
+    const type = item.parent;
+    if (!(type instanceof YXmlFragment || type instanceof YText || type instanceof YXmlHook)) throw new Error("Expected a Yjs XML type");
+    return type;
+  }
+  var createRelativePosition2 = (type, item) => {
+    let typeid = null;
+    let tname = null;
+    if (type._item === null) tname = findRootTypeKey(type);
+    else typeid = createID(type._item.id.client, type._item.id.clock);
+    return new RelativePosition(typeid, tname, item.id);
+  };
+  var absolutePositionToRelativePosition = (pos, type, mapping) => {
+    if (pos === 0) return createRelativePositionFromTypeIndex(type, 0, -1);
+    let n = getYType(type._first);
+    while (n !== null && type !== n) {
+      if (n instanceof YXmlText) {
+        if (n._length >= pos) return createRelativePositionFromTypeIndex(n, pos, -1);
+        else pos -= n._length;
+        if (n._item !== null && n._item.next !== null) n = getYType(n._item.next);
+        else {
+          do {
+            n = getYParent(n._item);
+            pos--;
+          } while (n !== type && n !== null && n._item !== null && n._item.next === null);
+          if (n !== null && n !== type) n = n._item === null ? null : getYType(n._item.next);
+        }
+      } else {
+        const mapped = mapping.get(n);
+        const pNodeSize = mapped instanceof Node ? mapped.nodeSize : 0;
+        if (n._first !== null && pos < pNodeSize) {
+          n = getYType(n._first);
+          pos--;
+        } else {
+          if (pos === 1 && n._length === 0 && pNodeSize > 1) return new RelativePosition(n._item === null ? null : n._item.id, n._item === null ? findRootTypeKey(n) : null, null);
+          pos -= pNodeSize;
+          if (n._item !== null && n._item.next !== null) n = getYType(n._item.next);
+          else {
+            var _n$_item;
+            if (pos === 0) {
+              n = n._item === null ? n : getYParent(n._item);
+              if (n === null) throw unexpectedCase();
+              return new RelativePosition(n._item === null ? null : n._item.id, n._item === null ? findRootTypeKey(n) : null, null);
+            }
+            do {
+              n = getYParent(n._item);
+              if (n === null) throw unexpectedCase();
+              pos--;
+            } while (n !== type && ((_n$_item = n._item) === null || _n$_item === void 0 ? void 0 : _n$_item.next) === null);
+            if (n !== type) {
+              var _n$_item2;
+              n = getYType((_n$_item2 = n._item) === null || _n$_item2 === void 0 ? void 0 : _n$_item2.next);
+            }
+          }
+        }
+      }
+      if (n === null) throw unexpectedCase();
+      if (pos === 0 && n.constructor !== YXmlText && n !== type) {
+        const item = n._item;
+        const parent = getYParent(item);
+        if (item === null || parent === null) throw unexpectedCase();
+        return createRelativePosition2(parent, item);
+      }
+    }
+    return createRelativePositionFromTypeIndex(type, type._length, -1);
+  };
+  var isStructuralTransaction = (tr2, oldDoc) => {
+    if (!tr2.docChanged) return false;
+    if (tr2.doc.childCount !== oldDoc.childCount) return true;
+    for (const step of tr2.steps) if (step instanceof ReplaceStep) {
+      if (step.from === 0 && step.to === oldDoc.content.size) return true;
+      if (step.slice.content.size > 0) {
+        let hasBlock = false;
+        step.slice.content.forEach((node) => {
+          if (node.isBlock) hasBlock = true;
+        });
+        if (hasBlock) return true;
+      } else if (step.to > step.from) {
+        const $from = oldDoc.resolve(step.from);
+        const $to = oldDoc.resolve(step.to);
+        if ($from.depth === 0 && $to.depth === 0 && $from.index() !== $to.index()) return true;
+      }
+    }
+    return false;
+  };
+  function getYTypeSize(type, mapping) {
+    if (type instanceof YXmlText) return type._length;
+    const node = mapping.get(type);
+    return node instanceof Node ? node.nodeSize : null;
+  }
+  function getParentOffset(parent, type, mapping) {
+    let offset = 0;
+    let item = parent._first;
+    while (item !== null) {
+      const child = getYType(item);
+      if (child === type) break;
+      const deleted = item.deleted;
+      item = item.right;
+      if (deleted) continue;
+      if (child === null) return null;
+      const size2 = getYTypeSize(child, mapping);
+      if (size2 === null) return null;
+      offset += size2;
+    }
+    return offset;
+  }
+  function getYContentOffset(type, index, mapping) {
+    let offset = 0;
+    let childIndex = 0;
+    let item = type._first;
+    while (childIndex < type._length && childIndex < index && item !== null) {
+      const current = item;
+      item = item.right;
+      if (current.deleted) continue;
+      const child = getYType(current);
+      if (child === null) return null;
+      const size2 = getYTypeSize(child, mapping);
+      if (size2 === null) return null;
+      childIndex++;
+      offset += size2;
+    }
+    return offset;
+  }
+  var isMisresolvedTextPosition = (y, relPos, absPos) => {
+    var _decoded$type$_item;
+    if (absPos === null) return false;
+    const decoded = createAbsolutePositionFromRelativePosition(relPos, y);
+    return decoded !== null && decoded.type instanceof YXmlText && relPos.item !== null && ((_decoded$type$_item = decoded.type._item) === null || _decoded$type$_item === void 0 ? void 0 : _decoded$type$_item.deleted) === true;
+  };
+  var relativePositionToAbsolutePosition = (y, documentType, relPos, mapping) => {
+    var _type$_item;
+    const decodedPos = createAbsolutePositionFromRelativePosition(relPos, y);
+    if (decodedPos === null || decodedPos.type !== documentType && !isParentOf(documentType, decodedPos.type._item)) return null;
+    let type = decodedPos.type;
+    let pos = 0;
+    if (type.constructor === YXmlText) pos = decodedPos.index;
+    else if (!((_type$_item = type._item) === null || _type$_item === void 0 ? void 0 : _type$_item.deleted)) {
+      const offset = getYContentOffset(type, decodedPos.index, mapping);
+      if (offset === null) return null;
+      pos = offset + 1;
+    }
+    while (type !== documentType && type._item !== null) {
+      var _parent$_item;
+      const parent = getYParent(type._item);
+      if (parent === null) return null;
+      if ((_parent$_item = parent._item) === null || _parent$_item === void 0 ? void 0 : _parent$_item.deleted) {
+        type = parent;
+        continue;
+      }
+      const offset = getParentOffset(parent, type, mapping);
+      if (offset === null) return null;
+      pos += offset + 1;
+      type = parent;
+    }
+    const absPos = pos - 1;
+    if (isMisresolvedTextPosition(y, relPos, absPos)) return null;
+    return absPos;
+  };
+  var ySyncPluginKey = new PluginKey("y-sync");
+  var yUndoPluginKey = new PluginKey("y-undo");
+  var yCursorPluginKey = new PluginKey("yjs-cursor");
+  var viewsToUpdate = null;
+  function takePendingMetas() {
+    const pending = viewsToUpdate;
+    viewsToUpdate = null;
+    const entries = [];
+    pending === null || pending === void 0 || pending.forEach((metas, view) => {
+      metas.forEach((value, key2) => entries.push({
+        view,
+        key: key2,
+        value
+      }));
+    });
+    return entries;
+  }
+  function updateMetas(entries = takePendingMetas(), isRetry = false) {
+    let isFirst = true;
+    while (entries.length > 0) {
+      const { view, key: key2, value } = entries[0];
+      try {
+        const syncState = ySyncPluginKey.getState(view.state);
+        if (syncState && syncState.binding.prosemirrorView !== null) view.dispatch(view.state.tr.setMeta(key2, value));
+      } catch (error) {
+        if (!(error instanceof RangeError)) throw error;
+        if (isRetry && isFirst) entries.shift();
+        if (entries.length > 0) timeout(0, () => updateMetas(entries, true));
+        return;
+      }
+      isFirst = false;
+      entries.shift();
+    }
+  }
+  function setMeta2(view, key2, value) {
+    if (viewsToUpdate === null) {
+      viewsToUpdate = /* @__PURE__ */ new Map();
+      timeout(0, updateMetas);
+    }
+    let metas = viewsToUpdate.get(view);
+    if (!metas) {
+      metas = /* @__PURE__ */ new Map();
+      viewsToUpdate.set(view, metas);
+    }
+    metas.set(key2, value);
+  }
+  var defaultAwarenessStateFilter = (currentClientId, userClientId, _user) => currentClientId !== userClientId;
+  var defaultCursorBuilder = (user) => {
+    const cursor = document.createElement("span");
+    cursor.classList.add("ProseMirror-yjs-cursor");
+    cursor.setAttribute("style", `border-color: ${user.color}`);
+    const userDiv = document.createElement("div");
+    userDiv.setAttribute("style", `background-color: ${user.color}`);
+    userDiv.insertBefore(document.createTextNode(user.name), null);
+    const nonbreakingSpace1 = document.createTextNode("\u2060");
+    const nonbreakingSpace2 = document.createTextNode("\u2060");
+    cursor.insertBefore(nonbreakingSpace1, null);
+    cursor.insertBefore(userDiv, null);
+    cursor.insertBefore(nonbreakingSpace2, null);
+    return cursor;
+  };
+  var defaultSelectionBuilder = (user) => {
+    return {
+      style: `background-color: ${user.color}70`,
+      class: "ProseMirror-yjs-selection"
+    };
+  };
+  var getMappableSyncState = (state) => {
+    const ystate = ySyncPluginKey.getState(state);
+    return (ystate === null || ystate === void 0 ? void 0 : ystate.binding) && ystate.binding.invalidContentError === null ? ystate : null;
+  };
+  var rxValidColor = /^#[0-9a-fA-F]{6}$/;
+  var hasCursorUser = (user) => typeof user.name === "string" && typeof user.color === "string";
+  var createDecorations = (state, awareness, awarenessFilter, createCursor, createSelection) => {
+    const ystate = getMappableSyncState(state);
+    if (ystate == null || ystate.doc == null) return DecorationSet.create(state.doc, []);
+    const y = ystate.doc;
+    const decorations = [];
+    if (ystate.snapshot != null || ystate.prevSnapshot != null || ystate.binding.mapping.size === 0) return DecorationSet.create(state.doc, []);
+    awareness.getStates().forEach((aw, clientId) => {
+      if (!awarenessFilter(y.clientID, clientId, aw)) return;
+      if (aw && aw.cursor != null) {
+        const user = { ...aw.user };
+        if (user.color == null) user.color = "#ffa500";
+        else if (!rxValidColor.test(user.color)) console.warn("A user uses an unsupported color format", user);
+        if (user.name == null) user.name = `User: ${clientId}`;
+        if (!hasCursorUser(user)) return;
+        let anchor = relativePositionToAbsolutePosition(y, ystate.type, createRelativePositionFromJSON(aw.cursor.anchor), ystate.binding.mapping);
+        let head = relativePositionToAbsolutePosition(y, ystate.type, createRelativePositionFromJSON(aw.cursor.head), ystate.binding.mapping);
+        if (anchor !== null && head !== null) {
+          const maxsize = max(state.doc.content.size - 1, 0);
+          anchor = min(anchor, maxsize);
+          head = min(head, maxsize);
+          decorations.push(Decoration.widget(head, () => createCursor(user, clientId), {
+            key: clientId + "",
+            side: 10
+          }));
+          const from3 = min(anchor, head);
+          const to = max(anchor, head);
+          decorations.push(Decoration.inline(from3, to, createSelection(user, clientId), {
+            inclusiveEnd: true,
+            inclusiveStart: false
+          }));
+        }
+      }
+    });
+    return DecorationSet.create(state.doc, decorations);
+  };
+  var isSameSelection = (cursor, selection) => cursor != null && compareRelativePositions(createRelativePositionFromJSON(cursor.anchor), createRelativePositionFromJSON(selection.anchor)) && compareRelativePositions(createRelativePositionFromJSON(cursor.head), createRelativePositionFromJSON(selection.head));
+  var yCursorPlugin = (awareness, { awarenessStateFilter = defaultAwarenessStateFilter, cursorBuilder = defaultCursorBuilder, selectionBuilder = defaultSelectionBuilder, getSelection: getSelection2 = (state) => state.selection } = {}, cursorStateField = "cursor") => {
+    if (cursorStateField === "lastSelection") throw new Error('yCursorPlugin: "lastSelection" is reserved and cannot be the cursor field');
+    return new Plugin({
+      key: yCursorPluginKey,
+      state: {
+        init(_, state) {
+          return createDecorations(state, awareness, awarenessStateFilter, cursorBuilder, selectionBuilder);
+        },
+        apply(tr2, prevState, oldState, newState) {
+          const ystate = ySyncPluginKey.getState(newState);
+          const yCursorState = tr2.getMeta(yCursorPluginKey);
+          const isRemoteChange = ystate && ystate.isChangeOrigin;
+          if (tr2.docChanged && !isRemoteChange && isStructuralTransaction(tr2, oldState.doc)) return DecorationSet.empty;
+          if (isRemoteChange || yCursorState && yCursorState.awarenessUpdated) return createDecorations(newState, awareness, awarenessStateFilter, cursorBuilder, selectionBuilder);
+          if (tr2.docChanged) return prevState.map(tr2.mapping, tr2.doc);
+          return prevState;
+        }
+      },
+      props: { decorations: (state) => {
+        var _yCursorPluginKey$get;
+        return (_yCursorPluginKey$get = yCursorPluginKey.getState(state)) !== null && _yCursorPluginKey$get !== void 0 ? _yCursorPluginKey$get : DecorationSet.empty;
+      } },
+      view: (view) => {
+        var _ySyncPluginKey$getSt;
+        const syncType = (_ySyncPluginKey$getSt = ySyncPluginKey.getState(view.state)) === null || _ySyncPluginKey$getSt === void 0 ? void 0 : _ySyncPluginKey$getSt.type;
+        const field = syncType && syncType._item === null ? findRootTypeKey(syncType) : void 0;
+        let publishedCursor = null;
+        let publishedEntry = null;
+        const awarenessListener = () => {
+          if (!view.isDestroyed) setMeta2(view, yCursorPluginKey, { awarenessUpdated: true });
+        };
+        const publish = (current, selection, focused, cursor) => {
+          if (field === void 0 || typeof awareness.setLocalState !== "function") {
+            if (cursor !== current[cursorStateField]) awareness.setLocalStateField(cursorStateField, cursor);
+            return;
+          }
+          publishedEntry = {
+            ...selection,
+            time: Date.now(),
+            focused
+          };
+          awareness.setLocalState({
+            ...current,
+            [cursorStateField]: cursor,
+            lastSelection: {
+              ...current.lastSelection,
+              [field]: publishedEntry
+            }
+          });
+        };
+        const releaseCursor = (current) => {
+          var _current$lastSelectio;
+          if (publishedCursor === null) return;
+          const cursor = current[cursorStateField];
+          const ownsCursor = cursor === publishedCursor;
+          if (field !== void 0 && ((_current$lastSelectio = current.lastSelection) === null || _current$lastSelectio === void 0 ? void 0 : _current$lastSelectio[field]) === publishedEntry) publish(current, publishedCursor, false, ownsCursor ? null : cursor);
+          else if (ownsCursor) awareness.setLocalStateField(cursorStateField, null);
+          publishedCursor = null;
+          publishedEntry = null;
+        };
+        const updateCursorInfo = (editorView) => {
+          const ystate = getMappableSyncState(editorView.state);
+          if (!ystate) {
+            const localState2 = awareness.getLocalState();
+            if (localState2 !== null) releaseCursor(localState2);
+            return;
+          }
+          const localState = awareness.getLocalState();
+          if (localState === null) return;
+          const current = localState || {};
+          if (!editorView.hasFocus()) {
+            releaseCursor(current);
+            return;
+          }
+          const selection = getSelection2(editorView.state);
+          const anchor = absolutePositionToRelativePosition(selection.anchor, ystate.type, ystate.binding.mapping);
+          const head = absolutePositionToRelativePosition(selection.head, ystate.type, ystate.binding.mapping);
+          const cursor = current[cursorStateField];
+          if (cursor === publishedCursor && isSameSelection(cursor, {
+            anchor,
+            head
+          })) return;
+          publishedCursor = {
+            anchor,
+            head
+          };
+          publish(current, publishedCursor, true, publishedCursor);
+        };
+        const onFocusChange = () => updateCursorInfo(view);
+        awareness.on("change", awarenessListener);
+        view.dom.addEventListener("focusin", onFocusChange);
+        view.dom.addEventListener("focusout", onFocusChange);
+        return {
+          update: updateCursorInfo,
+          destroy: () => {
+            view.dom.removeEventListener("focusin", onFocusChange);
+            view.dom.removeEventListener("focusout", onFocusChange);
+            awareness.off("change", awarenessListener);
+            if (publishedCursor === null) return;
+            const localState = awareness.getLocalState();
+            if (localState !== null) releaseCursor(localState);
+          }
+        };
+      }
+    });
+  };
+  function getSyncPluginState(state) {
+    const pluginState = ySyncPluginKey.getState(state);
+    if (!pluginState) throw new Error("The editor requires ySyncPlugin");
+    return pluginState;
+  }
+  var isVisible2 = (item, snapshot2) => {
+    var _snapshot$sv$get;
+    return snapshot2 === void 0 ? !item.deleted : snapshot2.sv.has(item.id.client) && ((_snapshot$sv$get = snapshot2.sv.get(item.id.client)) !== null && _snapshot$sv$get !== void 0 ? _snapshot$sv$get : 0) > item.id.clock && !isDeleted(snapshot2.ds, item.id);
+  };
+  var getUserColor = (colorMapping, colors, user) => {
+    if (!colorMapping.has(user)) {
+      if (colorMapping.size < colors.length) {
+        const usedColors = create2();
+        colorMapping.forEach((color2) => usedColors.add(color2));
+        colors = colors.filter((color2) => !usedColors.has(color2));
+      }
+      colorMapping.set(user, oneOf(colors));
+    }
+    const color = colorMapping.get(user);
+    if (!color) throw new Error("At least one snapshot color is required");
+    return color;
+  };
+  var attrsEqual = (a, b) => {
+    if (a === b) return true;
+    const aKeys = Object.keys(a);
+    return aKeys.length === Object.keys(b).length && aKeys.every((k) => a[k] === b[k]);
+  };
+  var hasDistinctiveAttrs = (node) => {
+    const specAttrs = node.type.spec.attrs || {};
+    return Object.keys(node.attrs).some((key2) => {
+      const spec = specAttrs[key2];
+      return spec == null || !Object.prototype.hasOwnProperty.call(spec, "default") || spec.default !== node.attrs[key2];
+    });
+  };
+  var findAbsolutePositionAfterStructuralChange = (oldDoc, newDoc, absPos) => {
+    let pos = 0;
+    let targetIdx = 0;
+    for (; targetIdx < oldDoc.childCount; targetIdx++) {
+      const child = oldDoc.child(targetIdx);
+      if (pos + child.nodeSize > absPos) break;
+      pos += child.nodeSize;
+    }
+    if (targetIdx >= oldDoc.childCount) return null;
+    const targetChild = oldDoc.child(targetIdx);
+    const $oldPos = oldDoc.resolve(absPos);
+    const place = (newBlockStart, newBlock) => {
+      if ($oldPos.depth === 0) {
+        const remapped = newBlockStart + (absPos - pos);
+        const contentStart = newBlockStart + 1;
+        const contentEnd = newBlockStart + newBlock.nodeSize - 1;
+        return Math.max(contentStart, Math.min(remapped, contentEnd));
+      }
+      if ($oldPos.depth > 1) {
+        const innerPosition = findAbsolutePositionAfterStructuralChange($oldPos.node(1), newBlock, $oldPos.pos - $oldPos.start(1));
+        return innerPosition === null ? null : newBlockStart + 1 + innerPosition;
+      }
+      if (!newBlock.isTextblock) return null;
+      return newBlockStart + 1 + Math.min($oldPos.parentOffset, newBlock.content.size);
+    };
+    const findByPredicate = (pred, requireUnique = false) => {
+      let occurrence = 0;
+      for (let i2 = 0; i2 <= targetIdx; i2++) if (pred(oldDoc.child(i2))) occurrence++;
+      let matchCount = 0;
+      let matchStart = -1;
+      let matchBlock = null;
+      let newPos = 0;
+      for (let i2 = 0; i2 < newDoc.childCount; i2++) {
+        const child = newDoc.child(i2);
+        if (pred(child)) {
+          matchCount++;
+          if (matchCount === occurrence) {
+            matchStart = newPos;
+            matchBlock = child;
+          }
+        }
+        newPos += child.nodeSize;
+      }
+      if (matchBlock === null || requireUnique && (occurrence !== 1 || matchCount !== 1)) return null;
+      return place(matchStart, matchBlock);
+    };
+    const sameTypeAndAttrs = (child) => child.type === targetChild.type && attrsEqual(child.attrs, targetChild.attrs);
+    const oldText = targetChild.textContent;
+    const byAll = findByPredicate((child) => sameTypeAndAttrs(child) && child.textContent === oldText);
+    if (byAll !== null) return byAll;
+    const byText = findByPredicate((child) => child.type === targetChild.type && child.textContent === oldText);
+    if (byText !== null) return byText;
+    if (!targetChild.isTextblock || hasDistinctiveAttrs(targetChild)) {
+      const byAttrs = findByPredicate(sameTypeAndAttrs, true);
+      if (byAttrs !== null) return byAttrs;
+    }
+    return findByPredicate((child) => sameTypeAndAttrs(child) && oldText !== "" && child.textContent !== "" && (oldText.startsWith(child.textContent) || child.textContent.startsWith(oldText)), true);
+  };
+  var isMisresolvedAfterStructuralChange = (oldDoc, newDoc, oldAbs, resolvedAbs) => {
+    if (resolvedAbs === null) return false;
+    const $old = oldDoc.resolve(oldAbs);
+    const $new = newDoc.resolve(resolvedAbs);
+    if (!$old.parent.isTextblock) return false;
+    if (!$new.parent.isTextblock) return true;
+    if ($old.parent.textContent !== $new.parent.textContent) return true;
+    if ($old.parentOffset !== 0 && $new.parentOffset === 0) return true;
+    const bothAtStart = $old.parentOffset === 0 && $new.parentOffset === 0;
+    const suspicious = $old.parentOffset !== $new.parentOffset || $old.parent.type !== $new.parent.type || !attrsEqual($old.parent.attrs, $new.parent.attrs);
+    if (bothAtStart || suspicious) {
+      const expected = findAbsolutePositionAfterStructuralChange(oldDoc, newDoc, oldAbs);
+      return expected !== null && expected !== resolvedAbs;
+    }
+    return false;
+  };
+  var recoverSelectionEndpoint = (newDoc, oldDoc, oldAbs, resolved) => {
+    if (oldAbs == null || oldAbs < 0 || oldAbs > oldDoc.content.size) return resolved;
+    if (!(resolved === null || oldAbs > 1 && resolved <= 1 || isMisresolvedAfterStructuralChange(oldDoc, newDoc, oldAbs, resolved))) return resolved;
+    const recovered = findAbsolutePositionAfterStructuralChange(oldDoc, newDoc, oldAbs);
+    return recovered !== null ? recovered : resolved;
+  };
+  var restoreRelativeSelection = (tr2, relSel, binding, oldDoc) => {
+    if (relSel !== null && relSel.anchor !== null && relSel.head !== null) {
+      if (relSel.type === "all") tr2.setSelection(new AllSelection(tr2.doc));
+      else if (relSel.type === "node") {
+        const anchor = relativePositionToAbsolutePosition(binding.doc, binding.type, relSel.anchor, binding.mapping);
+        if (anchor !== null) tr2.setSelection(createSafeNodeSelection(tr2, anchor));
+      } else if (relSel.type === "nodeRange") {
+        const anchor = relativePositionToAbsolutePosition(binding.doc, binding.type, relSel.anchor, binding.mapping);
+        const head = relativePositionToAbsolutePosition(binding.doc, binding.type, relSel.head, binding.mapping);
+        const selection = createSafeNodeRangeSelection(tr2, anchor, head, relSel.depth);
+        if (selection !== null) tr2.setSelection(selection);
+      } else {
+        let anchor = relativePositionToAbsolutePosition(binding.doc, binding.type, relSel.anchor, binding.mapping);
+        let head = relativePositionToAbsolutePosition(binding.doc, binding.type, relSel.head, binding.mapping);
+        if (oldDoc != null) {
+          anchor = recoverSelectionEndpoint(tr2.doc, oldDoc, relSel.absAnchor, anchor);
+          head = recoverSelectionEndpoint(tr2.doc, oldDoc, relSel.absHead, head);
+        }
+        if (anchor === null) anchor = head;
+        if (head === null) head = anchor;
+        if (anchor !== null && head !== null) tr2.setSelection(TextSelection.between(tr2.doc.resolve(anchor), tr2.doc.resolve(head)));
+      }
+    }
+  };
+  var createSafeNodeSelection = (tr2, pos) => {
+    const $pos = tr2.doc.resolve(pos);
+    if ($pos.nodeAfter) return NodeSelection.create(tr2.doc, pos);
+    else return TextSelection.near($pos);
+  };
+  var createSafeNodeRangeSelection = (tr2, anchor, head, depth) => {
+    if (anchor === null || head === null) return null;
+    const clampedAnchor = Math.min(Math.max(anchor, 0), tr2.doc.content.size);
+    const clampedHead = Math.min(Math.max(head, 0), tr2.doc.content.size);
+    try {
+      const selection = Selection.fromJSON(tr2.doc, {
+        type: "nodeRange",
+        anchor: clampedAnchor,
+        head: clampedHead,
+        depth
+      });
+      if (!selection.ranges.length) return TextSelection.near(tr2.doc.resolve(clampedAnchor));
+      return selection;
+    } catch {
+      return TextSelection.near(tr2.doc.resolve(clampedAnchor));
+    }
+  };
+  var getRelativeSelection = (pmbinding, state) => {
+    const selection = state.selection;
+    const json = selection.toJSON();
+    const type = typeof json.type === "string" ? json.type : "text";
+    return {
+      type,
+      depth: type === "nodeRange" && "depth" in selection && typeof selection.depth === "number" ? selection.depth : void 0,
+      anchor: absolutePositionToRelativePosition(state.selection.anchor, pmbinding.type, pmbinding.mapping),
+      head: absolutePositionToRelativePosition(state.selection.head, pmbinding.type, pmbinding.mapping),
+      absAnchor: state.selection.anchor,
+      absHead: state.selection.head
+    };
+  };
+  var projectedMappings = /* @__PURE__ */ new WeakMap();
+  var deleteMapping = (mapping, type) => {
+    var _projectedMappings$ge;
+    if (!(type instanceof YXmlFragment || type instanceof YText || type instanceof YXmlHook)) return;
+    mapping.delete(type);
+    (_projectedMappings$ge = projectedMappings.get(mapping)) === null || _projectedMappings$ge === void 0 || _projectedMappings$ge.delete(type);
+  };
+  var getContentSnapshot = (type, snapshot2, prevSnapshot) => {
+    if (snapshot2 === void 0 || prevSnapshot === void 0 || type._item === null) return snapshot2;
+    if (isVisible2(type._item, snapshot2)) return snapshot2;
+    return isVisible2(type._item, prevSnapshot) ? prevSnapshot : void 0;
+  };
+  var getRemovedTextDeltas = (text2, snapshot2, computeYChange) => {
+    const formatted = text2.toDelta(snapshot2);
+    if (formatted.some((delta) => typeof delta.insert !== "string")) return formatted;
+    const removed = text2.toDelta(emptySnapshot, snapshot2, computeYChange);
+    const deltas = [];
+    let removedIndex = 0;
+    let removedOffset = 0;
+    for (const delta of formatted) {
+      let offset = 0;
+      while (offset < delta.insert.length) {
+        var _removal$attributes$y, _removal$attributes;
+        const removal = removed[removedIndex];
+        const length2 = Math.min(delta.insert.length - offset, removal.insert.length - removedOffset);
+        deltas.push({
+          insert: delta.insert.slice(offset, offset + length2),
+          attributes: {
+            ...delta.attributes,
+            ychange: (_removal$attributes$y = (_removal$attributes = removal.attributes) === null || _removal$attributes === void 0 ? void 0 : _removal$attributes.ychange) !== null && _removal$attributes$y !== void 0 ? _removal$attributes$y : { type: "removed" }
+          }
+        });
+        offset += length2;
+        removedOffset += length2;
+        if (removedOffset === removal.insert.length) {
+          removedIndex += 1;
+          removedOffset = 0;
+        }
+      }
+    }
+    return deltas;
+  };
+  var hashedMarkNameRegex = /(.*)(--[a-zA-Z0-9+/=]{8})$/;
+  var yattr2markname = (attrName) => {
+    var _hashedMarkNameRegex$, _hashedMarkNameRegex$2;
+    return (_hashedMarkNameRegex$ = (_hashedMarkNameRegex$2 = hashedMarkNameRegex.exec(attrName)) === null || _hashedMarkNameRegex$2 === void 0 ? void 0 : _hashedMarkNameRegex$2[1]) !== null && _hashedMarkNameRegex$ !== void 0 ? _hashedMarkNameRegex$ : attrName;
+  };
+  var attributesToMarks = (attrs, schema) => {
+    const marks = [];
+    for (const markName in attrs) marks.push(schema.mark(yattr2markname(markName), attrs[markName]));
+    return marks;
+  };
+  var deleteYType = (type) => {
+    const doc4 = type.doc;
+    const item = type._item;
+    if (!doc4 || !item) throw unexpectedCase();
+    doc4.transact((transaction) => {
+      item.delete(transaction);
+    }, ySyncPluginKey);
+  };
+  var toError = (value) => value instanceof Error ? value : new Error(String(value));
+  var createTextNodesFromYText = (text2, schema, meta, snapshot2, prevSnapshot, computeYChange) => {
+    const contentSnapshot = getContentSnapshot(text2, snapshot2, prevSnapshot);
+    const deltas = contentSnapshot !== snapshot2 && contentSnapshot !== void 0 ? getRemovedTextDeltas(text2, contentSnapshot, computeYChange) : text2.toDelta(snapshot2, prevSnapshot, computeYChange);
+    try {
+      return deltas.map((delta) => {
+        if (typeof delta.insert !== "string") throw new Error("Cannot project a Yjs text embed");
+        return schema.text(delta.insert, attributesToMarks(delta.attributes, schema));
+      });
+    } catch (error) {
+      if (meta.reportInvalidContent) meta.reportInvalidContent(toError(error));
+      else deleteYType(text2);
+      return null;
+    }
+  };
+  var mergeNextYText = (text2) => {
+    var _text$_item;
+    const content = (_text$_item = text2._item) === null || _text$_item === void 0 || (_text$_item = _text$_item.right) === null || _text$_item === void 0 ? void 0 : _text$_item.content;
+    const nextText = content instanceof ContentType ? content.type : null;
+    if (!(nextText instanceof YText)) return;
+    const nextItem = nextText._item;
+    const nextDoc = nextText.doc;
+    if (!nextItem || !nextDoc || nextItem.deleted || nextItem.id.client !== nextDoc.clientID) return;
+    text2.applyDelta([{ retain: text2.length }, ...nextText.toDelta()]);
+    nextDoc.transact((transaction) => {
+      nextItem.delete(transaction);
+    });
+  };
+  var isAbsentFromSnapshots = (type, snapshot2, prevSnapshot) => snapshot2 !== void 0 && prevSnapshot !== void 0 && type._item !== null && !isVisible2(type._item, snapshot2) && !isVisible2(type._item, prevSnapshot);
+  var getSnapshotChildren = (el, snapshot2, prevSnapshot, contentSnapshot) => {
+    if (snapshot2 === void 0 || prevSnapshot === void 0) return el.toArray();
+    if (contentSnapshot !== snapshot2) return contentSnapshot === void 0 ? el.toArray() : typeListToArraySnapshot(el, contentSnapshot);
+    return typeListToArraySnapshot(el, new Snapshot(prevSnapshot.ds, snapshot2.sv));
+  };
+  var getYChange = (el, snapshot2, prevSnapshot, computeYChange) => {
+    if (!el._item) return void 0;
+    if (!isVisible2(el._item, snapshot2)) return computeYChange ? computeYChange("removed", el._item.id) : { type: "removed" };
+    if (!isVisible2(el._item, prevSnapshot)) return computeYChange ? computeYChange("added", el._item.id) : { type: "added" };
+  };
+  var setProjectedNode = (meta, el, node) => {
+    meta.mapping.set(el, node);
+    let projectedNodes = projectedMappings.get(meta.mapping);
+    if (projectedNodes === void 0) {
+      projectedNodes = /* @__PURE__ */ new WeakMap();
+      projectedMappings.set(meta.mapping, projectedNodes);
+    }
+    projectedNodes.set(el, node);
+  };
+  var createNodeFromYElement = (el, schema, meta, snapshot2, prevSnapshot, computeYChange) => {
+    var _projectedMappings$ge;
+    const cachedNode = meta.mapping.get(el);
+    const cachedSingleNode = Array.isArray(cachedNode) ? void 0 : cachedNode;
+    if (cachedSingleNode !== void 0 && ((_projectedMappings$ge = projectedMappings.get(meta.mapping)) === null || _projectedMappings$ge === void 0 ? void 0 : _projectedMappings$ge.get(el)) === cachedSingleNode) return cachedSingleNode;
+    const contentSnapshot = getContentSnapshot(el, snapshot2, prevSnapshot);
+    const children = [];
+    let hasSkippedChild = false;
+    const createChildren = (type) => {
+      if (isAbsentFromSnapshots(type, snapshot2, prevSnapshot)) return;
+      if (type instanceof YXmlElement) {
+        const node = createNodeFromYElement(type, schema, meta, snapshot2, prevSnapshot, computeYChange);
+        if (node === null || meta.mapping.get(type) !== node) hasSkippedChild = true;
+        if (node !== null) children.push(node);
+        return;
+      }
+      if (!(type instanceof YXmlText)) return;
+      if (meta.deferTextMerge) meta.deferTextMerge(type);
+      else mergeNextYText(type);
+      const textNodes = createTextNodesFromYText(type, schema, meta, snapshot2, prevSnapshot, computeYChange);
+      if (textNodes === null) hasSkippedChild = true;
+      textNodes === null || textNodes === void 0 || textNodes.forEach((textNode) => children.push(textNode));
+    };
+    getSnapshotChildren(el, snapshot2, prevSnapshot, contentSnapshot).forEach(createChildren);
+    try {
+      const attrs = el.getAttributes(contentSnapshot);
+      const ychange = snapshot2 ? getYChange(el, snapshot2, prevSnapshot, computeYChange) : void 0;
+      if (ychange !== void 0) attrs.ychange = ychange;
+      let node = schema.node(el.nodeName, attrs, children);
+      if (cachedSingleNode === null || cachedSingleNode === void 0 ? void 0 : cachedSingleNode.eq(node)) node = cachedSingleNode;
+      if (hasSkippedChild && meta.reportInvalidContent) {
+        deleteMapping(meta.mapping, el);
+        return node;
+      }
+      setProjectedNode(meta, el, node);
+      return node;
+    } catch (error) {
+      deleteMapping(meta.mapping, el);
+      if (meta.reportInvalidContent) {
+        meta.reportInvalidContent(toError(error));
+        return null;
+      }
+      deleteYType(el);
+      return null;
+    }
+  };
+  var foldDigest = (digest2) => {
+    const hashBytes = 6;
+    for (let i2 = hashBytes; i2 < digest2.length; i2++) digest2[i2 % hashBytes] = digest2[i2 % hashBytes] ^ digest2[i2];
+    return digest2.slice(0, hashBytes);
+  };
+  var hashOfJSON = (json) => toBase64(foldDigest(digest(encodeAny(json))));
+  var marksToAttributes = (marks, meta) => {
+    const pattrs = {};
+    marks.forEach((mark) => {
+      if (mark.type.name !== "ychange") {
+        const isOverlapping = setIfUndefined(meta.isOMark, mark.type, () => !mark.type.excludes(mark.type));
+        pattrs[isOverlapping ? `${mark.type.name}--${hashOfJSON(mark.toJSON())}` : mark.type.name] = mark.attrs;
+      }
+    });
+    return pattrs;
+  };
+  var createTypeFromTextNodes = (nodes, meta) => {
+    const type = new YXmlText();
+    const delta = nodes.map((node) => {
+      var _node$text;
+      return {
+        insert: (_node$text = node.text) !== null && _node$text !== void 0 ? _node$text : "",
+        attributes: marksToAttributes(node.marks, meta)
+      };
+    });
+    type.applyDelta(delta);
+    meta.mapping.set(type, nodes);
+    return type;
+  };
+  var normalizePNodeContent = (pnode) => {
+    const c = pnode.content.content;
+    const res = [];
+    for (let i2 = 0; i2 < c.length; i2++) {
+      const n = c[i2];
+      if (n.isText) {
+        const textNodes = [];
+        for (let tnode = c[i2]; i2 < c.length && tnode.isText; tnode = c[++i2]) textNodes.push(tnode);
+        i2--;
+        res.push(textNodes);
+      } else res.push(n);
+    }
+    return res;
+  };
+  var createTypeFromTextOrElementNode = (node, meta) => node instanceof Array ? createTypeFromTextNodes(node, meta) : createTypeFromElementNode(node, meta);
+  var createTypeFromElementNode = (node, meta) => {
+    const type = new YXmlElement(node.type.name);
+    for (const key2 in node.attrs) {
+      const val = node.attrs[key2];
+      if (val !== null && key2 !== "ychange") type.setAttribute(key2, val);
+    }
+    type.insert(0, normalizePNodeContent(node).map((n) => createTypeFromTextOrElementNode(n, meta)));
+    meta.mapping.set(type, node);
+    return type;
+  };
+  var isObject2 = (val) => typeof val === "object" && val !== null;
+  var equalAttrs2 = (pattrs, yattrs) => {
+    const keys3 = Object.keys(pattrs).filter((key2) => pattrs[key2] !== null);
+    let eq = keys3.length === Object.keys(yattrs).filter((key2) => yattrs[key2] !== null).length;
+    for (let i2 = 0; i2 < keys3.length && eq; i2++) {
+      const key2 = keys3[i2];
+      const l = pattrs[key2];
+      const r = yattrs[key2];
+      eq = key2 === "ychange" || l === r || isObject2(l) && isObject2(r) && equalAttrs2(l, r);
+    }
+    return eq;
+  };
+  var equalYTextPText = (ytext, ptexts) => {
+    const delta = ytext.toDelta();
+    return delta.length === ptexts.length && delta.every((d, i2) => {
+      var _d$attributes;
+      return d.insert === ptexts[i2].text && keys2(d.attributes || {}).length === ptexts[i2].marks.length && Object.entries((_d$attributes = d.attributes) !== null && _d$attributes !== void 0 ? _d$attributes : {}).every(([yattrname, attr]) => {
+        const markname = yattr2markname(yattrname);
+        const pmark = ptexts[i2].marks.find((mark) => mark.type.name === markname);
+        if (!pmark) return false;
+        return equalAttrs2(attr, pmark.attrs);
+      });
+    });
+  };
+  var mappedIdentity = (mapped, pcontent) => mapped === pcontent || mapped instanceof Array && pcontent instanceof Array && mapped.length === pcontent.length && mapped.every((a, i2) => pcontent[i2] === a);
+  var matchNodeName = (yElement, pNode) => !(pNode instanceof Array) && yElement.nodeName === pNode.type.name;
+  var equalYTypePNode = (ytype, pnode, mapping) => {
+    if (ytype instanceof YXmlElement && !(pnode instanceof Array) && matchNodeName(ytype, pnode)) {
+      const normalizedContent = normalizePNodeContent(pnode);
+      return ytype._length === normalizedContent.length && equalAttrs2(ytype.getAttributes(), pnode.attrs) && ytype.toArray().every((ychild, index) => mappedIdentity(mapping === null || mapping === void 0 ? void 0 : mapping.get(ychild), normalizedContent[index]) || equalYTypePNode(ychild, normalizedContent[index], mapping));
+    }
+    return ytype instanceof YXmlText && pnode instanceof Array && equalYTextPText(ytype, pnode);
+  };
+  var findMappedChildAnchors = (yChildren, pChildren, meta) => {
+    const pChildIndices = /* @__PURE__ */ new Map();
+    pChildren.forEach((pChild, index) => {
+      if (!pChildIndices.has(pChild)) pChildIndices.set(pChild, index);
+    });
+    const candidates = [];
+    yChildren.forEach((yChild, yIndex) => {
+      const mapped = meta.mapping.get(yChild);
+      const pIndex = mapped === void 0 ? void 0 : pChildIndices.get(mapped);
+      if (pIndex !== void 0 && mappedIdentity(mapped, pChildren[pIndex])) candidates.push({
+        yIndex,
+        pIndex,
+        yChild
+      });
+    });
+    if (candidates.length === 0) return [];
+    const predecessors = [];
+    const tails = [];
+    for (let index = 0; index < candidates.length; index++) {
+      let low = 0;
+      let high = tails.length;
+      while (low < high) {
+        const middle = low + high >> 1;
+        if (candidates[tails[middle]].pIndex < candidates[index].pIndex) low = middle + 1;
+        else high = middle;
+      }
+      predecessors[index] = low > 0 ? tails[low - 1] : -1;
+      tails[low] = index;
+    }
+    const anchors = [];
+    for (let index = tails[tails.length - 1]; index !== -1; index = predecessors[index]) anchors.push(candidates[index]);
+    return anchors.reverse();
+  };
+  var ytextTrans = (ytext) => {
+    let str = "";
+    let n = ytext._start;
+    const nAttrs = {};
+    while (n !== null) {
+      if (!n.deleted) {
+        if (n.countable && n.content instanceof ContentString) str += n.content.str;
+        else if (n.content instanceof ContentFormat) nAttrs[n.content.key] = null;
+      }
+      n = n.right;
+    }
+    return {
+      str,
+      nAttrs
+    };
+  };
+  var updateYText = (ytext, ptexts, meta) => {
+    meta.mapping.set(ytext, ptexts);
+    const { nAttrs, str } = ytextTrans(ytext);
+    const content = ptexts.map((p) => {
+      var _p$text;
+      return {
+        insert: (_p$text = p.text) !== null && _p$text !== void 0 ? _p$text : "",
+        attributes: Object.assign({}, nAttrs, marksToAttributes(p.marks, meta))
+      };
+    });
+    const { insert, remove, index } = simpleDiff(str, content.map((c) => c.insert).join(""));
+    ytext.delete(index, remove);
+    ytext.insert(index, insert);
+    ytext.applyDelta(content.map((c) => ({
+      retain: c.insert.length,
+      attributes: c.attributes
+    })));
+  };
+  var updateMatchingYChild = (y, yChild, pChild, meta, updateFragment) => {
+    if (yChild instanceof YXmlText && pChild instanceof Array) {
+      if (equalYTextPText(yChild, pChild)) meta.mapping.set(yChild, pChild);
+      else updateYText(yChild, pChild, meta);
+      return true;
+    }
+    if (yChild instanceof YXmlElement && !(pChild instanceof Array) && matchNodeName(yChild, pChild)) {
+      if (equalYTypePNode(yChild, pChild, meta.mapping)) meta.mapping.set(yChild, pChild);
+      else updateFragment(y, yChild, pChild, meta);
+      return true;
+    }
+    return false;
+  };
+  var deleteYChildren = (yDomFragment, index, length2, meta) => {
+    if (length2 > 0) {
+      yDomFragment.slice(index, index + length2).forEach((type) => deleteMapping(meta.mapping, type));
+      yDomFragment.delete(index, length2);
+    }
+  };
+  var insertPChildren = (yDomFragment, index, pChildren, start, end, meta) => {
+    if (start < end) {
+      const children = [];
+      for (let childIndex = start; childIndex < end; childIndex++) children.push(createTypeFromTextOrElementNode(pChildren[childIndex], meta));
+      yDomFragment.insert(index, children);
+    }
+  };
+  var reconcileUnanchoredChildren = (y, yDomFragment, pChildren, yChildren, yStart, yEnd, pStart, pEnd, meta, updateFragment) => {
+    const matchingChildren = min(yEnd - yStart, pEnd - pStart);
+    for (let index = 0; index < matchingChildren; index++) {
+      const yChild = yChildren[yStart + index];
+      const pChild = pChildren[pStart + index];
+      if (!updateMatchingYChild(y, yChild, pChild, meta, updateFragment)) {
+        deleteYChildren(yDomFragment, pStart + index, 1, meta);
+        insertPChildren(yDomFragment, pStart + index, pChildren, pStart + index, pStart + index + 1, meta);
+      }
+    }
+    deleteYChildren(yDomFragment, pStart + matchingChildren, yEnd - yStart - matchingChildren, meta);
+    insertPChildren(yDomFragment, pStart + matchingChildren, pChildren, pStart + matchingChildren, pEnd, meta);
+  };
+  var reconcileMappedChildren = (y, yDomFragment, pChildren, yChildren, meta, updateFragment) => {
+    const anchors = findMappedChildAnchors(yChildren, pChildren, meta);
+    if (anchors.length < 2 || !anchors.some((anchor) => anchor.yIndex !== anchor.pIndex) || anchors.some((anchor) => {
+      const pChild = pChildren[anchor.pIndex];
+      return !(anchor.yChild instanceof YXmlText && pChild instanceof Array || anchor.yChild instanceof YXmlElement && !(pChild instanceof Array));
+    })) return false;
+    let yIndex = 0;
+    let pIndex = 0;
+    for (const anchor of anchors) {
+      reconcileUnanchoredChildren(y, yDomFragment, pChildren, yChildren, yIndex, anchor.yIndex, pIndex, anchor.pIndex, meta, updateFragment);
+      const pChild = pChildren[anchor.pIndex];
+      updateMatchingYChild(y, anchor.yChild, pChild, meta, updateFragment);
+      yIndex = anchor.yIndex + 1;
+      pIndex = anchor.pIndex + 1;
+    }
+    reconcileUnanchoredChildren(y, yDomFragment, pChildren, yChildren, yIndex, yChildren.length, pIndex, pChildren.length, meta, updateFragment);
+    return true;
+  };
+  var computeChildEqualityFactor = (ytype, pnode, meta) => {
+    const yChildren = ytype.toArray();
+    const pChildren = normalizePNodeContent(pnode);
+    const pChildCnt = pChildren.length;
+    const yChildCnt = yChildren.length;
+    const minCnt = min(yChildCnt, pChildCnt);
+    let left = 0;
+    let right = 0;
+    let foundMappedChild = false;
+    for (; left < minCnt; left++) {
+      const leftY = yChildren[left];
+      const leftP = pChildren[left];
+      if (mappedIdentity(meta.mapping.get(leftY), leftP)) foundMappedChild = true;
+      else if (!equalYTypePNode(leftY, leftP, meta.mapping)) break;
+    }
+    for (; left + right < minCnt; right++) {
+      const rightY = yChildren[yChildCnt - right - 1];
+      const rightP = pChildren[pChildCnt - right - 1];
+      if (mappedIdentity(meta.mapping.get(rightY), rightP)) foundMappedChild = true;
+      else if (!equalYTypePNode(rightY, rightP, meta.mapping)) break;
+    }
+    return {
+      equalityFactor: left + right,
+      foundMappedChild
+    };
+  };
+  var updateYFragment = (y, yDomFragment, pNode, meta) => {
+    if (yDomFragment instanceof YXmlElement && yDomFragment.nodeName !== pNode.type.name) throw new Error("node name mismatch!");
+    meta.mapping.set(yDomFragment, pNode);
+    if (yDomFragment instanceof YXmlElement) {
+      const yDomAttrs = yDomFragment.getAttributes();
+      const pAttrs = pNode.attrs;
+      for (const key2 in pAttrs) {
+        if (pAttrs[key2] === null) {
+          yDomFragment.removeAttribute(key2);
+          continue;
+        }
+        if (yDomAttrs[key2] !== pAttrs[key2] && key2 !== "ychange") yDomFragment.setAttribute(key2, pAttrs[key2]);
+      }
+      for (const key2 in yDomAttrs) if (pAttrs[key2] === void 0) yDomFragment.removeAttribute(key2);
+    }
+    const pChildren = normalizePNodeContent(pNode);
+    const pChildCnt = pChildren.length;
+    const yChildren = yDomFragment.toArray();
+    const yChildCnt = yChildren.length;
+    const minCnt = min(pChildCnt, yChildCnt);
+    let reconciled = false;
+    y.transact(() => {
+      reconciled = reconcileMappedChildren(y, yDomFragment, pChildren, yChildren, meta, updateYFragment);
+    }, ySyncPluginKey);
+    if (reconciled) return;
+    let left = 0;
+    let right = 0;
+    for (; left < minCnt; left++) {
+      const leftY = yChildren[left];
+      const leftP = pChildren[left];
+      if (mappedIdentity(meta.mapping.get(leftY), leftP)) continue;
+      if (!equalYTypePNode(leftY, leftP, meta.mapping)) break;
+      meta.mapping.set(leftY, leftP);
+    }
+    for (; right + left + 1 < minCnt; right++) {
+      const rightY = yChildren[yChildCnt - right - 1];
+      const rightP = pChildren[pChildCnt - right - 1];
+      if (mappedIdentity(meta.mapping.get(rightY), rightP)) continue;
+      if (!equalYTypePNode(rightY, rightP, meta.mapping)) break;
+      meta.mapping.set(rightY, rightP);
+    }
+    y.transact(() => {
+      while (yChildCnt - left - right > 0 && pChildCnt - left - right > 0) {
+        const leftY = yChildren[left];
+        const leftP = pChildren[left];
+        const rightY = yChildren[yChildCnt - right - 1];
+        const rightP = pChildren[pChildCnt - right - 1];
+        if (leftY instanceof YXmlText && leftP instanceof Array) {
+          if (!equalYTextPText(leftY, leftP)) updateYText(leftY, leftP, meta);
+          left += 1;
+          continue;
+        }
+        let updateLeft = leftY instanceof YXmlElement && matchNodeName(leftY, leftP);
+        let updateRight = rightY instanceof YXmlElement && matchNodeName(rightY, rightP);
+        if (updateLeft && updateRight && leftY instanceof YXmlElement && rightY instanceof YXmlElement && !Array.isArray(leftP) && !Array.isArray(rightP)) {
+          const equalityLeft = computeChildEqualityFactor(leftY, leftP, meta);
+          const equalityRight = computeChildEqualityFactor(rightY, rightP, meta);
+          if (equalityLeft.foundMappedChild && !equalityRight.foundMappedChild) updateRight = false;
+          else if (!equalityLeft.foundMappedChild && equalityRight.foundMappedChild) updateLeft = false;
+          else if (equalityLeft.equalityFactor < equalityRight.equalityFactor) updateLeft = false;
+          else updateRight = false;
+        }
+        if (updateLeft && leftY instanceof YXmlElement && !Array.isArray(leftP)) {
+          updateYFragment(y, leftY, leftP, meta);
+          left += 1;
+          continue;
+        }
+        if (updateRight && rightY instanceof YXmlElement && !Array.isArray(rightP)) {
+          updateYFragment(y, rightY, rightP, meta);
+          right += 1;
+          continue;
+        }
+        deleteMapping(meta.mapping, yDomFragment.get(left));
+        yDomFragment.delete(left, 1);
+        yDomFragment.insert(left, [createTypeFromTextOrElementNode(leftP, meta)]);
+        left += 1;
+      }
+      const yDelLen = yChildCnt - left - right;
+      if (yChildCnt === 1 && pChildCnt === 0 && yChildren[0] instanceof YXmlText) {
+        deleteMapping(meta.mapping, yChildren[0]);
+        yChildren[0].delete(0, yChildren[0].length);
+      } else if (yDelLen > 0) {
+        yDomFragment.slice(left, left + yDelLen).forEach((type) => deleteMapping(meta.mapping, type));
+        yDomFragment.delete(left, yDelLen);
+      }
+      if (left + right >= pChildCnt) return;
+      const childrenToInsert = [];
+      for (let index = left; index < pChildCnt - right; index++) childrenToInsert.push(createTypeFromTextOrElementNode(pChildren[index], meta));
+      yDomFragment.insert(left, childrenToInsert);
+    }, ySyncPluginKey);
+  };
+  var replaceChangedChildren = (tr2, content) => {
+    var _step$apply$doc;
+    const oldContent = tr2.doc.content;
+    let start = 0;
+    let from3 = 0;
+    while (start < oldContent.childCount && start < content.childCount && oldContent.child(start) === content.child(start)) {
+      from3 += oldContent.child(start).nodeSize;
+      start++;
+    }
+    let oldEnd = oldContent.childCount;
+    let newEnd = content.childCount;
+    let suffixSize = 0;
+    while (oldEnd > start && newEnd > start && oldContent.child(oldEnd - 1) === content.child(newEnd - 1)) {
+      suffixSize += oldContent.child(oldEnd - 1).nodeSize;
+      oldEnd--;
+      newEnd--;
+    }
+    if (start === oldEnd && start === newEnd) return tr2;
+    const slice2 = new Slice(content.cut(from3, content.size - suffixSize), 0, 0);
+    const step = replaceStep(tr2.doc, from3, oldContent.size - suffixSize, slice2);
+    if (step !== null && ((_step$apply$doc = step.apply(tr2.doc).doc) === null || _step$apply$doc === void 0 ? void 0 : _step$apply$doc.content.eq(content))) return tr2.step(step);
+    return tr2.replace(0, oldContent.size, new Slice(content, 0, 0));
+  };
+  var ProsemirrorBinding = class {
+    constructor(yXmlFragment, mapping = /* @__PURE__ */ new Map(), onInvalidContent) {
+      this.prosemirrorView = null;
+      this.mux = createMutex();
+      this.isOMark = /* @__PURE__ */ new Map();
+      this.beforeTransactionSelection = null;
+      this._domSelectionInView = null;
+      this._invalidContentError = null;
+      this.projectionError = null;
+      this.hasSharedContent = false;
+      this.pendingTextMerges = [];
+      this.type = yXmlFragment;
+      this.mapping = mapping;
+      this._observeFunction = this._typeChanged.bind(this);
+      if (onInvalidContent) {
+        this.onInvalidContent = onInvalidContent;
+        this.reportInvalidContent = (error) => {
+          var _this$projectionError;
+          (_this$projectionError = this.projectionError) !== null && _this$projectionError !== void 0 || (this.projectionError = error);
+        };
+        this.deferTextMerge = (text2) => {
+          this.pendingTextMerges.push(text2);
+        };
+      }
+      if (yXmlFragment.doc === null) throw new Error("The Yjs fragment must belong to a document");
+      this.doc = yXmlFragment.doc;
+      this.beforeAllTransactions = () => {
+        if (this._invalidContentError === null && this.beforeTransactionSelection === null && this.prosemirrorView != null) this.beforeTransactionSelection = getRelativeSelection(this, this.view.state);
+      };
+      this.afterAllTransactions = () => {
+        this.beforeTransactionSelection = null;
+      };
+    }
+    /**
+    * Returns the schema error that pauses editing and shared writes.
+    * Only set when the binding keeps invalid content.
+    * @returns The error, or null when the shared content fits the editor schema.
+    */
+    get invalidContentError() {
+      return this._invalidContentError;
+    }
+    get view() {
+      if (!this.prosemirrorView) throw new Error("The binding has no editor view");
+      return this.prosemirrorView;
+    }
+    get _tr() {
+      return this.view.state.tr.setMeta("addToHistory", false);
+    }
+    _isLocalCursorInView() {
+      if (!this.view.hasFocus()) return false;
+      if (isBrowser && this._domSelectionInView === null) {
+        timeout(0, () => {
+          this._domSelectionInView = null;
+        });
+        this._domSelectionInView = this._isDomSelectionInView();
+      }
+      return this._domSelectionInView;
+    }
+    _isDomSelectionInView() {
+      const root = this.view.root;
+      const selection = "getSelection" in root && typeof root.getSelection === "function" ? root.getSelection() : this.view.dom.ownerDocument.getSelection();
+      if (selection == null || selection.anchorNode == null || selection.focusNode == null) return false;
+      const range = this.view.dom.ownerDocument.createRange();
+      range.setStart(selection.anchorNode, selection.anchorOffset);
+      range.setEnd(selection.focusNode, selection.focusOffset);
+      if (range.getClientRects().length === 0) {
+        if (range.startContainer && range.collapsed) range.selectNodeContents(range.startContainer);
+      }
+      const bounding = range.getBoundingClientRect();
+      const documentElement = doc3.documentElement;
+      return bounding.bottom >= 0 && bounding.right >= 0 && bounding.left <= (window.innerWidth || documentElement.clientWidth || 0) && bounding.top <= (window.innerHeight || documentElement.clientHeight || 0);
+    }
+    renderSnapshot(snapshot2, prevSnapshot) {
+      if (!prevSnapshot) prevSnapshot = createSnapshot(createDeleteSet(), /* @__PURE__ */ new Map());
+      this.view.dispatch(this._tr.setMeta(ySyncPluginKey, {
+        snapshot: snapshot2,
+        prevSnapshot
+      }));
+    }
+    createDocumentContent() {
+      this.projectionError = null;
+      this.pendingTextMerges = [];
+      const fragmentContent = this.type.toArray().map((type) => {
+        if (!(type instanceof YXmlElement)) throw methodUnimplemented();
+        return createNodeFromYElement(type, this.view.state.schema, this);
+      }).filter((node) => node !== null);
+      const content = Fragment.from(fragmentContent);
+      const { topNodeType } = this.view.state.schema;
+      this.hasSharedContent || (this.hasSharedContent = this.type.length > 0);
+      const isPlaceholder = content.childCount === 0 && !this.hasSharedContent;
+      if (this.reportInvalidContent && !isPlaceholder && !topNodeType.validContent(content)) this.reportInvalidContent(/* @__PURE__ */ new RangeError("Shared content does not fit the document schema"));
+      if (this.projectionError === null) this.pendingTextMerges.forEach(mergeNextYText);
+      return content;
+    }
+    /** Returns the projection error only when the content just stopped fitting the schema. */
+    updateInvalidContentError() {
+      const error = this.projectionError;
+      const isNewError = error !== null && this._invalidContentError === null;
+      this._invalidContentError = error;
+      return isNewError ? error : null;
+    }
+    notifyInvalidContent(error) {
+      var _this$onInvalidConten;
+      if (error) (_this$onInvalidConten = this.onInvalidContent) === null || _this$onInvalidConten === void 0 || _this$onInvalidConten.call(this, error);
+    }
+    createDocumentTransaction() {
+      const content = this.createDocumentContent();
+      return this._tr.replace(0, this.view.state.doc.content.size, new Slice(content, 0, 0));
+    }
+    unrenderSnapshot() {
+      this.mapping.clear();
+      projectedMappings.delete(this.mapping);
+      let newError = null;
+      this.mux(() => {
+        const tr2 = this.createDocumentTransaction();
+        newError = this.updateInvalidContentError();
+        tr2.setMeta(ySyncPluginKey, {
+          snapshot: null,
+          prevSnapshot: null
+        });
+        this.view.dispatch(tr2);
+      });
+      this.notifyInvalidContent(newError);
+    }
+    _forceRerender() {
+      this.mapping.clear();
+      projectedMappings.delete(this.mapping);
+      let newError = null;
+      this.mux(() => {
+        const sel = this.beforeTransactionSelection !== null ? null : this.view.state.selection;
+        const tr2 = this.createDocumentTransaction();
+        newError = this.updateInvalidContentError();
+        if (sel) {
+          const clampedAnchor = min(max(sel.anchor, 0), tr2.doc.content.size);
+          const clampedHead = min(max(sel.head, 0), tr2.doc.content.size);
+          tr2.setSelection(TextSelection.create(tr2.doc, clampedAnchor, clampedHead));
+        }
+        this.view.dispatch(tr2.setMeta(ySyncPluginKey, {
+          isChangeOrigin: true,
+          binding: this
+        }));
+      });
+      this.notifyInvalidContent(newError);
+    }
+    _renderSnapshot(snapshot2, prevSnapshot, pluginState) {
+      var _prevSnapshot;
+      let historyDoc = this.doc;
+      let historyType = this.type;
+      if (!snapshot2) snapshot2 = snapshot(this.doc);
+      if (snapshot2 instanceof Uint8Array || prevSnapshot instanceof Uint8Array) {
+        if (!(snapshot2 instanceof Uint8Array) || !(prevSnapshot instanceof Uint8Array)) throw unexpectedCase();
+        historyDoc = new Doc({ gc: false });
+        applyUpdateV2(historyDoc, prevSnapshot);
+        prevSnapshot = snapshot(historyDoc);
+        applyUpdateV2(historyDoc, snapshot2);
+        snapshot2 = snapshot(historyDoc);
+        if (historyType._item === null) {
+          const rootKey = Array.from(this.doc.share.keys()).find((key2) => Object.is(this.doc.share.get(key2), historyType));
+          historyType = historyDoc.getXmlFragment(rootKey);
+        } else {
+          var _historyDoc$store$cli;
+          const historyStructs = (_historyDoc$store$cli = historyDoc.store.clients.get(historyType._item.id.client)) !== null && _historyDoc$store$cli !== void 0 ? _historyDoc$store$cli : [];
+          const item = historyStructs[findIndexSS(historyStructs, historyType._item.id.clock)];
+          if (!(item instanceof Item2 && item.content instanceof ContentType && item.content.type instanceof YXmlFragment)) throw unexpectedCase();
+          historyType = item.content.type;
+        }
+      }
+      const currentSnapshot = snapshot2;
+      const previousSnapshot = (_prevSnapshot = prevSnapshot) !== null && _prevSnapshot !== void 0 ? _prevSnapshot : emptySnapshot;
+      this.mapping.clear();
+      projectedMappings.delete(this.mapping);
+      this.mux(() => {
+        historyDoc.transact((transaction) => {
+          const pud = pluginState.permanentUserData;
+          if (pud) pud.dss.forEach((ds) => {
+            iterateDeletedStructs(transaction, ds, (_item) => {
+            });
+          });
+          const computeYChange = (type, id2) => {
+            const user = pud ? type === "added" ? pud.getUserByClientId(id2.client) : pud.getUserByDeletedId(id2) : null;
+            return {
+              user,
+              type,
+              color: getUserColor(pluginState.colorMapping, pluginState.colors, user)
+            };
+          };
+          const fragmentContent = typeListToArraySnapshot(historyType, new Snapshot(previousSnapshot.ds, currentSnapshot.sv)).map((t) => {
+            if (!(t instanceof YXmlElement) || !t._item) return null;
+            if (!t._item.deleted || isVisible2(t._item, currentSnapshot) || isVisible2(t._item, previousSnapshot)) return createNodeFromYElement(t, this.view.state.schema, {
+              mapping: /* @__PURE__ */ new Map(),
+              isOMark: /* @__PURE__ */ new Map(),
+              reportInvalidContent: this.reportInvalidContent ? () => {
+              } : void 0,
+              deferTextMerge: this.reportInvalidContent ? () => {
+              } : void 0
+            }, currentSnapshot, previousSnapshot, computeYChange);
+            else return null;
+          }).filter((n) => n !== null);
+          const tr2 = this._tr.replace(0, this.view.state.doc.content.size, new Slice(Fragment.from(fragmentContent), 0, 0));
+          this.view.dispatch(tr2.setMeta(ySyncPluginKey, { isChangeOrigin: true }));
+        }, ySyncPluginKey);
+      });
+    }
+    _typeChanged(events, transaction) {
+      var _transaction$origin$c;
+      if (this.prosemirrorView == null) return;
+      const syncState = getSyncPluginState(this.view.state);
+      if (events.length === 0 || syncState.snapshot != null || syncState.prevSnapshot != null) {
+        this.renderSnapshot(syncState.snapshot, syncState.prevSnapshot);
+        return;
+      }
+      const isUndoRedoOperation = transaction.origin instanceof UndoManager;
+      const undoSelection = isUndoRedoOperation ? (_transaction$origin$c = transaction.origin.currStackItem) === null || _transaction$origin$c === void 0 ? void 0 : _transaction$origin$c.meta.get(this) : void 0;
+      const selection = undoSelection || this.beforeTransactionSelection;
+      const oldDoc = undoSelection ? void 0 : this.view.state.doc;
+      let newError = null;
+      this.mux(() => {
+        const delType = (_, type) => deleteMapping(this.mapping, type);
+        iterateDeletedStructs(transaction, transaction.deleteSet, (struct) => {
+          if (struct instanceof Item2 && struct.content instanceof ContentType) deleteMapping(this.mapping, struct.content.type);
+        });
+        transaction.changed.forEach(delType);
+        transaction.changedParentTypes.forEach(delType);
+        let tr2 = replaceChangedChildren(this._tr, this.createDocumentContent());
+        newError = this.updateInvalidContentError();
+        if (this._invalidContentError === null) restoreRelativeSelection(tr2, selection, this, oldDoc);
+        tr2 = tr2.setMeta(ySyncPluginKey, {
+          isChangeOrigin: true,
+          isUndoRedoOperation
+        });
+        if (this.beforeTransactionSelection !== null && this._isLocalCursorInView()) tr2.scrollIntoView();
+        this.view.dispatch(tr2);
+      });
+      this.notifyInvalidContent(newError);
+    }
+    _prosemirrorChanged(doc4) {
+      if (this._invalidContentError !== null) return;
+      const syncState = getSyncPluginState(this.view.state);
+      if (syncState.snapshot != null || syncState.prevSnapshot != null) return;
+      this.doc.transact(() => {
+        updateYFragment(this.doc, this.type, doc4, this);
+        this.hasSharedContent || (this.hasSharedContent = this.type.length > 0);
+        this.beforeTransactionSelection = getRelativeSelection(this, this.view.state);
+      }, ySyncPluginKey);
+    }
+    initView(prosemirrorView) {
+      if (this.prosemirrorView != null) this.destroy();
+      this.prosemirrorView = prosemirrorView;
+      this.doc.on("beforeAllTransactions", this.beforeAllTransactions);
+      this.doc.on("afterAllTransactions", this.afterAllTransactions);
+      this.type.observeDeep(this._observeFunction);
+    }
+    destroy() {
+      if (this.prosemirrorView == null) return;
+      this.prosemirrorView = null;
+      this.type.unobserveDeep(this._observeFunction);
+      this.doc.off("beforeAllTransactions", this.beforeAllTransactions);
+      this.doc.off("afterAllTransactions", this.afterAllTransactions);
+    }
+  };
+  var migrationPrefix = "__tiptap_position_migrations:";
+  var clearPositionMigrations = (document2, transaction) => {
+    const stores = [];
+    document2.share.forEach((type, name) => {
+      if (!name.startsWith(migrationPrefix) || transaction && !transaction.changed.has(type)) return;
+      const store = document2.getMap(name);
+      if (store.size > 0) stores.push(store);
+    });
+    if (stores.length === 0) return;
+    document2.transact((transaction2) => {
+      transaction2.meta.set("addToHistory", false);
+      stores.forEach((store) => store.clear());
+    }, clearPositionMigrations);
+  };
+  var defaultColors = [{
+    light: "#ecd44433",
+    dark: "#ecd444"
+  }];
+  var ySyncPlugin = (yXmlFragment, { colors = defaultColors, colorMapping = /* @__PURE__ */ new Map(), permanentUserData = null, onFirstRender = () => {
+  }, mapping, onInvalidContent } = {}) => {
+    let initialContentChanged = false;
+    const binding = new ProsemirrorBinding(yXmlFragment, mapping, onInvalidContent);
+    return new Plugin({
+      filterTransaction: (transaction) => binding.invalidContentError === null || !transaction.docChanged || transaction.getMeta(ySyncPluginKey) !== void 0,
+      props: { editable: (state) => {
+        const syncState = getSyncPluginState(state);
+        return binding.invalidContentError === null && syncState.snapshot == null && syncState.prevSnapshot == null;
+      } },
+      key: ySyncPluginKey,
+      state: {
+        init: (_initargs, _state) => {
+          return {
+            type: yXmlFragment,
+            doc: binding.doc,
+            binding,
+            snapshot: null,
+            prevSnapshot: null,
+            isChangeOrigin: false,
+            isUndoRedoOperation: false,
+            addToHistory: true,
+            colors,
+            colorMapping,
+            permanentUserData
+          };
+        },
+        apply: (tr2, pluginState) => {
+          const change = tr2.getMeta(ySyncPluginKey);
+          if (change !== void 0) pluginState = Object.assign({}, pluginState, change);
+          if (tr2.docChanged) pluginState.addToHistory = tr2.getMeta("addToHistory") !== false;
+          pluginState.isChangeOrigin = change !== void 0 && !!change.isChangeOrigin;
+          pluginState.isUndoRedoOperation = change !== void 0 && !!change.isChangeOrigin && !!change.isUndoRedoOperation;
+          if (binding.prosemirrorView === null || change === void 0 || change.snapshot == null && change.prevSnapshot == null) return pluginState;
+          timeout(0, () => {
+            if (binding.prosemirrorView == null) return;
+            if (change.restore == null) {
+              binding._renderSnapshot(change.snapshot, change.prevSnapshot, pluginState);
+              return;
+            }
+            if (binding.invalidContentError !== null) {
+              binding.unrenderSnapshot();
+              return;
+            }
+            binding._renderSnapshot(change.snapshot, change.snapshot, pluginState);
+            binding.mux(() => {
+              const activeView = binding.prosemirrorView;
+              if (!activeView) return;
+              activeView.dispatch(binding._tr.setMeta(ySyncPluginKey, {
+                restore: false,
+                snapshot: null,
+                prevSnapshot: null,
+                isChangeOrigin: true
+              }));
+              binding._prosemirrorChanged(activeView.state.doc);
+            });
+          });
+          return pluginState;
+        }
+      },
+      view: (view) => {
+        const clearMigrations = (transaction) => clearPositionMigrations(binding.doc, transaction);
+        clearPositionMigrations(binding.doc);
+        binding.doc.on("afterTransaction", clearMigrations);
+        binding.initView(view);
+        if (mapping == null) binding._forceRerender();
+        onFirstRender();
+        return {
+          update: () => {
+            const pluginState = getSyncPluginState(view.state);
+            if (pluginState.snapshot == null && pluginState.prevSnapshot == null) {
+              const emptyDocument = view.state.doc.type.createAndFill();
+              if (!emptyDocument) throw new Error("The schema cannot create an empty document");
+              if (initialContentChanged || view.state.doc.content.findDiffStart(emptyDocument.content) !== null) {
+                initialContentChanged = true;
+                if (pluginState.addToHistory === false && !pluginState.isChangeOrigin) {
+                  const yUndoPluginState = yUndoPluginKey.getState(view.state);
+                  const um = yUndoPluginState && yUndoPluginState.undoManager;
+                  if (um) um.stopCapturing();
+                }
+                binding.mux(() => {
+                  pluginState.doc.transact((tr2) => {
+                    tr2.meta.set("addToHistory", pluginState.addToHistory);
+                    binding._prosemirrorChanged(view.state.doc);
+                  }, ySyncPluginKey);
+                });
+              }
+            }
+          },
+          destroy: () => {
+            binding.doc.off("afterTransaction", clearMigrations);
+            binding.destroy();
+          }
+        };
+      }
+    });
+  };
+  function getUndoPluginState(state) {
+    const pluginState = yUndoPluginKey.getState(state);
+    if (!pluginState) throw new Error("The editor requires yUndoPlugin");
+    return pluginState;
+  }
+  var restoreHistory = (state, direction) => {
+    const syncState = getSyncPluginState(state);
+    if (syncState.binding.invalidContentError !== null || syncState.snapshot != null || syncState.prevSnapshot != null) return false;
+    const undoManager = getUndoPluginState(state).undoManager;
+    if (undoManager != null) {
+      undoManager[direction]();
+      return true;
+    }
+  };
+  var undo2 = (state) => restoreHistory(state, "undo");
+  var redo2 = (state) => restoreHistory(state, "redo");
+  var defaultProtectedNodes = /* @__PURE__ */ new Set(["paragraph"]);
+  var defaultDeleteFilter = (item, protectedNodes) => !(item instanceof Item2) || !(item.content instanceof ContentType) || !(item.content.type instanceof YText || item.content.type instanceof YXmlElement && protectedNodes.has(item.content.type.nodeName)) || item.content.type._length === 0;
+  var yUndoPlugin = ({ protectedNodes = defaultProtectedNodes, trackedOrigins = [], undoManager = null } = {}) => new Plugin({
+    key: yUndoPluginKey,
+    state: {
+      init: (_, state) => {
+        const syncState = getSyncPluginState(state);
+        const destroyListeners = /* @__PURE__ */ new Set();
+        let manager = undoManager;
+        if (!manager) {
+          var _syncState$doc$_obser;
+          const before = new Set(syncState.doc._observers.get("destroy"));
+          manager = new UndoManager(syncState.type, {
+            trackedOrigins: /* @__PURE__ */ new Set([ySyncPluginKey, ...trackedOrigins]),
+            deleteFilter: (item) => defaultDeleteFilter(item, protectedNodes),
+            captureTransaction: (transaction) => transaction.meta.get("addToHistory") !== false
+          });
+          ((_syncState$doc$_obser = syncState.doc._observers.get("destroy")) !== null && _syncState$doc$_obser !== void 0 ? _syncState$doc$_obser : /* @__PURE__ */ new Set()).forEach((listener) => {
+            if (!before.has(listener)) destroyListeners.add(listener);
+          });
+        }
+        return {
+          undoManager: manager,
+          prevSel: null,
+          hasUndoOps: manager.undoStack.length > 0,
+          hasRedoOps: manager.redoStack.length > 0,
+          destroyListeners
+        };
+      },
+      apply: (_, value, oldState, state) => {
+        const binding = getSyncPluginState(state).binding;
+        const canMapSelection = binding && binding.invalidContentError === null;
+        return {
+          ...value,
+          prevSel: canMapSelection ? getRelativeSelection(binding, oldState) : value.prevSel,
+          hasUndoOps: value.undoManager.undoStack.length > 0,
+          hasRedoOps: value.undoManager.redoStack.length > 0
+        };
+      }
+    },
+    view: (view) => {
+      const syncState = getSyncPluginState(view.state);
+      const { undoManager: manager, destroyListeners } = getUndoPluginState(view.state);
+      manager.on("stack-item-added", ({ stackItem }) => {
+        const binding = syncState.binding;
+        if (binding) {
+          const selection = manager.undoing || manager.redoing ? binding.beforeTransactionSelection : getUndoPluginState(view.state).prevSel;
+          stackItem.meta.set(binding, selection);
+        }
+      });
+      return { destroy: () => {
+        manager.destroy();
+        destroyListeners.forEach((listener) => manager.doc.off("destroy", listener));
+        destroyListeners.clear();
+      } };
+    }
+  });
+  function prosemirrorToYXmlFragment(doc4, xmlFragment) {
+    var _type$doc;
+    const type = xmlFragment || new YXmlFragment();
+    const ydoc = (_type$doc = type.doc) !== null && _type$doc !== void 0 ? _type$doc : { transact: (callback) => callback() };
+    updateYFragment(ydoc, type, doc4, {
+      mapping: /* @__PURE__ */ new Map(),
+      isOMark: /* @__PURE__ */ new Map()
+    });
+    return type;
+  }
+  function prosemirrorToYDoc(doc4, xmlFragment = "prosemirror") {
+    const ydoc = new Doc();
+    const type = ydoc.getXmlFragment(xmlFragment);
+    if (!type.doc) return ydoc;
+    prosemirrorToYXmlFragment(doc4, type);
+    return type.doc;
+  }
+  function prosemirrorJSONToYDoc(schema, state, xmlFragment = "prosemirror") {
+    return prosemirrorToYDoc(Node.fromJSON(schema, state), xmlFragment);
+  }
+  function yXmlFragmentToProsemirrorJSON(xmlFragment) {
+    const items = xmlFragment.toArray();
+    const serialize = (item) => {
+      let response;
+      if (item instanceof YXmlText) response = item.toDelta().map((d) => {
+        const text2 = {
+          type: "text",
+          text: d.insert
+        };
+        const attributes = d.attributes;
+        if (attributes) text2.marks = Object.keys(attributes).map((type_) => {
+          const attrs = attributes[type_];
+          const mark = { type: yattr2markname(type_) };
+          if (Object.keys(attrs).length) mark.attrs = attrs;
+          return mark;
+        });
+        return text2;
+      });
+      else if (item instanceof YXmlElement) {
+        response = { type: item.nodeName };
+        const attrs = item.getAttributes();
+        if (Object.keys(attrs).length) response.attrs = attrs;
+        const children = item.toArray();
+        if (children.length) response.content = children.map(serialize).flat();
+      } else unexpectedCase();
+      return response;
+    };
+    return {
+      type: "doc",
+      content: items.map(serialize)
+    };
+  }
+  function yDocToProsemirrorJSON(ydoc, xmlFragment = "prosemirror") {
+    return yXmlFragmentToProsemirrorJSON(ydoc.getXmlFragment(xmlFragment));
+  }
+
+  // node_modules/@tiptap/extension-collaboration/dist/index.js
+  function isChangeOrigin(transaction) {
+    return !!transaction.getMeta(ySyncPluginKey);
+  }
+  function getYAbsolutePosition(state, relativePos) {
+    if (relativePos === null) return 0;
+    const ystate = getSyncState(state);
+    return relativePositionToAbsolutePosition(ystate.doc, ystate.type, relativePos, ystate.binding.mapping) || 0;
+  }
+  function getYRelativePosition(state, absolutePos) {
+    const ystate = getSyncState(state);
+    return absolutePositionToRelativePosition(absolutePos, ystate.type, ystate.binding.mapping);
+  }
+  function getSyncState(state) {
+    const syncState = ySyncPluginKey.getState(state);
+    if (!syncState) throw new Error("Collaboration requires the Yjs sync plugin");
+    return syncState;
+  }
+  var CollaborationMappablePosition = class CollaborationMappablePosition2 extends MappablePosition {
+    constructor(position, yRelativePosition) {
+      super(position);
+      this.yRelativePosition = yRelativePosition;
+    }
+    /**
+    * Creates a CollaborationMappablePosition from a JSON object.
+    */
+    static fromJSON(json) {
+      return new CollaborationMappablePosition2(json.position, json.yRelativePosition);
+    }
+    /**
+    * Converts the CollaborationMappablePosition to a JSON object.
+    */
+    toJSON() {
+      return {
+        position: this.position,
+        yRelativePosition: this.yRelativePosition
+      };
+    }
+  };
+  function createMappablePosition2(position, state) {
+    return new CollaborationMappablePosition(position, getYRelativePosition(state, position));
+  }
+  function getUpdatedPosition2(position, transaction, state) {
+    const yRelativePosition = position instanceof CollaborationMappablePosition ? position.yRelativePosition : null;
+    if (isChangeOrigin(transaction) && yRelativePosition) return {
+      position: new CollaborationMappablePosition(getYAbsolutePosition(state, yRelativePosition), yRelativePosition),
+      mapResult: null
+    };
+    const result = getUpdatedPosition(position, transaction);
+    const absolutePosition = result.position.position;
+    return {
+      position: new CollaborationMappablePosition(absolutePosition, yRelativePosition !== null && yRelativePosition !== void 0 ? yRelativePosition : getYRelativePosition(state, absolutePosition)),
+      mapResult: result.mapResult
+    };
+  }
+  function getUndoManager(state) {
+    const undoState = yUndoPluginKey.getState(state);
+    if (!undoState) throw new Error("Collaboration requires the Yjs undo plugin");
+    return undoState.undoManager;
+  }
+  var Collaboration = Extension.create({
+    name: "collaboration",
+    priority: 1e3,
+    addOptions() {
+      return {
+        document: null,
+        field: "default",
+        fragment: null,
+        provider: null
+      };
+    },
+    addStorage() {
+      return { isDisabled: false };
+    },
+    onCreate() {
+      if (this.editor.extensionManager.extensions.find((extension) => extension.name === "undoRedo")) console.warn('[tiptap warn]: "@tiptap/extension-collaboration" comes with its own history support and is not compatible with "@tiptap/extension-undo-redo".');
+    },
+    onBeforeCreate() {
+      this.editor.utils.getUpdatedPosition = (position, transaction) => getUpdatedPosition2(position, transaction, this.editor.state);
+      this.editor.utils.createMappablePosition = (position) => createMappablePosition2(position, this.editor.state);
+    },
+    addCommands() {
+      return {
+        undo: () => ({ tr: tr2, state, dispatch }) => {
+          var _undo;
+          tr2.setMeta("preventDispatch", true);
+          if (getUndoManager(state).undoStack.length === 0) return false;
+          if (!dispatch) return true;
+          return (_undo = undo2(state)) !== null && _undo !== void 0 ? _undo : false;
+        },
+        redo: () => ({ tr: tr2, state, dispatch }) => {
+          var _redo;
+          tr2.setMeta("preventDispatch", true);
+          if (getUndoManager(state).redoStack.length === 0) return false;
+          if (!dispatch) return true;
+          return (_redo = redo2(state)) !== null && _redo !== void 0 ? _redo : false;
+        }
+      };
+    },
+    addKeyboardShortcuts() {
+      return {
+        "Mod-z": () => this.editor.commands.undo(),
+        "Mod-y": () => this.editor.commands.redo(),
+        "Shift-Mod-z": () => this.editor.commands.redo()
+      };
+    },
+    addProseMirrorPlugins() {
+      const fragment = this.options.fragment ? this.options.fragment : this.options.document.getXmlFragment(this.options.field);
+      const yUndoPluginInstance = yUndoPlugin(this.options.yUndoOptions);
+      const originalUndoPluginView = yUndoPluginInstance.spec.view;
+      yUndoPluginInstance.spec.view = (view) => {
+        const undoManager = getUndoManager(view.state);
+        if (undoManager.restore) {
+          undoManager.restore();
+          undoManager.restore = () => {
+          };
+        }
+        const viewRet = originalUndoPluginView ? originalUndoPluginView(view) : void 0;
+        return { destroy: () => {
+          const hasUndoManSelf = undoManager.trackedOrigins.has(undoManager);
+          const observers = undoManager._observers;
+          undoManager.restore = () => {
+            if (hasUndoManSelf) undoManager.trackedOrigins.add(undoManager);
+            undoManager.doc.on("afterTransaction", undoManager.afterTransactionHandler);
+            undoManager._observers = observers;
+          };
+          if (viewRet === null || viewRet === void 0 ? void 0 : viewRet.destroy) viewRet.destroy();
+        } };
+      };
+      const ySyncPluginOptions = {
+        ...this.options.ySyncOptions,
+        onFirstRender: this.options.onFirstRender
+      };
+      if (this.editor.options.enableContentCheck) ySyncPluginOptions.onInvalidContent = (error) => {
+        this.editor.emit("contentError", {
+          error,
+          editor: this.editor,
+          disableCollaboration: () => {
+            var _fragment$doc;
+            this.storage.isDisabled = true;
+            (_fragment$doc = fragment.doc) === null || _fragment$doc === void 0 || _fragment$doc.destroy();
+          }
+        });
+      };
+      return [
+        ySyncPlugin(fragment, ySyncPluginOptions),
+        yUndoPluginInstance,
+        new Plugin({ filterTransaction: (transaction, state) => {
+          if (transaction.getMeta("inputRule")) getUndoManager(state).stopCapturing();
+          return true;
+        } }),
+        this.editor.options.enableContentCheck && new Plugin({
+          key: new PluginKey("filterInvalidContent"),
+          filterTransaction: (transaction) => {
+            if (!isChangeOrigin(transaction)) return true;
+            if (this.storage.isDisabled) return false;
+            if (!transaction.docChanged) return true;
+            try {
+              transaction.doc.check();
+              return true;
+            } catch (error) {
+              this.storage.isDisabled = true;
+              this.editor.emit("contentError", {
+                error,
+                editor: this.editor,
+                disableCollaboration: () => {
+                  var _fragment$doc2;
+                  (_fragment$doc2 = fragment.doc) === null || _fragment$doc2 === void 0 || _fragment$doc2.destroy();
+                }
+              });
+              return true;
+            }
+          }
+        })
+      ].filter((plugin) => plugin !== false);
+    }
+  });
+  var src_default = Collaboration;
+
+  // node_modules/y-protocols/awareness.js
+  var outdatedTimeout = 3e4;
+  var Awareness = class extends Observable {
+    /**
+     * @param {Y.Doc} doc
+     */
+    constructor(doc4) {
+      super();
+      this.doc = doc4;
+      this.clientID = doc4.clientID;
+      this.states = /* @__PURE__ */ new Map();
+      this.meta = /* @__PURE__ */ new Map();
+      this._checkInterval = /** @type {any} */
+      setInterval(() => {
+        const now = getUnixTime();
+        if (this.getLocalState() !== null && outdatedTimeout / 2 <= now - /** @type {{lastUpdated:number}} */
+        this.meta.get(this.clientID).lastUpdated) {
+          this.setLocalState(this.getLocalState());
+        }
+        const remove = [];
+        this.meta.forEach((meta, clientid) => {
+          if (clientid !== this.clientID && outdatedTimeout <= now - meta.lastUpdated && this.states.has(clientid)) {
+            remove.push(clientid);
+          }
+        });
+        if (remove.length > 0) {
+          removeAwarenessStates(this, remove, "timeout");
+        }
+      }, floor(outdatedTimeout / 10));
+      doc4.on("destroy", () => {
+        this.destroy();
+      });
+      this.setLocalState({});
+    }
+    destroy() {
+      this.emit("destroy", [this]);
+      this.setLocalState(null);
+      super.destroy();
+      clearInterval(this._checkInterval);
+    }
+    /**
+     * @return {Object<string,any>|null}
+     */
+    getLocalState() {
+      return this.states.get(this.clientID) || null;
+    }
+    /**
+     * @param {Object<string,any>|null} state
+     */
+    setLocalState(state) {
+      const clientID = this.clientID;
+      const currLocalMeta = this.meta.get(clientID);
+      const clock = currLocalMeta === void 0 ? 0 : currLocalMeta.clock + 1;
+      const prevState = this.states.get(clientID);
+      if (state === null) {
+        this.states.delete(clientID);
+      } else {
+        this.states.set(clientID, state);
+      }
+      this.meta.set(clientID, {
+        clock,
+        lastUpdated: getUnixTime()
+      });
+      const added = [];
+      const updated = [];
+      const filteredUpdated = [];
+      const removed = [];
+      if (state === null) {
+        removed.push(clientID);
+      } else if (prevState == null) {
+        if (state != null) {
+          added.push(clientID);
+        }
+      } else {
+        updated.push(clientID);
+        if (!equalityDeep(prevState, state)) {
+          filteredUpdated.push(clientID);
+        }
+      }
+      if (added.length > 0 || filteredUpdated.length > 0 || removed.length > 0) {
+        this.emit("change", [{ added, updated: filteredUpdated, removed }, "local"]);
+      }
+      this.emit("update", [{ added, updated, removed }, "local"]);
+    }
+    /**
+     * @param {string} field
+     * @param {any} value
+     */
+    setLocalStateField(field, value) {
+      const state = this.getLocalState();
+      if (state !== null) {
+        this.setLocalState({
+          ...state,
+          [field]: value
+        });
+      }
+    }
+    /**
+     * @return {Map<number,Object<string,any>>}
+     */
+    getStates() {
+      return this.states;
+    }
+  };
+  var removeAwarenessStates = (awareness, clients, origin) => {
+    const removed = [];
+    for (let i2 = 0; i2 < clients.length; i2++) {
+      const clientID = clients[i2];
+      if (awareness.states.has(clientID)) {
+        awareness.states.delete(clientID);
+        if (clientID === awareness.clientID) {
+          const curMeta = (
+            /** @type {MetaClientState} */
+            awareness.meta.get(clientID)
+          );
+          awareness.meta.set(clientID, {
+            clock: curMeta.clock + 1,
+            lastUpdated: getUnixTime()
+          });
+        }
+        removed.push(clientID);
+      }
+    }
+    if (removed.length > 0) {
+      awareness.emit("change", [{ added: [], updated: [], removed }, origin]);
+      awareness.emit("update", [{ added: [], updated: [], removed }, origin]);
+    }
+  };
+  var encodeAwarenessUpdate = (awareness, clients, states = awareness.states) => {
+    const len = clients.length;
+    const encoder = createEncoder();
+    writeVarUint(encoder, len);
+    for (let i2 = 0; i2 < len; i2++) {
+      const clientID = clients[i2];
+      const state = states.get(clientID) || null;
+      const clock = (
+        /** @type {MetaClientState} */
+        awareness.meta.get(clientID).clock
+      );
+      writeVarUint(encoder, clientID);
+      writeVarUint(encoder, clock);
+      writeVarString(encoder, JSON.stringify(state));
+    }
+    return toUint8Array(encoder);
+  };
+  var applyAwarenessUpdate = (awareness, update, origin) => {
+    const decoder = createDecoder(update);
+    const timestamp = getUnixTime();
+    const added = [];
+    const updated = [];
+    const filteredUpdated = [];
+    const removed = [];
+    const len = readVarUint(decoder);
+    for (let i2 = 0; i2 < len; i2++) {
+      const clientID = readVarUint(decoder);
+      let clock = readVarUint(decoder);
+      const state = JSON.parse(readVarString(decoder));
+      const clientMeta = awareness.meta.get(clientID);
+      const prevState = awareness.states.get(clientID);
+      const currClock = clientMeta === void 0 ? 0 : clientMeta.clock;
+      if (currClock < clock || currClock === clock && state === null && awareness.states.has(clientID)) {
+        if (state === null) {
+          if (clientID === awareness.clientID && awareness.getLocalState() != null) {
+            clock++;
+          } else {
+            awareness.states.delete(clientID);
+          }
+        } else {
+          awareness.states.set(clientID, state);
+        }
+        awareness.meta.set(clientID, {
+          clock,
+          lastUpdated: timestamp
+        });
+        if (clientMeta === void 0 && state !== null) {
+          added.push(clientID);
+        } else if (clientMeta !== void 0 && state === null) {
+          removed.push(clientID);
+        } else if (state !== null) {
+          if (!equalityDeep(state, prevState)) {
+            filteredUpdated.push(clientID);
+          }
+          updated.push(clientID);
+        }
+      }
+    }
+    if (added.length > 0 || filteredUpdated.length > 0 || removed.length > 0) {
+      awareness.emit("change", [{
+        added,
+        updated: filteredUpdated,
+        removed
+      }, origin]);
+    }
+    if (added.length > 0 || updated.length > 0 || removed.length > 0) {
+      awareness.emit("update", [{
+        added,
+        updated,
+        removed
+      }, origin]);
+    }
+  };
+
+  // sharing-editor.source.js
+  function encode2(bytes) {
+    let text2 = "";
+    for (let i2 = 0; i2 < bytes.length; i2 += 32768) text2 += String.fromCharCode(...bytes.subarray(i2, i2 + 32768));
+    return btoa(text2);
+  }
+  var decode = (text2) => Uint8Array.from(atob(text2), (c) => c.charCodeAt(0));
+  var Shared = { create: (schema, json) => json ? prosemirrorJSONToYDoc(schema, json, "default") : new Doc(), encodeUpdate: encode2, encode: (doc4) => encode2(encodeStateAsUpdate(doc4)), apply: (doc4, data, origin) => applyUpdate(doc4, decode(data), origin), json: (doc4) => yDocToProsemirrorJSON(doc4, "default"), Awareness, awarenessEncode: (a, ids) => encode2(encodeAwarenessUpdate(a, ids)), awarenessApply: (a, data, origin) => applyAwarenessUpdate(a, decode(data), origin), removeAwareness: (a, ids, origin) => removeAwarenessStates(a, ids, origin) };
+  var cursorColor = (user) => /^#[a-f0-9]{6}$/i.test(user?.color || "") ? user.color : "#4a82b1";
+  function cursorExtension(record) {
+    return Extension.create({ name: "sharedCursors", addProseMirrorPlugins() {
+      const plugins = [yCursorPlugin(record.awareness, { selectionBuilder(user) {
+        return { class: "ProseMirror-yjs-selection", style: "background-color: " + cursorColor(user) + "33" };
+      }, cursorBuilder(user) {
+        const cursor = document.createElement("span");
+        cursor.className = "ProseMirror-yjs-cursor";
+        const color = cursorColor(user);
+        cursor.style.borderColor = color;
+        const label = document.createElement("span");
+        label.textContent = String(user?.name || "Collaborator").slice(0, 32);
+        label.style.background = color;
+        cursor.append(label);
+        return cursor;
+      } })];
+      if (record.role === "view") plugins.push(new Plugin({ filterTransaction: (transaction) => !transaction.docChanged || !!transaction.getMeta(ySyncPluginKey) }));
+      return plugins;
+    } });
   }
 
   // node_modules/@tiptap/core/dist/jsx-runtime/jsx-runtime.js
   var jsxElements = /* @__PURE__ */ new WeakSet();
   var jsxFragments = /* @__PURE__ */ new WeakSet();
   function createJSXElement(spec) {
-    const element = spec;
-    jsxElements.add(element);
-    return element;
+    const element2 = spec;
+    jsxElements.add(element2);
+    return element2;
   }
   function isJSXElement(value) {
     return Array.isArray(value) && jsxElements.has(value);
@@ -18432,35 +29695,35 @@ ${prefix}
   });
 
   // node_modules/@tiptap/extension-code/dist/index.js
-  var inputRegexMatch = (text) => {
-    const match = /`([^`]+)`(?!`)$/.exec(text);
-    if (!match) return null;
-    if (match.index > 0 && text[match.index - 1] === "`") return null;
+  var inputRegexMatch = (text2) => {
+    const match2 = /`([^`]+)`(?!`)$/.exec(text2);
+    if (!match2) return null;
+    if (match2.index > 0 && text2[match2.index - 1] === "`") return null;
     return {
-      index: match.index,
-      text: match[0],
-      replaceWith: match[1]
+      index: match2.index,
+      text: match2[0],
+      replaceWith: match2[1]
     };
   };
-  var pasteRegexMatch = (text) => {
+  var pasteRegexMatch = (text2) => {
     const regex = /`([^`]+)`(?!`)/g;
     const matches2 = [];
-    let match;
-    while ((match = regex.exec(text)) !== null) {
-      if (match.index > 0 && text[match.index - 1] === "`") continue;
+    let match2;
+    while ((match2 = regex.exec(text2)) !== null) {
+      if (match2.index > 0 && text2[match2.index - 1] === "`") continue;
       matches2.push({
-        index: match.index,
-        text: match[0],
-        replaceWith: match[1]
+        index: match2.index,
+        text: match2[0],
+        replaceWith: match2[1]
       });
     }
     return matches2;
   };
-  function shortestUnusedBacktickRun(text) {
-    const runs = new Set((text.match(/`+/g) || []).map((run3) => run3.length));
-    let length = 1;
-    while (runs.has(length)) length += 1;
-    return length;
+  function shortestUnusedBacktickRun(text2) {
+    const runs = new Set((text2.match(/`+/g) || []).map((run3) => run3.length));
+    let length2 = 1;
+    while (runs.has(length2)) length2 += 1;
+    return length2;
   }
   var Code = Mark2.create({
     name: "code",
@@ -18551,11 +29814,11 @@ ${prefix}
     addAttributes() {
       return { language: {
         default: this.options.defaultLanguage,
-        parseHTML: (element) => {
+        parseHTML: (element2) => {
           var _element$firstElement;
           const { languageClassPrefix } = this.options;
           if (!languageClassPrefix) return null;
-          const language = [...((_element$firstElement = element.firstElementChild) === null || _element$firstElement === void 0 ? void 0 : _element$firstElement.classList) || []].filter((className) => className.startsWith(languageClassPrefix)).map((className) => className.replace(languageClassPrefix, ""))[0];
+          const language = [...((_element$firstElement = element2.firstElementChild) === null || _element$firstElement === void 0 ? void 0 : _element$firstElement.classList) || []].filter((className) => className.startsWith(languageClassPrefix)).map((className) => className.replace(languageClassPrefix, ""))[0];
           if (!language) return null;
           return language;
         },
@@ -18630,9 +29893,9 @@ ${prefix}
           const indent = " ".repeat(tabSize);
           if (empty2) return editor.commands.insertContent(indent);
           return editor.commands.command(({ tr: tr2 }) => {
-            const { from: from2, to } = selection;
-            const indentedText = state.doc.textBetween(from2, to, "\n", "\n").split("\n").map((line) => indent + line).join("\n");
-            tr2.replaceWith(from2, to, state.schema.text(indentedText));
+            const { from: from3, to } = selection;
+            const indentedText = state.doc.textBetween(from3, to, "\n", "\n").split("\n").map((line) => indent + line).join("\n");
+            tr2.replaceWith(from3, to, state.schema.text(indentedText));
             return true;
           });
         },
@@ -18670,14 +29933,14 @@ ${prefix}
             return true;
           });
           return editor.commands.command(({ tr: tr2 }) => {
-            const { from: from2, to } = selection;
-            const reverseIndentText = state.doc.textBetween(from2, to, "\n", "\n").split("\n").map((line) => {
+            const { from: from3, to } = selection;
+            const reverseIndentText = state.doc.textBetween(from3, to, "\n", "\n").split("\n").map((line) => {
               var _line$match;
               const leadingSpaces = ((_line$match = line.match(/^ */)) === null || _line$match === void 0 ? void 0 : _line$match[0]) || "";
               const spacesToRemove = Math.min(leadingSpaces.length, tabSize);
               return line.slice(spacesToRemove);
             }).join("\n");
-            tr2.replaceWith(from2, to, state.schema.text(reverseIndentText));
+            tr2.replaceWith(from3, to, state.schema.text(reverseIndentText));
             return true;
           });
         },
@@ -18709,14 +29972,14 @@ ${prefix}
         ArrowDown: ({ editor }) => {
           if (!this.options.exitOnArrowDown) return false;
           const { state } = editor;
-          const { selection, doc: doc3 } = state;
+          const { selection, doc: doc4 } = state;
           const { $from, empty: empty2 } = selection;
           if (!empty2 || $from.parent.type !== this.type) return false;
           if (!($from.parentOffset === $from.parent.nodeSize - 2)) return false;
           const after = $from.after();
           if (after === void 0) return false;
-          if (doc3.nodeAt(after)) return editor.commands.command(({ tr: tr2 }) => {
-            tr2.setSelection(Selection.near(doc3.resolve(after)));
+          if (doc4.nodeAt(after)) return editor.commands.command(({ tr: tr2 }) => {
+            tr2.setSelection(Selection.near(doc4.resolve(after)));
             return true;
           });
           return editor.commands.exitCode();
@@ -18727,11 +29990,11 @@ ${prefix}
       return [textblockTypeInputRule({
         find: backtickInputRegex,
         type: this.type,
-        getAttributes: (match) => ({ language: match[1] })
+        getAttributes: (match2) => ({ language: match2[1] })
       }), textblockTypeInputRule({
         find: tildeInputRegex,
         type: this.type,
-        getAttributes: (match) => ({ language: match[1] })
+        getAttributes: (match2) => ({ language: match2[1] })
       })];
     },
     addProseMirrorPlugins() {
@@ -18740,13 +30003,13 @@ ${prefix}
         props: { handlePaste: (view, event) => {
           if (!event.clipboardData) return false;
           if (this.editor.isActive(this.type.name)) return false;
-          const text = event.clipboardData.getData("text/plain");
+          const text2 = event.clipboardData.getData("text/plain");
           const vscode = event.clipboardData.getData("vscode-editor-data");
           const vscodeData = vscode ? JSON.parse(vscode) : void 0;
           const language = vscodeData === null || vscodeData === void 0 ? void 0 : vscodeData.mode;
-          if (!text || !language) return false;
+          if (!text2 || !language) return false;
           const { tr: tr2, schema } = view.state;
-          const textNode = schema.text(text.replace(/\r\n?/g, "\n"));
+          const textNode = schema.text(text2.replace(/\r\n?/g, "\n"));
           tr2.replaceSelectionWith(this.type.create({ language }, textNode));
           if (tr2.selection.$from.parent.type !== this.type) tr2.setSelection(TextSelection.near(tr2.doc.resolve(Math.max(0, tr2.selection.from - 2))));
           tr2.setMeta("paste", true);
@@ -19743,14 +31006,14 @@ ${prefix}
      * @param {MultiToken} [token] The token from linkify.tokenize
      * @returns {Opts[K] | any}
      */
-    get(key, operator, token) {
+    get(key2, operator, token) {
       const isCallable = operator != null;
-      let option = this.o[key];
+      let option = this.o[key2];
       if (!option) {
         return option;
       }
       if (typeof option === "object") {
-        option = token.t in option ? option[token.t] : defaults[key];
+        option = token.t in option ? option[token.t] : defaults[key2];
         if (typeof option === "function" && isCallable) {
           option = option(operator, token);
         }
@@ -19766,8 +31029,8 @@ ${prefix}
      * @param {MultiToken} [token]
      * @returns {Opts[L] | any}
      */
-    getObj(key, operator, token) {
-      let obj = this.o[key];
+    getObj(key2, operator, token) {
+      let obj = this.o[key2];
       if (typeof obj === "function" && operator != null) {
         obj = obj(operator, token.t, token);
       }
@@ -20158,7 +31421,7 @@ ${prefix}
     const value = input.slice(startIdx, endIdx);
     return new Multi(value, tokens);
   }
-  var warn = typeof console !== "undefined" && console && console.warn || (() => {
+  var warn2 = typeof console !== "undefined" && console && console.warn || (() => {
   });
   var warnAdvice = "until manual call of linkify.init(). Register all schemes and plugins before invoking linkify the first time.";
   var INIT = {
@@ -20181,7 +31444,7 @@ ${prefix}
   }
   function registerCustomProtocol(scheme2, optionalSlashSlash = false) {
     if (INIT.initialized) {
-      warn(`linkifyjs: already initialized - will not register custom scheme "${scheme2}" ${warnAdvice}`);
+      warn2(`linkifyjs: already initialized - will not register custom scheme "${scheme2}" ${warnAdvice}`);
     }
     if (!/^[0-9a-z]+(-[0-9a-z]+)*$/.test(scheme2)) {
       throw new Error(`linkifyjs: incorrect scheme format.
@@ -20215,7 +31478,7 @@ ${prefix}
     return run2(INIT.parser.start, str, run$12(INIT.scanner.start, str));
   }
   tokenize.scan = run$12;
-  function find(str, type = null, opts = null) {
+  function find2(str, type = null, opts = null) {
     if (type && typeof type === "object") {
       if (opts) {
         throw Error(`linkifyjs: Invalid link type ${type}; must be a string`);
@@ -20276,10 +31539,10 @@ ${prefix}
           transform.steps.forEach((step, index) => {
             if (!(step instanceof ReplaceStep) || !step.slice.size) return;
             const mapping = transform.mapping.slice(index + 1);
-            const from2 = mapping.map(step.from, 1);
+            const from3 = mapping.map(step.from, 1);
             const to = mapping.map(step.from + step.slice.size, -1);
-            if (from2 < to) insertedRanges.push({
-              from: from2,
+            if (from3 < to) insertedRanges.push({
+              from: from3,
               to
             });
           });
@@ -20359,25 +31622,25 @@ ${prefix}
   }
   var MARKDOWN_LINK_INPUT_REGEX = /\[([^[\]]+)\]\(((?:[^\s()]|\([^\s()]*\))+)(?:\s+(?:(["'])(.*?)\3|“(.*?)”|‘(.*?)’))?\)$/;
   var MARKDOWN_LINK_PASTE_REGEX = /\[([^[\]]+)\]\(((?:[^\s()]|\([^\s()]*\))+)(?:\s+(?:(["'])(.*?)\3|“(.*?)”|‘(.*?)’))?\)/g;
-  function isEscaped(text, index) {
+  function isEscaped(text2, index) {
     let backslashes = 0;
-    for (let position = index - 1; position >= 0 && text[position] === "\\"; position -= 1) backslashes += 1;
+    for (let position = index - 1; position >= 0 && text2[position] === "\\"; position -= 1) backslashes += 1;
     return backslashes % 2 === 1;
   }
-  function isInsideCodeSpan(text, matchIndex) {
+  function isInsideCodeSpan(text2, matchIndex) {
     let openRunLength = 0;
     let index = 0;
     while (index < matchIndex) {
-      if (text[index] !== "`") {
+      if (text2[index] !== "`") {
         index += 1;
         continue;
       }
-      if (openRunLength === 0 && isEscaped(text, index)) {
+      if (openRunLength === 0 && isEscaped(text2, index)) {
         index += 1;
         continue;
       }
       let runLength = 0;
-      while (index < matchIndex && text[index] === "`") {
+      while (index < matchIndex && text2[index] === "`") {
         runLength += 1;
         index += 1;
       }
@@ -20386,19 +31649,19 @@ ${prefix}
     }
     return openRunLength > 0;
   }
-  function isConvertibleLink(text, match, isAllowedHref) {
+  function isConvertibleLink(text2, match2, isAllowedHref) {
     var _match$index, _match$index2;
-    const [, linkText, href] = match;
-    if ((match.index ? text[match.index - 1] : void 0) === "!" || isEscaped(text, (_match$index = match.index) !== null && _match$index !== void 0 ? _match$index : 0)) return false;
-    if (isInsideCodeSpan(text, (_match$index2 = match.index) !== null && _match$index2 !== void 0 ? _match$index2 : 0)) return false;
+    const [, linkText, href] = match2;
+    if ((match2.index ? text2[match2.index - 1] : void 0) === "!" || isEscaped(text2, (_match$index = match2.index) !== null && _match$index !== void 0 ? _match$index : 0)) return false;
+    if (isInsideCodeSpan(text2, (_match$index2 = match2.index) !== null && _match$index2 !== void 0 ? _match$index2 : 0)) return false;
     return !!linkText.trim() && isAllowedHref(href);
   }
-  function toRuleMatch(match) {
+  function toRuleMatch(match2) {
     var _ref, _match$index3;
-    const [linkSyntax, linkText, href, , straightQuotedTitle, curlyDoubleTitle, curlySingleTitle] = match;
+    const [linkSyntax, linkText, href, , straightQuotedTitle, curlyDoubleTitle, curlySingleTitle] = match2;
     const title = (_ref = straightQuotedTitle !== null && straightQuotedTitle !== void 0 ? straightQuotedTitle : curlyDoubleTitle) !== null && _ref !== void 0 ? _ref : curlySingleTitle;
     return {
-      index: (_match$index3 = match.index) !== null && _match$index3 !== void 0 ? _match$index3 : 0,
+      index: (_match$index3 = match2.index) !== null && _match$index3 !== void 0 ? _match$index3 : 0,
       text: linkSyntax,
       replaceWith: linkText,
       data: {
@@ -20411,19 +31674,19 @@ ${prefix}
   function matchesOverlap(a, b) {
     return a.index < b.index + b.text.length && b.index < a.index + a.text.length;
   }
-  function getMarkdownLinkAttributes(match) {
+  function getMarkdownLinkAttributes(match2) {
     var _match$data, _match$data$title, _match$data2;
     return {
-      href: (_match$data = match.data) === null || _match$data === void 0 ? void 0 : _match$data.href,
-      title: (_match$data$title = (_match$data2 = match.data) === null || _match$data2 === void 0 ? void 0 : _match$data2.title) !== null && _match$data$title !== void 0 ? _match$data$title : null
+      href: (_match$data = match2.data) === null || _match$data === void 0 ? void 0 : _match$data.href,
+      title: (_match$data$title = (_match$data2 = match2.data) === null || _match$data2 === void 0 ? void 0 : _match$data2.title) !== null && _match$data$title !== void 0 ? _match$data$title : null
     };
   }
   function markdownLinkInputRule(config) {
     const rule = markInputRule({
-      find: (text) => {
-        const match = MARKDOWN_LINK_INPUT_REGEX.exec(text);
-        if (!match || !isConvertibleLink(text, match, config.isAllowedHref)) return null;
-        return toRuleMatch(match);
+      find: (text2) => {
+        const match2 = MARKDOWN_LINK_INPUT_REGEX.exec(text2);
+        if (!match2 || !isConvertibleLink(text2, match2, config.isAllowedHref)) return null;
+        return toRuleMatch(match2);
       },
       type: config.type,
       getAttributes: getMarkdownLinkAttributes
@@ -20439,11 +31702,11 @@ ${prefix}
   }
   function markdownLinkPasteRule(config) {
     const rule = markPasteRule({
-      find: (text) => {
+      find: (text2) => {
         var _config$findPlainUrls, _config$findPlainUrls2;
         const markdownMatches = [];
-        for (const match of text.matchAll(MARKDOWN_LINK_PASTE_REGEX)) if (isConvertibleLink(text, match, config.isAllowedHref)) markdownMatches.push(toRuleMatch(match));
-        const plainUrlMatches = ((_config$findPlainUrls = (_config$findPlainUrls2 = config.findPlainUrls) === null || _config$findPlainUrls2 === void 0 ? void 0 : _config$findPlainUrls2.call(config, text)) !== null && _config$findPlainUrls !== void 0 ? _config$findPlainUrls : []).filter((urlMatch) => !markdownMatches.some((markdownMatch) => matchesOverlap(markdownMatch, urlMatch)));
+        for (const match2 of text2.matchAll(MARKDOWN_LINK_PASTE_REGEX)) if (isConvertibleLink(text2, match2, config.isAllowedHref)) markdownMatches.push(toRuleMatch(match2));
+        const plainUrlMatches = ((_config$findPlainUrls = (_config$findPlainUrls2 = config.findPlainUrls) === null || _config$findPlainUrls2 === void 0 ? void 0 : _config$findPlainUrls2.call(config, text2)) !== null && _config$findPlainUrls !== void 0 ? _config$findPlainUrls : []).filter((urlMatch) => !markdownMatches.some((markdownMatch) => matchesOverlap(markdownMatch, urlMatch)));
         return [...markdownMatches, ...plainUrlMatches];
       },
       type: config.type,
@@ -20472,7 +31735,7 @@ ${prefix}
         slice2.content.forEach((node) => {
           textContent += node.textContent;
         });
-        const link = find(textContent, { defaultProtocol: options.defaultProtocol }).find((item) => item.isLink && item.value === textContent);
+        const link = find2(textContent, { defaultProtocol: options.defaultProtocol }).find((item) => item.isLink && item.value === textContent);
         if (!textContent || !link || shouldAutoLink !== void 0 && !shouldAutoLink(link.value)) return false;
         return options.editor.commands.setMark(options.type, { href: link.href });
       } }
@@ -20553,8 +31816,8 @@ ${prefix}
       return {
         href: {
           default: null,
-          parseHTML(element) {
-            return element.getAttribute("href");
+          parseHTML(element2) {
+            return element2.getAttribute("href");
           }
         },
         target: { default: (_this$options$HTMLAtt = this.options.HTMLAttributes.target) !== null && _this$options$HTMLAtt !== void 0 ? _this$options$HTMLAtt : null },
@@ -20607,8 +31870,8 @@ ${prefix}
       var _node$attrs$href, _node$attrs, _node$attrs$title, _node$attrs2;
       const href = (_node$attrs$href = (_node$attrs = node.attrs) === null || _node$attrs === void 0 ? void 0 : _node$attrs.href) !== null && _node$attrs$href !== void 0 ? _node$attrs$href : "";
       const title = (_node$attrs$title = (_node$attrs2 = node.attrs) === null || _node$attrs2 === void 0 ? void 0 : _node$attrs2.title) !== null && _node$attrs$title !== void 0 ? _node$attrs$title : "";
-      const text = h2.renderChildren(node);
-      return title ? `[${text}](${href} "${title}")` : `[${text}](${href})`;
+      const text2 = h2.renderChildren(node);
+      return title ? `[${text2}](${href} "${title}")` : `[${text2}](${href})`;
     },
     addCommands() {
       return {
@@ -20647,11 +31910,11 @@ ${prefix}
       })];
     },
     addPasteRules() {
-      const findPlainUrls = (text) => {
+      const findPlainUrls = (text2) => {
         const foundLinks = [];
-        if (text) {
+        if (text2) {
           const { protocols, defaultProtocol } = this.options;
-          find(text, { defaultProtocol }).filter((item) => item.isLink && this.options.isAllowedUri(item.value, {
+          find2(text2, { defaultProtocol }).filter((item) => item.isLink && this.options.isAllowedUri(item.value, {
             defaultValidate: (href) => !!isAllowedUri(href, protocols),
             protocols,
             defaultProtocol
@@ -20678,9 +31941,9 @@ ${prefix}
       return [markPasteRule({
         find: findPlainUrls,
         type: this.type,
-        getAttributes: (match) => {
+        getAttributes: (match2) => {
           var _match$data;
-          return { href: (_match$data = match.data) === null || _match$data === void 0 ? void 0 : _match$data.href };
+          return { href: (_match$data = match2.data) === null || _match$data === void 0 ? void 0 : _match$data.href };
         }
       })];
     },
@@ -21012,12 +32275,12 @@ ${prefix}
     const nestedToken = (_token$tokens = token.tokens) === null || _token$tokens === void 0 ? void 0 : _token$tokens[0];
     return Boolean(token.text && ((_token$tokens2 = token.tokens) === null || _token$tokens2 === void 0 ? void 0 : _token$tokens2.length) === 1 && (nestedToken === null || nestedToken === void 0 ? void 0 : nestedToken.type) === "list" && nestedToken.ordered && nestedToken.raw === token.text);
   }
-  function parseSameLineOrderedListText(text, helpers) {
-    if (helpers.tokenizeInline) return helpers.parseInline(helpers.tokenizeInline(text));
+  function parseSameLineOrderedListText(text2, helpers) {
+    if (helpers.tokenizeInline) return helpers.parseInline(helpers.tokenizeInline(text2));
     return helpers.parseInline([{
       type: "text",
-      raw: text,
-      text
+      raw: text2,
+      text: text2
     }]);
   }
   var ListItem = Node2.create({
@@ -21334,9 +32597,9 @@ ${prefix}
     let consumed = 0;
     while (currentLineIndex < lines.length) {
       const line = lines[currentLineIndex];
-      const match = line.match(ORDERED_LIST_ITEM_REGEX);
-      if (!match) break;
-      const [, indent, marker, _separator, content] = match;
+      const match2 = line.match(ORDERED_LIST_ITEM_REGEX);
+      if (!match2) break;
+      const [, indent, marker, _separator, content] = match2;
       const indentLevel = indent.length;
       const number = parseInt(marker, 10);
       const markerType = isNaN(number) ? detectMarkerType(marker) : void 0;
@@ -21380,16 +32643,16 @@ ${prefix}
     return [listItems, consumed];
   }
   var PLAIN_TEXT_ORDERED_LIST_LINE_REGEX = new RegExp(`^(${ORDERED_LIST_MARKER_PATTERN})([.)])\\s+(.+)$`);
-  function parsePlainTextOrderedListPaste(text) {
-    const lines = text.split("\n").filter((l) => l.trim().length > 0);
+  function parsePlainTextOrderedListPaste(text2) {
+    const lines = text2.split("\n").filter((l) => l.trim().length > 0);
     if (lines.length === 0) return null;
     const parsedItems = [];
     for (const line of lines) {
-      const match = line.trim().match(PLAIN_TEXT_ORDERED_LIST_LINE_REGEX);
-      if (!match) return null;
+      const match2 = line.trim().match(PLAIN_TEXT_ORDERED_LIST_LINE_REGEX);
+      if (!match2) return null;
       parsedItems.push({
-        marker: match[1],
-        content: match[3]
+        marker: match2[1],
+        content: match2[3]
       });
     }
     if (!areOrderedListMarkersSequential(parsedItems.map((item) => item.marker))) return null;
@@ -21478,10 +32741,10 @@ ${prefix}
     });
   }
   var ORDERED_LIST_SCAN_WINDOW = 64;
-  function takeLines(source, max) {
+  function takeLines(source, max2) {
     const lines = [];
     let start = 0;
-    while (lines.length < max) {
+    while (lines.length < max2) {
       const lineEnd = source.indexOf("\n", start);
       if (lineEnd === -1) {
         lines.push(source.slice(start));
@@ -21518,9 +32781,9 @@ ${prefix}
   var TextStyleName = "textStyle";
   var orderedListInputRegex = /^(\d+)\.\s$/;
   function cssListStyleTypeToHtmlType(style2) {
-    const match = style2.match(/list-style-type\s*:\s*([^;]+)/i);
-    if (!match) return null;
-    switch (match[1].trim().toLowerCase()) {
+    const match2 = style2.match(/list-style-type\s*:\s*([^;]+)/i);
+    if (!match2) return null;
+    switch (match2[1].trim().toLowerCase()) {
       case "upper-roman":
         return "I";
       case "lower-roman":
@@ -21553,21 +32816,21 @@ ${prefix}
       return {
         start: {
           default: 1,
-          parseHTML: (element) => {
-            return element.hasAttribute("start") ? parseInt(element.getAttribute("start") || "", 10) : 1;
+          parseHTML: (element2) => {
+            return element2.hasAttribute("start") ? parseInt(element2.getAttribute("start") || "", 10) : 1;
           }
         },
         type: {
           default: null,
-          parseHTML: (element) => {
-            const htmlType = element.getAttribute("type");
+          parseHTML: (element2) => {
+            const htmlType = element2.getAttribute("type");
             if (htmlType) return htmlType;
-            const style2 = element.getAttribute("style");
+            const style2 = element2.getAttribute("style");
             if (style2) {
               const mappedFromOl = cssListStyleTypeToHtmlType(style2);
               if (mappedFromOl) return mappedFromOl;
             }
-            const firstLi = element.querySelector("li");
+            const firstLi = element2.querySelector("li");
             if (firstLi) {
               const liStyle = firstLi.getAttribute("style");
               if (liStyle) {
@@ -21652,9 +32915,9 @@ ${prefix}
         var _event$clipboardData, _event$clipboardData2;
         const html = (_event$clipboardData = event.clipboardData) === null || _event$clipboardData === void 0 ? void 0 : _event$clipboardData.getData("text/html");
         if (html === null || html === void 0 ? void 0 : html.trim()) return false;
-        const text = (_event$clipboardData2 = event.clipboardData) === null || _event$clipboardData2 === void 0 ? void 0 : _event$clipboardData2.getData("text/plain");
-        if (!text) return false;
-        const orderedListContent = parsePlainTextOrderedListPaste(text);
+        const text2 = (_event$clipboardData2 = event.clipboardData) === null || _event$clipboardData2 === void 0 ? void 0 : _event$clipboardData2.getData("text/plain");
+        if (!text2) return false;
+        const orderedListContent = parsePlainTextOrderedListPaste(text2);
         if (!orderedListContent) return false;
         try {
           const orderedListNode = view.state.schema.nodeFromJSON(orderedListContent);
@@ -21667,13 +32930,13 @@ ${prefix}
       } } })];
     },
     addInputRules() {
-      const joinPredicate = (match, node) => {
-        return (!node.attrs.type || node.attrs.type === "1") && node.childCount + node.attrs.start === +match[1];
+      const joinPredicate = (match2, node) => {
+        return (!node.attrs.type || node.attrs.type === "1") && node.childCount + node.attrs.start === +match2[1];
       };
       let inputRule = wrappingInputRule({
         find: orderedListInputRegex,
         type: this.type,
-        getAttributes: (match) => ({ start: +match[1] }),
+        getAttributes: (match2) => ({ start: +match2[1] }),
         joinPredicate
       });
       if (this.options.keepMarks || this.options.keepAttributes) inputRule = wrappingInputRule({
@@ -21681,8 +32944,8 @@ ${prefix}
         type: this.type,
         keepMarks: this.options.keepMarks,
         keepAttributes: this.options.keepAttributes,
-        getAttributes: (match) => ({
-          start: +match[1],
+        getAttributes: (match2) => ({
+          start: +match2[1],
           ...this.editor.getAttributes(TextStyleName)
         }),
         joinPredicate,
@@ -21715,8 +32978,8 @@ ${prefix}
       return { checked: {
         default: false,
         keepOnSplit: false,
-        parseHTML: (element) => {
-          const dataChecked = element.getAttribute("data-checked");
+        parseHTML: (element2) => {
+          const dataChecked = element2.getAttribute("data-checked");
           return dataChecked === "" || dataChecked === "true";
         },
         renderHTML: (attributes) => ({ "data-checked": attributes.checked })
@@ -21726,9 +32989,9 @@ ${prefix}
       return [{
         tag: `li[data-type="${this.name}"]`,
         priority: 51,
-        contentElement: (element) => {
+        contentElement: (element2) => {
           var _element$querySelecto;
-          return (_element$querySelecto = element.querySelector("div")) !== null && _element$querySelecto !== void 0 ? _element$querySelecto : element;
+          return (_element$querySelecto = element2.querySelector("div")) !== null && _element$querySelecto !== void 0 ? _element$querySelecto : element2;
         }
       }];
     },
@@ -21815,15 +33078,15 @@ ${prefix}
             if (!this.options.onReadOnlyChecked(node, checked)) checkbox.checked = !checkbox.checked;
           }
         });
-        Object.entries(this.options.HTMLAttributes).forEach(([key, value]) => {
-          listItem.setAttribute(key, value);
+        Object.entries(this.options.HTMLAttributes).forEach(([key2, value]) => {
+          listItem.setAttribute(key2, value);
         });
         listItem.dataset.checked = node.attrs.checked;
         checkbox.checked = node.attrs.checked;
         checkboxWrapper.append(checkbox, checkboxStyler);
         listItem.append(checkboxWrapper, content);
-        Object.entries(HTMLAttributes).forEach(([key, value]) => {
-          listItem.setAttribute(key, value);
+        Object.entries(HTMLAttributes).forEach(([key2, value]) => {
+          listItem.setAttribute(key2, value);
         });
         let prevRenderedAttributeKeys = new Set(Object.keys(HTMLAttributes));
         return {
@@ -21838,17 +33101,17 @@ ${prefix}
             const newHTMLAttributes = getRenderedAttributes(updatedNode, extensionAttributes);
             const newKeys = new Set(Object.keys(newHTMLAttributes));
             const staticAttrs = this.options.HTMLAttributes;
-            prevRenderedAttributeKeys.forEach((key) => {
-              if (!newKeys.has(key)) {
-                if (key in staticAttrs) listItem.setAttribute(key, staticAttrs[key]);
-                else listItem.removeAttribute(key);
+            prevRenderedAttributeKeys.forEach((key2) => {
+              if (!newKeys.has(key2)) {
+                if (key2 in staticAttrs) listItem.setAttribute(key2, staticAttrs[key2]);
+                else listItem.removeAttribute(key2);
               }
             });
-            Object.entries(newHTMLAttributes).forEach(([key, value]) => {
+            Object.entries(newHTMLAttributes).forEach(([key2, value]) => {
               if (value === null || value === void 0) {
-                if (key in staticAttrs) listItem.setAttribute(key, staticAttrs[key]);
-                else listItem.removeAttribute(key);
-              } else listItem.setAttribute(key, value);
+                if (key2 in staticAttrs) listItem.setAttribute(key2, staticAttrs[key2]);
+                else listItem.removeAttribute(key2);
+              } else listItem.setAttribute(key2, value);
             });
             prevRenderedAttributeKeys = newKeys;
             return true;
@@ -21860,7 +33123,7 @@ ${prefix}
       return [wrappingInputRule({
         find: inputRegex2,
         type: this.type,
-        getAttributes: (match) => ({ checked: match[match.length - 1] === "x" })
+        getAttributes: (match2) => ({ checked: match2[match2.length - 1] === "x" })
       })];
     }
   });
@@ -21908,10 +33171,10 @@ ${prefix}
         const parseTaskListContent = (content) => {
           const nestedResult = parseIndentedBlocks(content, {
             itemPattern: /^(\s*)([-+*])\s+\[([ xX])\]\s+(.*)$/,
-            extractItemData: (match) => ({
-              indentLevel: match[1].length,
-              mainContent: match[4],
-              checked: match[3].toLowerCase() === "x"
+            extractItemData: (match2) => ({
+              indentLevel: match2[1].length,
+              mainContent: match2[4],
+              checked: match2[3].toLowerCase() === "x"
             }),
             createToken: (data, nestedTokens) => ({
               type: "taskItem",
@@ -21939,10 +33202,10 @@ ${prefix}
         };
         const result = parseIndentedBlocks(src, {
           itemPattern: /^(\s*)([-+*])\s+\[([ xX])\]\s+(.*)$/,
-          extractItemData: (match) => ({
-            indentLevel: match[1].length,
-            mainContent: match[4],
-            checked: match[3].toLowerCase() === "x"
+          extractItemData: (match2) => ({
+            indentLevel: match2[1].length,
+            mainContent: match2[4],
+            checked: match2[3].toLowerCase() === "x"
           }),
           createToken: (data, nestedTokens) => ({
             type: "taskItem",
@@ -22149,22 +33412,22 @@ ${prefix}
         if (!/^<u>/i.test(src)) return;
         const delimiters = /\\[\s\S]|`+|<\/u>/gi;
         delimiters.lastIndex = 3;
-        let match = delimiters.exec(src);
-        while (match) {
-          if (match[0].startsWith("`")) {
-            const codeSpan2 = /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/.exec(src.slice(match.index));
-            if (codeSpan2) delimiters.lastIndex = match.index + codeSpan2[0].length;
-          } else if (!match[0].startsWith("\\")) {
-            const text = src.slice(3, match.index);
-            if (!text) return;
+        let match2 = delimiters.exec(src);
+        while (match2) {
+          if (match2[0].startsWith("`")) {
+            const codeSpan2 = /^(`+)([^`]|[^`][\s\S]*?[^`])\1(?!`)/.exec(src.slice(match2.index));
+            if (codeSpan2) delimiters.lastIndex = match2.index + codeSpan2[0].length;
+          } else if (!match2[0].startsWith("\\")) {
+            const text2 = src.slice(3, match2.index);
+            if (!text2) return;
             return {
               type: "underline",
               raw: src.slice(0, delimiters.lastIndex),
-              text,
-              tokens: lexer.inlineTokens(text)
+              text: text2,
+              tokens: lexer.inlineTokens(text2)
             };
           }
-          match = delimiters.exec(src);
+          match2 = delimiters.exec(src);
         }
       }
     },
@@ -22295,9 +33558,9 @@ ${prefix}
       this.element.style.width = (rect.right - rect.left) / scaleX + "px";
       this.element.style.height = (rect.bottom - rect.top) / scaleY + "px";
     }
-    scheduleRemoval(timeout) {
+    scheduleRemoval(timeout2) {
       clearTimeout(this.timeout);
-      this.timeout = setTimeout(() => this.setCursor(null), timeout);
+      this.timeout = setTimeout(() => this.setCursor(null), timeout2);
     }
     computeTarget(event) {
       let pos = this.editorView.posAtCoords({ left: event.clientX, top: event.clientY });
@@ -22344,8 +33607,8 @@ ${prefix}
     constructor($pos) {
       super($pos, $pos);
     }
-    map(doc3, mapping) {
-      let $pos = doc3.resolve(mapping.map(this.head));
+    map(doc4, mapping) {
+      let $pos = doc4.resolve(mapping.map(this.head));
       return _GapCursor.valid($pos) ? new _GapCursor($pos) : Selection.near($pos);
     }
     content() {
@@ -22360,10 +33623,10 @@ ${prefix}
     /**
     @internal
     */
-    static fromJSON(doc3, json) {
+    static fromJSON(doc4, json) {
       if (typeof json.pos != "number")
         throw new RangeError("Invalid input for GapCursor.fromJSON");
-      return new _GapCursor(doc3.resolve(json.pos));
+      return new _GapCursor(doc4.resolve(json.pos));
     }
     /**
     @internal
@@ -22435,8 +33698,8 @@ ${prefix}
     map(mapping) {
       return new _GapBookmark(mapping.map(this.pos));
     }
-    resolve(doc3) {
-      let $pos = doc3.resolve(this.pos);
+    resolve(doc4) {
+      let $pos = doc4.resolve(this.pos);
       return GapCursor.valid($pos) ? new GapCursor($pos) : Selection.near($pos);
     }
   };
@@ -22558,8 +33821,8 @@ ${prefix}
         limit: null,
         autoTrim: true,
         mode: "textSize",
-        textCounter: (text) => text.length,
-        wordCounter: (text) => text.split(" ").filter((word) => word !== "").length
+        textCounter: (text2) => text2.length,
+        wordCounter: (text2) => text2.split(" ").filter((word2) => word2 !== "").length
       };
     },
     addStorage() {
@@ -22572,15 +33835,15 @@ ${prefix}
       this.storage.characters = (options) => {
         const node = (options === null || options === void 0 ? void 0 : options.node) || this.editor.state.doc;
         if (((options === null || options === void 0 ? void 0 : options.mode) || this.options.mode) === "textSize") {
-          const text = node.textBetween(0, node.content.size, void 0, " ");
-          return this.options.textCounter(text);
+          const text2 = node.textBetween(0, node.content.size, void 0, " ");
+          return this.options.textCounter(text2);
         }
         return node.nodeSize;
       };
       this.storage.words = (options) => {
         const node = (options === null || options === void 0 ? void 0 : options.node) || this.editor.state.doc;
-        const text = node.textBetween(0, node.content.size, " ", " ");
-        return this.options.wordCounter(text);
+        const text2 = node.textBetween(0, node.content.size, " ", " ");
+        return this.options.wordCounter(text2);
       };
     },
     addProseMirrorPlugins() {
@@ -22598,10 +33861,10 @@ ${prefix}
           const initialContentSize = this.storage.characters({ node: newState.doc });
           if (initialContentSize > limit) {
             const over = initialContentSize - limit;
-            const from2 = 0;
+            const from3 = 0;
             const to = over;
             console.warn(`[CharacterCount] Initial content exceeded limit of ${limit} characters. Content was automatically trimmed.`);
-            const tr2 = newState.tr.deleteRange(from2, to);
+            const tr2 = newState.tr.deleteRange(from3, to);
             initialEvaluationDone = true;
             return tr2;
           }
@@ -22617,9 +33880,9 @@ ${prefix}
           if (oldSize > limit && newSize > limit && newSize > oldSize) return false;
           if (!transaction.getMeta("paste")) return false;
           const pos = transaction.selection.$head.pos;
-          const from2 = pos - (newSize - limit);
+          const from3 = pos - (newSize - limit);
           const to = pos;
-          transaction.deleteRange(from2, to);
+          transaction.deleteRange(from3, to);
           if (this.storage.characters({ node: transaction.doc }) > limit) return false;
           return true;
         }
@@ -22650,26 +33913,26 @@ ${prefix}
     addProseMirrorPlugins() {
       return [new Plugin({
         key: new PluginKey("focus"),
-        props: { decorations: ({ doc: doc3, selection }) => {
+        props: { decorations: ({ doc: doc4, selection }) => {
           const { isEditable, isFocused } = this.editor;
           const { anchor } = selection;
           const decorations = [];
-          if (!isEditable || !isFocused) return DecorationSet.create(doc3, []);
+          if (!isEditable || !isFocused) return DecorationSet.create(doc4, []);
           let maxLevels = 0;
-          if (this.options.mode === "deepest") doc3.descendants((node, pos) => {
+          if (this.options.mode === "deepest") doc4.descendants((node, pos) => {
             if (node.isText) return;
             if (!(anchor >= pos && anchor <= pos + node.nodeSize - 1)) return false;
             maxLevels += 1;
           });
           let currentLevel = 0;
-          doc3.descendants((node, pos) => {
+          doc4.descendants((node, pos) => {
             if (node.isText) return false;
             if (!(anchor >= pos && anchor <= pos + node.nodeSize - 1)) return false;
             currentLevel += 1;
             if (this.options.mode === "deepest" && maxLevels - currentLevel > 0 || this.options.mode === "shallowest" && currentLevel > 1) return this.options.mode === "deepest";
             decorations.push(Decoration.node(pos, pos + node.nodeSize, { class: this.options.className }));
           });
-          return DecorationSet.create(doc3, decorations);
+          return DecorationSet.create(doc4, decorations);
         } }
       })];
     }
@@ -22708,15 +33971,15 @@ ${prefix}
   function resolveEmptyNodeClass(emptyNodeClass, props) {
     return typeof emptyNodeClass === "function" ? emptyNodeClass(props) : emptyNodeClass;
   }
-  function scanRangeForDecorations({ editor, options, dataAttribute, doc: doc3, selection, from: from2, to }) {
+  function scanRangeForDecorations({ editor, options, dataAttribute, doc: doc4, selection, from: from3, to }) {
     const { anchor } = selection;
     const decorations = [];
     const isEmptyDoc = editor.isEmpty;
-    doc3.nodesBetween(from2, to, (node, pos) => {
+    doc4.nodesBetween(from3, to, (node, pos) => {
       const hasAnchor = anchor >= pos && anchor <= pos + node.nodeSize;
-      const isEmpty2 = !node.isLeaf && isNodeEmpty(node);
+      const isEmpty3 = !node.isLeaf && isNodeEmpty(node);
       if (!node.type.isTextblock) return options.includeChildren;
-      if ((hasAnchor || !options.showOnlyCurrent) && isEmpty2) decorations.push(createPlaceholderDecoration({
+      if ((hasAnchor || !options.showOnlyCurrent) && isEmpty3) decorations.push(createPlaceholderDecoration({
         editor,
         isEmptyDoc,
         dataAttribute,
@@ -22738,13 +34001,13 @@ ${prefix}
     });
     return decorations;
   }
-  function buildPlaceholderDecorations({ editor, options, dataAttribute, doc: doc3, selection }) {
+  function buildPlaceholderDecorations({ editor, options, dataAttribute, doc: doc4, selection }) {
     if (!(editor.isEditable || !options.showOnlyWhenEditable)) return null;
     const { anchor } = selection;
     const decorations = [];
     const isEmptyDoc = editor.isEmpty;
     if (options.showOnlyCurrent && !options.includeChildren) {
-      const resolved = doc3.resolve(anchor);
+      const resolved = doc4.resolve(anchor);
       const node = resolved.depth > 0 ? resolved.node(1) : resolved.nodeAfter;
       const nodeStart = resolved.depth > 0 ? resolved.before(1) : anchor;
       if (node && node.type.isTextblock && isNodeEmpty(node)) {
@@ -22772,15 +34035,15 @@ ${prefix}
       editor,
       options,
       dataAttribute,
-      doc: doc3,
+      doc: doc4,
       selection,
       from: 0,
-      to: doc3.content.size
+      to: doc4.content.size
     }));
-    return DecorationSet.create(doc3, decorations);
+    return DecorationSet.create(doc4, decorations);
   }
-  function resolveTopLevelRange(doc3, pos) {
-    const resolved = doc3.resolve(pos);
+  function resolveTopLevelRange(doc4, pos) {
+    const resolved = doc4.resolve(pos);
     if (resolved.depth === 0) {
       var _resolved$nodeAfter;
       const node = (_resolved$nodeAfter = resolved.nodeAfter) !== null && _resolved$nodeAfter !== void 0 ? _resolved$nodeAfter : resolved.nodeBefore;
@@ -22800,20 +34063,20 @@ ${prefix}
       to: topLevelPos + resolved.node(1).nodeSize
     };
   }
-  function toContentRelativeRange(doc3, range) {
+  function toContentRelativeRange(doc4, range) {
     return {
       from: Math.max(0, range.from),
-      to: Math.min(doc3.content.size, range.to)
+      to: Math.min(doc4.content.size, range.to)
     };
   }
-  function getTopLevelBlocksInRange(doc3, from2, to) {
+  function getTopLevelBlocksInRange(doc4, from3, to) {
     const ranges = [];
-    doc3.forEach((node, offset) => {
+    doc4.forEach((node, offset) => {
       const nodeStart = offset;
       const nodeEnd = nodeStart + node.nodeSize;
       const absNodeStart = nodeStart + 1;
       const absNodeEnd = nodeEnd + 1;
-      if (absNodeStart < to && absNodeEnd > from2) ranges.push({
+      if (absNodeStart < to && absNodeEnd > from3) ranges.push({
         from: nodeStart,
         to: nodeEnd
       });
@@ -22825,18 +34088,18 @@ ${prefix}
     const sorted = [...ranges].sort((a, b) => a.from - b.from);
     const merged = [{ ...sorted[0] }];
     for (let i2 = 1; i2 < sorted.length; i2 += 1) {
-      const last = merged[merged.length - 1];
+      const last2 = merged[merged.length - 1];
       const current = sorted[i2];
-      if (current.from <= last.to) last.to = Math.max(last.to, current.to);
+      if (current.from <= last2.to) last2.to = Math.max(last2.to, current.to);
       else merged.push({ ...current });
     }
     return merged;
   }
-  function collectBlocksForChange(doc3, change) {
-    const ranges = getTopLevelBlocksInRange(doc3, change.from, change.to);
-    ranges.push(toContentRelativeRange(doc3, resolveTopLevelRange(doc3, change.from)));
-    if (change.to > change.from) ranges.push(toContentRelativeRange(doc3, resolveTopLevelRange(doc3, Math.min(change.to, doc3.content.size + 1) - 1)));
-    else if (change.from < doc3.content.size + 1) ranges.push(toContentRelativeRange(doc3, resolveTopLevelRange(doc3, Math.min(change.from + 1, doc3.content.size))));
+  function collectBlocksForChange(doc4, change) {
+    const ranges = getTopLevelBlocksInRange(doc4, change.from, change.to);
+    ranges.push(toContentRelativeRange(doc4, resolveTopLevelRange(doc4, change.from)));
+    if (change.to > change.from) ranges.push(toContentRelativeRange(doc4, resolveTopLevelRange(doc4, Math.min(change.to, doc4.content.size + 1) - 1)));
+    else if (change.from < doc4.content.size + 1) ranges.push(toContentRelativeRange(doc4, resolveTopLevelRange(doc4, Math.min(change.from + 1, doc4.content.size))));
     return ranges;
   }
   function collectRescanRanges(tr2, oldState, newState) {
@@ -22851,29 +34114,29 @@ ${prefix}
     }
     return mergeRanges(ranges);
   }
-  function clampRange(from2, to, doc3) {
-    const clampedFrom = Math.max(0, Math.min(from2, doc3.content.size));
+  function clampRange(from3, to, doc4) {
+    const clampedFrom = Math.max(0, Math.min(from3, doc4.content.size));
     return {
       from: clampedFrom,
-      to: Math.max(clampedFrom, Math.min(to, doc3.content.size))
+      to: Math.max(clampedFrom, Math.min(to, doc4.content.size))
     };
   }
-  function updateDecorationsInRanges({ decorations, ranges, editor, options, dataAttribute, doc: doc3, selection }) {
+  function updateDecorationsInRanges({ decorations, ranges, editor, options, dataAttribute, doc: doc4, selection }) {
     let next = decorations;
     for (const range of ranges) {
-      const { from: from2, to } = clampRange(range.from, range.to, doc3);
-      const existing = next.find(from2, to).filter((decoration) => decoration.from >= from2 && decoration.to <= to);
+      const { from: from3, to } = clampRange(range.from, range.to, doc4);
+      const existing = next.find(from3, to).filter((decoration) => decoration.from >= from3 && decoration.to <= to);
       if (existing.length) next = next.remove(existing);
       const newDecos = scanRangeForDecorations({
         editor,
         options,
         dataAttribute,
-        doc: doc3,
+        doc: doc4,
         selection,
-        from: from2,
+        from: from3,
         to
       });
-      if (newDecos.length) next = next.add(doc3, newDecos);
+      if (newDecos.length) next = next.add(doc4, newDecos);
     }
     return next;
   }
@@ -22916,11 +34179,11 @@ ${prefix}
         options,
         dataAttribute
       }) },
-      props: { decorations: useResolvedPath ? ({ doc: doc3, selection }) => buildPlaceholderDecorations({
+      props: { decorations: useResolvedPath ? ({ doc: doc4, selection }) => buildPlaceholderDecorations({
         editor,
         options,
         dataAttribute,
-        doc: doc3,
+        doc: doc4,
         selection
       }) : (state) => {
         var _PLUGIN_KEY$getState;
@@ -23013,9 +34276,9 @@ ${prefix}
       return [new Plugin({
         key: plugin,
         appendTransaction: (transactions, __, state) => {
-          const { doc: doc3, tr: tr2, schema } = state;
+          const { doc: doc4, tr: tr2, schema } = state;
           const shouldInsertNodeAtEnd = plugin.getState(state);
-          const endPosition = doc3.content.size;
+          const endPosition = doc4.content.size;
           const type = schema.nodes[defaultNode];
           if (transactions.some((transaction) => transaction.getMeta("skipTrailingNode"))) return;
           if (!shouldInsertNodeAtEnd) return;
@@ -23116,22 +34379,22 @@ ${prefix}
       return extensions;
     }
   });
-  var src_default = StarterKit;
+  var src_default2 = StarterKit;
 
   // node_modules/@tiptap/extension-text-style/dist/index.js
   var MAX_FIND_CHILD_SPAN_DEPTH = 20;
-  var findChildSpans = (element, depth = 0) => {
+  var findChildSpans = (element2, depth = 0) => {
     const childSpans = [];
-    if (!element.children.length || depth > MAX_FIND_CHILD_SPAN_DEPTH) return childSpans;
-    Array.from(element.children).forEach((child) => {
+    if (!element2.children.length || depth > MAX_FIND_CHILD_SPAN_DEPTH) return childSpans;
+    Array.from(element2.children).forEach((child) => {
       if (child.tagName === "SPAN") childSpans.push(child);
       else if (child.children.length) childSpans.push(...findChildSpans(child, depth + 1));
     });
     return childSpans;
   };
-  var mergeNestedSpanStyles = (element) => {
-    if (!element.children.length) return;
-    const childSpans = findChildSpans(element);
+  var mergeNestedSpanStyles = (element2) => {
+    if (!element2.children.length) return;
+    const childSpans = findChildSpans(element2);
     if (!childSpans) return;
     childSpans.forEach((childSpan) => {
       var _childSpan$parentElem;
@@ -23153,9 +34416,9 @@ ${prefix}
       return [{
         tag: "span",
         consuming: false,
-        getAttrs: (element) => {
-          if (!element.hasAttribute("style")) return false;
-          if (this.options.mergeNestedSpanStyles) mergeNestedSpanStyles(element);
+        getAttrs: (element2) => {
+          if (!element2.hasAttribute("style")) return false;
+          if (this.options.mergeNestedSpanStyles) mergeNestedSpanStyles(element2);
           return {};
         }
       }];
@@ -23193,9 +34456,9 @@ ${prefix}
         types: this.options.types,
         attributes: { backgroundColor: {
           default: null,
-          parseHTML: (element) => {
+          parseHTML: (element2) => {
             var _getStyleProperty;
-            const value = (_getStyleProperty = getStyleProperty(element, "background-color")) !== null && _getStyleProperty !== void 0 ? _getStyleProperty : element.style.backgroundColor;
+            const value = (_getStyleProperty = getStyleProperty(element2, "background-color")) !== null && _getStyleProperty !== void 0 ? _getStyleProperty : element2.style.backgroundColor;
             return value === null || value === void 0 ? void 0 : value.replace(/['"]+/g, "");
           },
           renderHTML: (attributes) => {
@@ -23226,9 +34489,9 @@ ${prefix}
         types: this.options.types,
         attributes: { color: {
           default: null,
-          parseHTML: (element) => {
+          parseHTML: (element2) => {
             var _getStyleProperty;
-            const value = (_getStyleProperty = getStyleProperty(element, "color")) !== null && _getStyleProperty !== void 0 ? _getStyleProperty : element.style.color;
+            const value = (_getStyleProperty = getStyleProperty(element2, "color")) !== null && _getStyleProperty !== void 0 ? _getStyleProperty : element2.style.color;
             return value === null || value === void 0 ? void 0 : value.replace(/['"]+/g, "");
           },
           renderHTML: (attributes) => {
@@ -23259,9 +34522,9 @@ ${prefix}
         types: this.options.types,
         attributes: { fontFamily: {
           default: null,
-          parseHTML: (element) => {
+          parseHTML: (element2) => {
             var _getStyleProperty;
-            return (_getStyleProperty = getStyleProperty(element, "font-family")) !== null && _getStyleProperty !== void 0 ? _getStyleProperty : element.style.fontFamily;
+            return (_getStyleProperty = getStyleProperty(element2, "font-family")) !== null && _getStyleProperty !== void 0 ? _getStyleProperty : element2.style.fontFamily;
           },
           renderHTML: (attributes) => {
             if (!isValidCSSStyleValue(attributes.fontFamily)) return {};
@@ -23291,9 +34554,9 @@ ${prefix}
         types: this.options.types,
         attributes: { fontSize: {
           default: null,
-          parseHTML: (element) => {
+          parseHTML: (element2) => {
             var _getStyleProperty;
-            return (_getStyleProperty = getStyleProperty(element, "font-size")) !== null && _getStyleProperty !== void 0 ? _getStyleProperty : element.style.fontSize;
+            return (_getStyleProperty = getStyleProperty(element2, "font-size")) !== null && _getStyleProperty !== void 0 ? _getStyleProperty : element2.style.fontSize;
           },
           renderHTML: (attributes) => {
             if (!isValidCSSStyleValue(attributes.fontSize)) return {};
@@ -23323,9 +34586,9 @@ ${prefix}
         types: this.options.types,
         attributes: { lineHeight: {
           default: null,
-          parseHTML: (element) => {
+          parseHTML: (element2) => {
             var _getStyleProperty;
-            return (_getStyleProperty = getStyleProperty(element, "line-height")) !== null && _getStyleProperty !== void 0 ? _getStyleProperty : element.style.lineHeight;
+            return (_getStyleProperty = getStyleProperty(element2, "line-height")) !== null && _getStyleProperty !== void 0 ? _getStyleProperty : element2.style.lineHeight;
           },
           renderHTML: (attributes) => {
             if (!isValidCSSStyleValue(attributes.lineHeight)) return {};
@@ -23379,8 +34642,8 @@ ${prefix}
         types: this.options.types,
         attributes: { textAlign: {
           default: this.options.defaultAlignment,
-          parseHTML: (element) => {
-            const alignment = element.style.textAlign;
+          parseHTML: (element2) => {
+            const alignment = element2.style.textAlign;
             return this.options.alignments.includes(alignment) ? alignment : this.options.defaultAlignment;
           },
           renderHTML: (attributes) => {
@@ -23415,42 +34678,103 @@ ${prefix}
       };
     }
   });
-  var src_default2 = TextAlign;
+  var src_default3 = TextAlign;
 
   // node_modules/@tiptap/extension-placeholder/dist/index.js
-  var src_default3 = Placeholder;
+  var src_default4 = Placeholder;
 
   // rich-editor.source.js
   var import_text_markdown = __toESM(require_text_markdown());
+
+  // science-editor.source.js
+  var import_science_references = __toESM(require_science_references());
+  var ref = import_science_references.default || globalThis.GlassReferences;
+  var ReferenceLabel = Node2.create({ name: "referenceLabel", group: "block", atom: true, addAttributes() {
+    return { id: { default: "" }, kind: { default: "equation" }, title: { default: "" }, label: { default: "" } };
+  }, parseHTML() {
+    return [{ tag: "div[data-reference-label]", getAttrs: (el) => ({ id: el.dataset.referenceLabel, kind: el.dataset.kind, title: el.dataset.title || "" }) }];
+  }, renderHTML({ node }) {
+    return ["div", { "data-reference-label": node.attrs.id, "data-kind": node.attrs.kind, "data-title": node.attrs.title, class: "science-label" }, node.attrs.label];
+  } });
+  var CrossReference = Node2.create({ name: "crossReference", group: "inline", inline: true, atom: true, addAttributes() {
+    return { target: { default: "" }, label: { default: "" } };
+  }, parseHTML() {
+    return [{ tag: "span[data-cross-reference]", getAttrs: (el) => ({ target: el.dataset.crossReference }) }];
+  }, renderHTML({ node }) {
+    return ["span", { "data-cross-reference": node.attrs.target, class: "science-reference", role: "link", tabindex: "0" }, node.attrs.label];
+  } });
+  var PageBreak = Node2.create({ name: "pageBreak", group: "block", atom: true, parseHTML() {
+    return [{ tag: "div[data-page-break]" }];
+  }, renderHTML() {
+    return ["div", { "data-page-break": "true", class: "document-page-break" }, "Page break"];
+  } });
+  var key = new PluginKey("glassReview");
+  var ScienceTools = Extension.create({ name: "scienceTools", addGlobalAttributes() {
+    return [{ types: ["paragraph"], attributes: { hanging: { default: false, parseHTML: (el) => el.hasAttribute("data-hanging"), renderHTML: (attrs) => attrs.hanging ? { "data-hanging": "true", style: "padding-left:0.5in;text-indent:-0.5in" } : {} } } }];
+  }, addProseMirrorPlugins() {
+    return [new Plugin({ key, state: { init: () => DecorationSet.empty, apply(tr2, old) {
+      const review = tr2.getMeta(key);
+      if (review) return DecorationSet.create(tr2.doc, review.filter((s) => s.from >= 0 && s.to <= tr2.doc.content.size && s.to > s.from).map((s, i2) => Decoration.inline(s.from, s.to, { class: "grammar-underline " + (s.kind === "spelling" ? "spelling" : "grammar"), "data-review-index": String(i2), tabindex: "0", role: "button", "aria-label": s.explanation || "Review suggestion" })));
+      return tr2.docChanged ? DecorationSet.empty : old;
+    } }, props: { decorations(state) {
+      return this.getState(state);
+    }, handleClick(view, pos, event) {
+      const target = event.target.closest("[data-cross-reference]");
+      if (target) {
+        const id2 = target.dataset.crossReference;
+        for (const el of view.dom.querySelectorAll("[data-reference-label]")) if (el.dataset.referenceLabel === id2) {
+          el.scrollIntoView({ block: "center", behavior: "smooth" });
+          el.classList.add("reference-highlight");
+          setTimeout(() => el.classList.remove("reference-highlight"), 1500);
+          break;
+        }
+        return true;
+      }
+      return false;
+    } }, appendTransaction(transactions, oldState, state) {
+      if (!transactions.some((t) => t.docChanged)) return null;
+      const json = state.doc.toJSON(), targets = ref.labels(json), tr2 = state.tr;
+      state.doc.descendants((node, pos) => {
+        if (node.type.name === "referenceLabel" || node.type.name === "crossReference") {
+          const label = ref.labelFor(node.toJSON(), targets);
+          if (node.attrs.label !== label) tr2.setNodeMarkup(pos, void 0, { ...node.attrs, label });
+        }
+      });
+      return tr2.docChanged ? tr2.setMeta("addToHistory", false) : null;
+    } })];
+  } });
+  function setReview(editor, suggestions) {
+    editor.view.dispatch(editor.state.tr.setMeta(key, suggestions));
+  }
 
   // node_modules/prosemirror-tables/dist/index.js
   var readFromCache;
   var addToCache;
   if (typeof WeakMap != "undefined") {
     let cache = /* @__PURE__ */ new WeakMap();
-    readFromCache = (key) => cache.get(key);
-    addToCache = (key, value) => {
-      cache.set(key, value);
+    readFromCache = (key2) => cache.get(key2);
+    addToCache = (key2, value) => {
+      cache.set(key2, value);
       return value;
     };
   } else {
     const cache = [];
     const cacheSize = 10;
     let cachePos = 0;
-    readFromCache = (key) => {
-      for (let i2 = 0; i2 < cache.length; i2 += 2) if (cache[i2] == key) return cache[i2 + 1];
+    readFromCache = (key2) => {
+      for (let i2 = 0; i2 < cache.length; i2 += 2) if (cache[i2] == key2) return cache[i2 + 1];
     };
-    addToCache = (key, value) => {
+    addToCache = (key2, value) => {
       if (cachePos == cacheSize) cachePos = 0;
-      cache[cachePos++] = key;
+      cache[cachePos++] = key2;
       return cache[cachePos++] = value;
     };
   }
   var TableMap = class {
-    constructor(width, height, map2, problems) {
+    constructor(width, height, map3, problems) {
       this.width = width;
       this.height = height;
-      this.map = map2;
+      this.map = map3;
       this.problems = problems;
     }
     findCell(pos) {
@@ -23528,16 +34852,16 @@ ${prefix}
   function computeMap(table) {
     if (table.type.spec.tableRole != "table") throw new RangeError("Not a table node: " + table.type.name);
     const width = findWidth(table), height = table.childCount;
-    const map2 = [];
+    const map3 = [];
     let mapPos = 0;
     let problems = null;
     const colWidths = [];
-    for (let i2 = 0, e = width * height; i2 < e; i2++) map2[i2] = 0;
+    for (let i2 = 0, e = width * height; i2 < e; i2++) map3[i2] = 0;
     for (let row = 0, pos = 0; row < height; row++) {
       const rowNode = table.child(row);
       pos++;
       for (let i2 = 0; ; i2++) {
-        while (mapPos < map2.length && map2[mapPos] != 0) mapPos++;
+        while (mapPos < map3.length && map3[mapPos] != 0) mapPos++;
         if (i2 == rowNode.childCount) break;
         const cellNode = rowNode.child(i2);
         const { colspan, rowspan, colwidth } = cellNode.attrs;
@@ -23552,7 +34876,7 @@ ${prefix}
           }
           const start = mapPos + h2 * width;
           for (let w = 0; w < colspan; w++) {
-            if (map2[start + w] == 0) map2[start + w] = pos;
+            if (map3[start + w] == 0) map3[start + w] = pos;
             else (problems || (problems = [])).push({
               type: "collision",
               row,
@@ -23574,7 +34898,7 @@ ${prefix}
       }
       const expectedPos = (row + 1) * width;
       let missing = 0;
-      while (mapPos < expectedPos) if (map2[mapPos++] == 0) missing++;
+      while (mapPos < expectedPos) if (map3[mapPos++] == 0) missing++;
       if (missing) (problems || (problems = [])).push({
         type: "missing",
         row,
@@ -23583,7 +34907,7 @@ ${prefix}
       pos++;
     }
     if (width === 0 || height === 0) (problems || (problems = [])).push({ type: "zero_sized" });
-    const tableMap = new TableMap(width, height, map2, problems);
+    const tableMap = new TableMap(width, height, map3, problems);
     let badWidths = false;
     for (let i2 = 0; !badWidths && i2 < colWidths.length; i2 += 2) if (colWidths[i2] != null && colWidths[i2 + 1] < height) badWidths = true;
     if (badWidths) findBadColWidths(tableMap, colWidths, table);
@@ -23612,11 +34936,11 @@ ${prefix}
     }
     return width;
   }
-  function findBadColWidths(map2, colWidths, table) {
-    if (!map2.problems) map2.problems = [];
+  function findBadColWidths(map3, colWidths, table) {
+    if (!map3.problems) map3.problems = [];
     const seen = {};
-    for (let i2 = 0; i2 < map2.map.length; i2++) {
-      const pos = map2.map[i2];
+    for (let i2 = 0; i2 < map3.map.length; i2++) {
+      const pos = map3.map[i2];
       if (seen[pos]) continue;
       seen[pos] = true;
       const node = table.nodeAt(pos);
@@ -23624,10 +34948,10 @@ ${prefix}
       let updated = null;
       const attrs = node.attrs;
       for (let j = 0; j < attrs.colspan; j++) {
-        const colWidth = colWidths[(i2 + j) % map2.width * 2];
+        const colWidth = colWidths[(i2 + j) % map3.width * 2];
         if (colWidth != null && (!attrs.colwidth || attrs.colwidth[j] != colWidth)) (updated || (updated = freshColWidth(attrs)))[j] = colWidth;
       }
-      if (updated) map2.problems.unshift({
+      if (updated) map3.problems.unshift({
         type: "colwidth mismatch",
         pos,
         colwidth: updated
@@ -23697,9 +35021,9 @@ ${prefix}
   }
   function nextCell($pos, axis, dir) {
     const table = $pos.node(-1);
-    const map2 = TableMap.get(table);
+    const map3 = TableMap.get(table);
     const tableStart = $pos.start(-1);
-    const moved = map2.nextCell($pos.pos - tableStart, axis, dir);
+    const moved = map3.nextCell($pos.pos - tableStart, axis, dir);
     return moved == null ? null : $pos.node(0).resolve(tableStart + moved);
   }
   function removeColSpan(attrs, pos, n = 1) {
@@ -23725,33 +35049,33 @@ ${prefix}
     }
     return result;
   }
-  function columnIsHeader(map2, table, col) {
+  function columnIsHeader(map3, table, col) {
     const headerCell = tableNodeTypes(table.type.schema).header_cell;
-    for (let row = 0; row < map2.height; row++) if (table.nodeAt(map2.map[col + row * map2.width]).type != headerCell) return false;
+    for (let row = 0; row < map3.height; row++) if (table.nodeAt(map3.map[col + row * map3.width]).type != headerCell) return false;
     return true;
   }
   var CellSelection = class CellSelection2 extends Selection {
     constructor($anchorCell, $headCell = $anchorCell) {
       const table = $anchorCell.node(-1);
-      const map2 = TableMap.get(table);
+      const map3 = TableMap.get(table);
       const tableStart = $anchorCell.start(-1);
-      const rect = map2.rectBetween($anchorCell.pos - tableStart, $headCell.pos - tableStart);
-      const doc3 = $anchorCell.node(0);
-      const cells = map2.cellsInRect(rect).filter((p) => p != $headCell.pos - tableStart);
+      const rect = map3.rectBetween($anchorCell.pos - tableStart, $headCell.pos - tableStart);
+      const doc4 = $anchorCell.node(0);
+      const cells = map3.cellsInRect(rect).filter((p) => p != $headCell.pos - tableStart);
       cells.unshift($headCell.pos - tableStart);
       const ranges = cells.map((pos) => {
         const cell2 = table.nodeAt(pos);
         if (!cell2) throw new RangeError(`No cell with offset ${pos} found`);
-        const from2 = tableStart + pos + 1;
-        return new SelectionRange(doc3.resolve(from2), doc3.resolve(from2 + cell2.content.size));
+        const from3 = tableStart + pos + 1;
+        return new SelectionRange(doc4.resolve(from3), doc4.resolve(from3 + cell2.content.size));
       });
       super(ranges[0].$from, ranges[0].$to, ranges);
       this.$anchorCell = $anchorCell;
       this.$headCell = $headCell;
     }
-    map(doc3, mapping) {
-      const $anchorCell = doc3.resolve(mapping.map(this.$anchorCell.pos));
-      const $headCell = doc3.resolve(mapping.map(this.$headCell.pos));
+    map(doc4, mapping) {
+      const $anchorCell = doc4.resolve(mapping.map(this.$anchorCell.pos));
+      const $headCell = doc4.resolve(mapping.map(this.$headCell.pos));
       if (pointsAtCell($anchorCell) && pointsAtCell($headCell) && inSameTable($anchorCell, $headCell)) {
         const tableChanged = this.$anchorCell.node(-1) != $anchorCell.node(-1);
         if (tableChanged && this.isRowSelection()) return CellSelection2.rowSelection($anchorCell, $headCell);
@@ -23762,18 +35086,18 @@ ${prefix}
     }
     content() {
       const table = this.$anchorCell.node(-1);
-      const map2 = TableMap.get(table);
+      const map3 = TableMap.get(table);
       const tableStart = this.$anchorCell.start(-1);
-      const rect = map2.rectBetween(this.$anchorCell.pos - tableStart, this.$headCell.pos - tableStart);
+      const rect = map3.rectBetween(this.$anchorCell.pos - tableStart, this.$headCell.pos - tableStart);
       const seen = {};
       const rows = [];
       for (let row = rect.top; row < rect.bottom; row++) {
         const rowContent = [];
-        for (let index = row * map2.width + rect.left, col = rect.left; col < rect.right; col++, index++) {
-          const pos = map2.map[index];
+        for (let index = row * map3.width + rect.left, col = rect.left; col < rect.right; col++, index++) {
+          const pos = map3.map[index];
           if (seen[pos]) continue;
           seen[pos] = true;
-          const cellRect = map2.findCell(pos);
+          const cellRect = map3.findCell(pos);
           let cell2 = table.nodeAt(pos);
           if (!cell2) throw new RangeError(`No cell with offset ${pos} found`);
           const extraLeft = rect.left - cellRect.left;
@@ -23816,9 +35140,9 @@ ${prefix}
     }
     forEachCell(f) {
       const table = this.$anchorCell.node(-1);
-      const map2 = TableMap.get(table);
+      const map3 = TableMap.get(table);
       const tableStart = this.$anchorCell.start(-1);
-      const cells = map2.cellsInRect(map2.rectBetween(this.$anchorCell.pos - tableStart, this.$headCell.pos - tableStart));
+      const cells = map3.cellsInRect(map3.rectBetween(this.$anchorCell.pos - tableStart, this.$headCell.pos - tableStart));
       for (let i2 = 0; i2 < cells.length; i2++) f(table.nodeAt(cells[i2]), tableStart + cells[i2]);
     }
     isColSelection() {
@@ -23831,47 +35155,47 @@ ${prefix}
     }
     static colSelection($anchorCell, $headCell = $anchorCell) {
       const table = $anchorCell.node(-1);
-      const map2 = TableMap.get(table);
+      const map3 = TableMap.get(table);
       const tableStart = $anchorCell.start(-1);
-      const anchorRect = map2.findCell($anchorCell.pos - tableStart);
-      const headRect = map2.findCell($headCell.pos - tableStart);
-      const doc3 = $anchorCell.node(0);
+      const anchorRect = map3.findCell($anchorCell.pos - tableStart);
+      const headRect = map3.findCell($headCell.pos - tableStart);
+      const doc4 = $anchorCell.node(0);
       if (anchorRect.top <= headRect.top) {
-        if (anchorRect.top > 0) $anchorCell = doc3.resolve(tableStart + map2.map[anchorRect.left]);
-        if (headRect.bottom < map2.height) $headCell = doc3.resolve(tableStart + map2.map[map2.width * (map2.height - 1) + headRect.right - 1]);
+        if (anchorRect.top > 0) $anchorCell = doc4.resolve(tableStart + map3.map[anchorRect.left]);
+        if (headRect.bottom < map3.height) $headCell = doc4.resolve(tableStart + map3.map[map3.width * (map3.height - 1) + headRect.right - 1]);
       } else {
-        if (headRect.top > 0) $headCell = doc3.resolve(tableStart + map2.map[headRect.left]);
-        if (anchorRect.bottom < map2.height) $anchorCell = doc3.resolve(tableStart + map2.map[map2.width * (map2.height - 1) + anchorRect.right - 1]);
+        if (headRect.top > 0) $headCell = doc4.resolve(tableStart + map3.map[headRect.left]);
+        if (anchorRect.bottom < map3.height) $anchorCell = doc4.resolve(tableStart + map3.map[map3.width * (map3.height - 1) + anchorRect.right - 1]);
       }
       return new CellSelection2($anchorCell, $headCell);
     }
     isRowSelection() {
       const table = this.$anchorCell.node(-1);
-      const map2 = TableMap.get(table);
+      const map3 = TableMap.get(table);
       const tableStart = this.$anchorCell.start(-1);
-      const anchorLeft = map2.colCount(this.$anchorCell.pos - tableStart);
-      const headLeft = map2.colCount(this.$headCell.pos - tableStart);
+      const anchorLeft = map3.colCount(this.$anchorCell.pos - tableStart);
+      const headLeft = map3.colCount(this.$headCell.pos - tableStart);
       if (Math.min(anchorLeft, headLeft) > 0) return false;
       const anchorRight = anchorLeft + this.$anchorCell.nodeAfter.attrs.colspan;
       const headRight = headLeft + this.$headCell.nodeAfter.attrs.colspan;
-      return Math.max(anchorRight, headRight) == map2.width;
+      return Math.max(anchorRight, headRight) == map3.width;
     }
     eq(other) {
       return other instanceof CellSelection2 && other.$anchorCell.pos == this.$anchorCell.pos && other.$headCell.pos == this.$headCell.pos;
     }
     static rowSelection($anchorCell, $headCell = $anchorCell) {
       const table = $anchorCell.node(-1);
-      const map2 = TableMap.get(table);
+      const map3 = TableMap.get(table);
       const tableStart = $anchorCell.start(-1);
-      const anchorRect = map2.findCell($anchorCell.pos - tableStart);
-      const headRect = map2.findCell($headCell.pos - tableStart);
-      const doc3 = $anchorCell.node(0);
+      const anchorRect = map3.findCell($anchorCell.pos - tableStart);
+      const headRect = map3.findCell($headCell.pos - tableStart);
+      const doc4 = $anchorCell.node(0);
       if (anchorRect.left <= headRect.left) {
-        if (anchorRect.left > 0) $anchorCell = doc3.resolve(tableStart + map2.map[anchorRect.top * map2.width]);
-        if (headRect.right < map2.width) $headCell = doc3.resolve(tableStart + map2.map[map2.width * (headRect.top + 1) - 1]);
+        if (anchorRect.left > 0) $anchorCell = doc4.resolve(tableStart + map3.map[anchorRect.top * map3.width]);
+        if (headRect.right < map3.width) $headCell = doc4.resolve(tableStart + map3.map[map3.width * (headRect.top + 1) - 1]);
       } else {
-        if (headRect.left > 0) $headCell = doc3.resolve(tableStart + map2.map[headRect.top * map2.width]);
-        if (anchorRect.right < map2.width) $anchorCell = doc3.resolve(tableStart + map2.map[map2.width * (anchorRect.top + 1) - 1]);
+        if (headRect.left > 0) $headCell = doc4.resolve(tableStart + map3.map[headRect.top * map3.width]);
+        if (anchorRect.right < map3.width) $anchorCell = doc4.resolve(tableStart + map3.map[map3.width * (anchorRect.top + 1) - 1]);
       }
       return new CellSelection2($anchorCell, $headCell);
     }
@@ -23882,11 +35206,11 @@ ${prefix}
         head: this.$headCell.pos
       };
     }
-    static fromJSON(doc3, json) {
-      return new CellSelection2(doc3.resolve(json.anchor), doc3.resolve(json.head));
+    static fromJSON(doc4, json) {
+      return new CellSelection2(doc4.resolve(json.anchor), doc4.resolve(json.head));
     }
-    static create(doc3, anchorCell, headCell = anchorCell) {
-      return new CellSelection2(doc3.resolve(anchorCell), doc3.resolve(headCell));
+    static create(doc4, anchorCell, headCell = anchorCell) {
+      return new CellSelection2(doc4.resolve(anchorCell), doc4.resolve(headCell));
     }
     getBookmark() {
       return new CellBookmark(this.$anchorCell.pos, this.$headCell.pos);
@@ -23902,8 +35226,8 @@ ${prefix}
     map(mapping) {
       return new CellBookmark2(mapping.map(this.anchor), mapping.map(this.head));
     }
-    resolve(doc3) {
-      const $anchorCell = doc3.resolve(this.anchor), $headCell = doc3.resolve(this.head);
+    resolve(doc4) {
+      const $anchorCell = doc4.resolve(this.anchor), $headCell = doc4.resolve(this.head);
       if ($anchorCell.parent.type.spec.tableRole == "row" && $headCell.parent.type.spec.tableRole == "row" && $anchorCell.index() < $anchorCell.parent.childCount && $headCell.index() < $headCell.parent.childCount && inSameTable($anchorCell, $headCell)) return new CellSelection($anchorCell, $headCell);
       else return Selection.near($headCell, 1);
     }
@@ -23946,22 +35270,22 @@ ${prefix}
   }
   function normalizeSelection(state, tr2, allowTableNodeSelection) {
     const sel = (tr2 || state).selection;
-    const doc3 = (tr2 || state).doc;
+    const doc4 = (tr2 || state).doc;
     let normalize2;
     let role;
     if (sel instanceof NodeSelection && (role = sel.node.type.spec.tableRole)) {
-      if (role == "cell" || role == "header_cell") normalize2 = CellSelection.create(doc3, sel.from);
+      if (role == "cell" || role == "header_cell") normalize2 = CellSelection.create(doc4, sel.from);
       else if (role == "row") {
-        const $cell = doc3.resolve(sel.from + 1);
+        const $cell = doc4.resolve(sel.from + 1);
         normalize2 = CellSelection.rowSelection($cell, $cell);
       } else if (!allowTableNodeSelection) {
-        const map2 = TableMap.get(sel.node);
+        const map3 = TableMap.get(sel.node);
         const start = sel.from + 1;
-        const lastCell = start + map2.map[map2.width * map2.height - 1];
-        normalize2 = CellSelection.create(doc3, start + 1, lastCell);
+        const lastCell = start + map3.map[map3.width * map3.height - 1];
+        normalize2 = CellSelection.create(doc4, start + 1, lastCell);
       }
-    } else if (sel instanceof TextSelection && isCellBoundarySelection(sel)) normalize2 = TextSelection.create(doc3, sel.from);
-    else if (sel instanceof TextSelection && isTextSelectionAcrossCells(sel)) normalize2 = TextSelection.create(doc3, sel.$from.start(), sel.$from.end());
+    } else if (sel instanceof TextSelection && isCellBoundarySelection(sel)) normalize2 = TextSelection.create(doc4, sel.from);
+    else if (sel instanceof TextSelection && isTextSelectionAcrossCells(sel)) normalize2 = TextSelection.create(doc4, sel.$from.start(), sel.$from.end());
     if (normalize2) (tr2 || (tr2 = state.tr)).setSelection(normalize2);
     return tr2;
   }
@@ -23991,13 +35315,13 @@ ${prefix}
     return tr2;
   }
   function fixTable(state, table, tablePos, tr2) {
-    const map2 = TableMap.get(table);
-    if (!map2.problems) return tr2;
+    const map3 = TableMap.get(table);
+    if (!map3.problems) return tr2;
     if (!tr2) tr2 = state.tr;
     const mustAdd = [];
-    for (let i2 = 0; i2 < map2.height; i2++) mustAdd.push(0);
-    for (let i2 = 0; i2 < map2.problems.length; i2++) {
-      const prob = map2.problems[i2];
+    for (let i2 = 0; i2 < map3.height; i2++) mustAdd.push(0);
+    for (let i2 = 0; i2 < map3.problems.length; i2++) {
+      const prob = map3.problems[i2];
       if (prob.type == "collision") {
         const cell2 = table.nodeAt(prob.pos);
         if (!cell2) continue;
@@ -24024,12 +35348,12 @@ ${prefix}
         tr2.delete(pos, pos + table.nodeSize);
       }
     }
-    let first2, last;
+    let first2, last2;
     for (let i2 = 0; i2 < mustAdd.length; i2++) if (mustAdd[i2]) {
       if (first2 == null) first2 = i2;
-      last = i2;
+      last2 = i2;
     }
-    for (let i2 = 0, pos = tablePos + 1; i2 < map2.height; i2++) {
+    for (let i2 = 0, pos = tablePos + 1; i2 < map3.height; i2++) {
       const row = table.child(i2);
       const end = pos + row.nodeSize;
       const add = mustAdd[i2];
@@ -24041,7 +35365,7 @@ ${prefix}
           const node = tableNodeTypes(state.schema)[role].createAndFill();
           if (node) nodes.push(node);
         }
-        const side = (i2 == 0 || first2 == i2 - 1) && last == i2 ? pos + 1 : end - 1;
+        const side = (i2 == 0 || first2 == i2 - 1) && last2 == i2 ? pos + 1 : end - 1;
         tr2.insert(tr2.mapping.map(side), nodes);
       }
       pos = end;
@@ -24053,27 +35377,27 @@ ${prefix}
     const $pos = selectionCell(state);
     const table = $pos.node(-1);
     const tableStart = $pos.start(-1);
-    const map2 = TableMap.get(table);
+    const map3 = TableMap.get(table);
     return {
-      ...sel instanceof CellSelection ? map2.rectBetween(sel.$anchorCell.pos - tableStart, sel.$headCell.pos - tableStart) : map2.findCell($pos.pos - tableStart),
+      ...sel instanceof CellSelection ? map3.rectBetween(sel.$anchorCell.pos - tableStart, sel.$headCell.pos - tableStart) : map3.findCell($pos.pos - tableStart),
       tableStart,
-      map: map2,
+      map: map3,
       table
     };
   }
-  function addColumn(tr2, { map: map2, tableStart, table }, col) {
+  function addColumn(tr2, { map: map3, tableStart, table }, col) {
     let refColumn = col > 0 ? -1 : 0;
-    if (columnIsHeader(map2, table, col + refColumn)) refColumn = col == 0 || col == map2.width ? null : 0;
-    for (let row = 0; row < map2.height; row++) {
-      const index = row * map2.width + col;
-      if (col > 0 && col < map2.width && map2.map[index - 1] == map2.map[index]) {
-        const pos = map2.map[index];
+    if (columnIsHeader(map3, table, col + refColumn)) refColumn = col == 0 || col == map3.width ? null : 0;
+    for (let row = 0; row < map3.height; row++) {
+      const index = row * map3.width + col;
+      if (col > 0 && col < map3.width && map3.map[index - 1] == map3.map[index]) {
+        const pos = map3.map[index];
         const cell2 = table.nodeAt(pos);
-        tr2.setNodeMarkup(tr2.mapping.map(tableStart + pos), null, addColSpan(cell2.attrs, col - map2.colCount(pos)));
+        tr2.setNodeMarkup(tr2.mapping.map(tableStart + pos), null, addColSpan(cell2.attrs, col - map3.colCount(pos)));
         row += cell2.attrs.rowspan - 1;
       } else {
-        const type = refColumn == null ? tableNodeTypes(table.type.schema).cell : table.nodeAt(map2.map[index + refColumn]).type;
-        const pos = map2.positionAt(row, col, table);
+        const type = refColumn == null ? tableNodeTypes(table.type.schema).cell : table.nodeAt(map3.map[index + refColumn]).type;
+        const pos = map3.positionAt(row, col, table);
         tr2.insert(tr2.mapping.map(tableStart + pos), type.createAndFill());
       }
     }
@@ -24095,14 +35419,14 @@ ${prefix}
     }
     return true;
   }
-  function removeColumn(tr2, { map: map2, table, tableStart }, col) {
+  function removeColumn(tr2, { map: map3, table, tableStart }, col) {
     const mapStart = tr2.mapping.maps.length;
-    for (let row = 0; row < map2.height; ) {
-      const index = row * map2.width + col;
-      const pos = map2.map[index];
+    for (let row = 0; row < map3.height; ) {
+      const index = row * map3.width + col;
+      const pos = map3.map[index];
       const cell2 = table.nodeAt(pos);
       const attrs = cell2.attrs;
-      if (col > 0 && map2.map[index - 1] == pos || col < map2.width - 1 && map2.map[index + 1] == pos) tr2.setNodeMarkup(tr2.mapping.slice(mapStart).map(tableStart + pos), null, removeColSpan(attrs, col - map2.colCount(pos)));
+      if (col > 0 && map3.map[index - 1] == pos || col < map3.width - 1 && map3.map[index + 1] == pos) tr2.setNodeMarkup(tr2.mapping.slice(mapStart).map(tableStart + pos), null, removeColSpan(attrs, col - map3.colCount(pos)));
       else {
         const start = tr2.mapping.slice(mapStart).map(tableStart + pos);
         tr2.delete(start, start + cell2.nodeSize);
@@ -24128,20 +35452,20 @@ ${prefix}
     }
     return true;
   }
-  function rowIsHeader(map2, table, row) {
+  function rowIsHeader(map3, table, row) {
     var _table$nodeAt;
     const headerCell = tableNodeTypes(table.type.schema).header_cell;
-    for (let col = 0; col < map2.width; col++) if (((_table$nodeAt = table.nodeAt(map2.map[col + row * map2.width])) === null || _table$nodeAt === void 0 ? void 0 : _table$nodeAt.type) != headerCell) return false;
+    for (let col = 0; col < map3.width; col++) if (((_table$nodeAt = table.nodeAt(map3.map[col + row * map3.width])) === null || _table$nodeAt === void 0 ? void 0 : _table$nodeAt.type) != headerCell) return false;
     return true;
   }
-  function addRow(tr2, { map: map2, tableStart, table }, row) {
+  function addRow(tr2, { map: map3, tableStart, table }, row) {
     let rowPos = tableStart;
     for (let i2 = 0; i2 < row; i2++) rowPos += table.child(i2).nodeSize;
     const cells = [];
     let refRow = row > 0 ? -1 : 0;
-    if (rowIsHeader(map2, table, row + refRow)) refRow = row == 0 || row == map2.height ? null : 0;
-    for (let col = 0, index = map2.width * row; col < map2.width; col++, index++) if (row > 0 && row < map2.height && map2.map[index] == map2.map[index - map2.width]) {
-      const pos = map2.map[index];
+    if (rowIsHeader(map3, table, row + refRow)) refRow = row == 0 || row == map3.height ? null : 0;
+    for (let col = 0, index = map3.width * row; col < map3.width; col++, index++) if (row > 0 && row < map3.height && map3.map[index] == map3.map[index - map3.width]) {
+      const pos = map3.map[index];
       const attrs = table.nodeAt(pos).attrs;
       tr2.setNodeMarkup(tableStart + pos, null, {
         ...attrs,
@@ -24150,7 +35474,7 @@ ${prefix}
       col += attrs.colspan - 1;
     } else {
       var _table$nodeAt2;
-      const type = refRow == null ? tableNodeTypes(table.type.schema).cell : (_table$nodeAt2 = table.nodeAt(map2.map[index + refRow * map2.width])) === null || _table$nodeAt2 === void 0 ? void 0 : _table$nodeAt2.type;
+      const type = refRow == null ? tableNodeTypes(table.type.schema).cell : (_table$nodeAt2 = table.nodeAt(map3.map[index + refRow * map3.width])) === null || _table$nodeAt2 === void 0 ? void 0 : _table$nodeAt2.type;
       const node = type === null || type === void 0 ? void 0 : type.createAndFill();
       if (node) cells.push(node);
     }
@@ -24173,33 +35497,33 @@ ${prefix}
     }
     return true;
   }
-  function removeRow(tr2, { map: map2, table, tableStart }, row) {
+  function removeRow(tr2, { map: map3, table, tableStart }, row) {
     let rowPos = 0;
     for (let i2 = 0; i2 < row; i2++) rowPos += table.child(i2).nodeSize;
     const nextRow = rowPos + table.child(row).nodeSize;
     const mapFrom = tr2.mapping.maps.length;
     tr2.delete(rowPos + tableStart, nextRow + tableStart);
     const seen = /* @__PURE__ */ new Set();
-    for (let col = 0, index = row * map2.width; col < map2.width; col++, index++) {
-      const pos = map2.map[index];
+    for (let col = 0, index = row * map3.width; col < map3.width; col++, index++) {
+      const pos = map3.map[index];
       if (seen.has(pos)) continue;
       seen.add(pos);
-      if (row > 0 && pos == map2.map[index - map2.width]) {
+      if (row > 0 && pos == map3.map[index - map3.width]) {
         const attrs = table.nodeAt(pos).attrs;
         tr2.setNodeMarkup(tr2.mapping.slice(mapFrom).map(pos + tableStart), null, {
           ...attrs,
           rowspan: attrs.rowspan - 1
         });
         col += attrs.colspan - 1;
-      } else if (row < map2.height && pos == map2.map[index + map2.width]) {
+      } else if (row < map3.height && pos == map3.map[index + map3.width]) {
         const cell2 = table.nodeAt(pos);
         const attrs = cell2.attrs;
-        const copy2 = cell2.type.create({
+        const copy3 = cell2.type.create({
           ...attrs,
           rowspan: cell2.attrs.rowspan - 1
         }, cell2.content);
-        const newPos = map2.positionAt(row + 1, col, table);
-        tr2.insert(tr2.mapping.slice(mapFrom).map(tableStart + newPos), copy2);
+        const newPos = map3.positionAt(row + 1, col, table);
+        tr2.insert(tr2.mapping.slice(mapFrom).map(tableStart + newPos), copy3);
         col += attrs.colspan - 1;
       }
     }
@@ -24221,20 +35545,20 @@ ${prefix}
     }
     return true;
   }
-  function isEmpty(cell2) {
+  function isEmpty2(cell2) {
     const c = cell2.content;
     return c.childCount == 1 && c.child(0).isTextblock && c.child(0).childCount == 0;
   }
-  function cellsOverlapRectangle({ width, height, map: map2 }, rect) {
+  function cellsOverlapRectangle({ width, height, map: map3 }, rect) {
     let indexTop = rect.top * width + rect.left, indexLeft = indexTop;
     let indexBottom = (rect.bottom - 1) * width + rect.left, indexRight = indexTop + (rect.right - rect.left - 1);
     for (let i2 = rect.top; i2 < rect.bottom; i2++) {
-      if (rect.left > 0 && map2[indexLeft] == map2[indexLeft - 1] || rect.right < width && map2[indexRight] == map2[indexRight + 1]) return true;
+      if (rect.left > 0 && map3[indexLeft] == map3[indexLeft - 1] || rect.right < width && map3[indexRight] == map3[indexRight + 1]) return true;
       indexLeft += width;
       indexRight += width;
     }
     for (let i2 = rect.left; i2 < rect.right; i2++) {
-      if (rect.top > 0 && map2[indexTop] == map2[indexTop - width] || rect.bottom < height && map2[indexBottom] == map2[indexBottom + width]) return true;
+      if (rect.top > 0 && map3[indexTop] == map3[indexTop - width] || rect.bottom < height && map3[indexBottom] == map3[indexBottom + width]) return true;
       indexTop++;
       indexBottom++;
     }
@@ -24243,8 +35567,8 @@ ${prefix}
   function mergeCells(state, dispatch) {
     const sel = state.selection;
     if (!(sel instanceof CellSelection) || sel.$anchorCell.pos == sel.$headCell.pos) return false;
-    const rect = selectedRect(state), { map: map2 } = rect;
-    if (cellsOverlapRectangle(map2, rect)) return false;
+    const rect = selectedRect(state), { map: map3 } = rect;
+    if (cellsOverlapRectangle(map3, rect)) return false;
     if (dispatch) {
       const tr2 = state.tr;
       const seen = {};
@@ -24252,7 +35576,7 @@ ${prefix}
       let mergedPos;
       let mergedCell;
       for (let row = rect.top; row < rect.bottom; row++) for (let col = rect.left; col < rect.right; col++) {
-        const cellPos = map2.map[row * map2.width + col];
+        const cellPos = map3.map[row * map3.width + col];
         const cell2 = rect.table.nodeAt(cellPos);
         if (seen[cellPos] || !cell2) continue;
         seen[cellPos] = true;
@@ -24260,7 +35584,7 @@ ${prefix}
           mergedPos = cellPos;
           mergedCell = cell2;
         } else {
-          if (!isEmpty(cell2)) content = content.append(cell2.content);
+          if (!isEmpty2(cell2)) content = content.append(cell2.content);
           const mapped = tr2.mapping.map(cellPos + rect.tableStart);
           tr2.delete(mapped, mapped + cell2.nodeSize);
         }
@@ -24272,7 +35596,7 @@ ${prefix}
       });
       if (content.size > 0) {
         const end = mergedPos + 1 + mergedCell.content.size;
-        const start = isEmpty(mergedCell) ? mergedPos + 1 : end;
+        const start = isEmpty2(mergedCell) ? mergedPos + 1 : end;
         tr2.replaceWith(start + rect.tableStart, end + rect.tableStart, content);
       }
       tr2.setSelection(new CellSelection(tr2.doc.resolve(mergedPos + rect.tableStart)));
@@ -24587,47 +35911,47 @@ ${prefix}
       rows
     };
   }
-  function growTable(tr2, map2, table, start, width, height, mapFrom) {
+  function growTable(tr2, map3, table, start, width, height, mapFrom) {
     const schema = tr2.doc.type.schema;
     const types = tableNodeTypes(schema);
     let empty2;
     let emptyHead;
-    if (width > map2.width) for (let row = 0, rowEnd = 0; row < map2.height; row++) {
+    if (width > map3.width) for (let row = 0, rowEnd = 0; row < map3.height; row++) {
       const rowNode = table.child(row);
       rowEnd += rowNode.nodeSize;
       const cells = [];
       let add;
       if (rowNode.lastChild == null || rowNode.lastChild.type == types.cell) add = empty2 || (empty2 = types.cell.createAndFill());
       else add = emptyHead || (emptyHead = types.header_cell.createAndFill());
-      for (let i2 = map2.width; i2 < width; i2++) cells.push(add);
+      for (let i2 = map3.width; i2 < width; i2++) cells.push(add);
       tr2.insert(tr2.mapping.slice(mapFrom).map(rowEnd - 1 + start), cells);
     }
-    if (height > map2.height) {
+    if (height > map3.height) {
       const cells = [];
-      for (let i2 = 0, start$1 = (map2.height - 1) * map2.width; i2 < Math.max(map2.width, width); i2++) {
-        const header = i2 >= map2.width ? false : table.nodeAt(map2.map[start$1 + i2]).type == types.header_cell;
+      for (let i2 = 0, start$1 = (map3.height - 1) * map3.width; i2 < Math.max(map3.width, width); i2++) {
+        const header = i2 >= map3.width ? false : table.nodeAt(map3.map[start$1 + i2]).type == types.header_cell;
         cells.push(header ? emptyHead || (emptyHead = types.header_cell.createAndFill()) : empty2 || (empty2 = types.cell.createAndFill()));
       }
       const emptyRow = types.row.create(null, Fragment.from(cells)), rows = [];
-      for (let i2 = map2.height; i2 < height; i2++) rows.push(emptyRow);
+      for (let i2 = map3.height; i2 < height; i2++) rows.push(emptyRow);
       tr2.insert(tr2.mapping.slice(mapFrom).map(start + table.nodeSize - 2), rows);
     }
     return !!(empty2 || emptyHead);
   }
-  function isolateHorizontal(tr2, map2, table, start, left, right, top, mapFrom) {
-    if (top == 0 || top == map2.height) return false;
+  function isolateHorizontal(tr2, map3, table, start, left, right, top, mapFrom) {
+    if (top == 0 || top == map3.height) return false;
     let found2 = false;
     for (let col = left; col < right; col++) {
-      const index = top * map2.width + col, pos = map2.map[index];
-      if (map2.map[index - map2.width] == pos) {
+      const index = top * map3.width + col, pos = map3.map[index];
+      if (map3.map[index - map3.width] == pos) {
         found2 = true;
         const cell2 = table.nodeAt(pos);
-        const { top: cellTop, left: cellLeft } = map2.findCell(pos);
+        const { top: cellTop, left: cellLeft } = map3.findCell(pos);
         tr2.setNodeMarkup(tr2.mapping.slice(mapFrom).map(pos + start), null, {
           ...cell2.attrs,
           rowspan: top - cellTop
         });
-        tr2.insert(tr2.mapping.slice(mapFrom).map(map2.positionAt(top, cellLeft, table)), cell2.type.createAndFill({
+        tr2.insert(tr2.mapping.slice(mapFrom).map(map3.positionAt(top, cellLeft, table)), cell2.type.createAndFill({
           ...cell2.attrs,
           rowspan: cellTop + cell2.attrs.rowspan - top
         }));
@@ -24636,15 +35960,15 @@ ${prefix}
     }
     return found2;
   }
-  function isolateVertical(tr2, map2, table, start, top, bottom, left, mapFrom) {
-    if (left == 0 || left == map2.width) return false;
+  function isolateVertical(tr2, map3, table, start, top, bottom, left, mapFrom) {
+    if (left == 0 || left == map3.width) return false;
     let found2 = false;
     for (let row = top; row < bottom; row++) {
-      const index = row * map2.width + left, pos = map2.map[index];
-      if (map2.map[index - 1] == pos) {
+      const index = row * map3.width + left, pos = map3.map[index];
+      if (map3.map[index - 1] == pos) {
         found2 = true;
         const cell2 = table.nodeAt(pos);
-        const cellLeft = map2.colCount(pos);
+        const cellLeft = map3.colCount(pos);
         const updatePos = tr2.mapping.slice(mapFrom).map(pos + start);
         tr2.setNodeMarkup(updatePos, null, removeColSpan(cell2.attrs, left - cellLeft, cell2.attrs.colspan - (left - cellLeft)));
         tr2.insert(updatePos + cell2.nodeSize, cell2.type.createAndFill(removeColSpan(cell2.attrs, 0, left - cellLeft)));
@@ -24656,7 +35980,7 @@ ${prefix}
   function insertCells(state, dispatch, tableStart, rect, cells) {
     let table = tableStart ? state.doc.nodeAt(tableStart - 1) : state.doc;
     if (!table) throw new Error("No table found");
-    let map2 = TableMap.get(table);
+    let map3 = TableMap.get(table);
     const { top, left } = rect;
     const right = left + cells.width, bottom = top + cells.height;
     const tr2 = state.tr;
@@ -24664,20 +35988,20 @@ ${prefix}
     function recomp() {
       table = tableStart ? tr2.doc.nodeAt(tableStart - 1) : tr2.doc;
       if (!table) throw new Error("No table found");
-      map2 = TableMap.get(table);
+      map3 = TableMap.get(table);
       mapFrom = tr2.mapping.maps.length;
     }
-    if (growTable(tr2, map2, table, tableStart, right, bottom, mapFrom)) recomp();
-    if (isolateHorizontal(tr2, map2, table, tableStart, left, right, top, mapFrom)) recomp();
-    if (isolateHorizontal(tr2, map2, table, tableStart, left, right, bottom, mapFrom)) recomp();
-    if (isolateVertical(tr2, map2, table, tableStart, top, bottom, left, mapFrom)) recomp();
-    if (isolateVertical(tr2, map2, table, tableStart, top, bottom, right, mapFrom)) recomp();
+    if (growTable(tr2, map3, table, tableStart, right, bottom, mapFrom)) recomp();
+    if (isolateHorizontal(tr2, map3, table, tableStart, left, right, top, mapFrom)) recomp();
+    if (isolateHorizontal(tr2, map3, table, tableStart, left, right, bottom, mapFrom)) recomp();
+    if (isolateVertical(tr2, map3, table, tableStart, top, bottom, left, mapFrom)) recomp();
+    if (isolateVertical(tr2, map3, table, tableStart, top, bottom, right, mapFrom)) recomp();
     for (let row = top; row < bottom; row++) {
-      const from2 = map2.positionAt(row, left, table), to = map2.positionAt(row, right, table);
-      tr2.replace(tr2.mapping.slice(mapFrom).map(from2 + tableStart), tr2.mapping.slice(mapFrom).map(to + tableStart), new Slice(cells.rows[row - top], 0, 0));
+      const from3 = map3.positionAt(row, left, table), to = map3.positionAt(row, right, table);
+      tr2.replace(tr2.mapping.slice(mapFrom).map(from3 + tableStart), tr2.mapping.slice(mapFrom).map(to + tableStart), new Slice(cells.rows[row - top], 0, 0));
     }
     recomp();
-    tr2.setSelection(new CellSelection(tr2.doc.resolve(tableStart + map2.positionAt(top, left, table)), tr2.doc.resolve(tableStart + map2.positionAt(bottom - 1, right - 1, table))));
+    tr2.setSelection(new CellSelection(tr2.doc.resolve(tableStart + map3.positionAt(top, left, table)), tr2.doc.resolve(tableStart + map3.positionAt(bottom - 1, right - 1, table))));
     dispatch(tr2);
   }
   var handleKeyDown2 = keydownHandler({
@@ -24736,7 +36060,7 @@ ${prefix}
     };
   }
   function handleTripleClick2(view, pos) {
-    const doc3 = view.state.doc, $cell = cellAround(doc3.resolve(pos));
+    const doc4 = view.state.doc, $cell = cellAround(doc4.resolve(pos));
     if (!$cell) return false;
     view.dispatch(view.state.tr.setSelection(new CellSelection($cell)));
     return true;
@@ -24973,9 +36297,9 @@ ${prefix}
         if (!lastColumnResizable && cell2 !== -1) {
           const $cell = view.state.doc.resolve(cell2);
           const table = $cell.node(-1);
-          const map2 = TableMap.get(table);
+          const map3 = TableMap.get(table);
           const tableStart = $cell.start(-1);
-          if (map2.colCount($cell.pos - tableStart) + $cell.nodeAfter.attrs.colspan - 1 == map2.width - 1) return;
+          if (map3.colCount($cell.pos - tableStart) + $cell.nodeAfter.attrs.colspan - 1 == map3.width - 1) return;
         }
         updateHandle(view, cell2);
       }
@@ -25050,9 +36374,9 @@ ${prefix}
     const $cell = cellAround(view.state.doc.resolve(pos));
     if (!$cell) return -1;
     if (side == "right") return $cell.pos;
-    const map2 = TableMap.get($cell.node(-1)), start = $cell.start(-1);
-    const index = map2.map.indexOf($cell.pos - start);
-    return index % map2.width == 0 ? -1 : start + map2.map[index - 1];
+    const map3 = TableMap.get($cell.node(-1)), start = $cell.start(-1);
+    const index = map3.map.indexOf($cell.pos - start);
+    return index % map3.width == 0 ? -1 : start + map3.map[index - 1];
   }
   function draggedWidth(dragging, event, resizeMinWidth) {
     const offset = event.clientX - dragging.startX;
@@ -25063,15 +36387,15 @@ ${prefix}
   }
   function updateColumnWidth(view, cell2, width) {
     const $cell = view.state.doc.resolve(cell2);
-    const table = $cell.node(-1), map2 = TableMap.get(table), start = $cell.start(-1);
-    const col = map2.colCount($cell.pos - start) + $cell.nodeAfter.attrs.colspan - 1;
+    const table = $cell.node(-1), map3 = TableMap.get(table), start = $cell.start(-1);
+    const col = map3.colCount($cell.pos - start) + $cell.nodeAfter.attrs.colspan - 1;
     const tr2 = view.state.tr;
-    for (let row = 0; row < map2.height; row++) {
-      const mapIndex = row * map2.width + col;
-      if (row && map2.map[mapIndex] == map2.map[mapIndex - map2.width]) continue;
-      const pos = map2.map[mapIndex];
+    for (let row = 0; row < map3.height; row++) {
+      const mapIndex = row * map3.width + col;
+      if (row && map3.map[mapIndex] == map3.map[mapIndex - map3.width]) continue;
+      const pos = map3.map[mapIndex];
       const attrs = table.nodeAt(pos).attrs;
-      const index = attrs.colspan == 1 ? 0 : col - map2.colCount(pos);
+      const index = attrs.colspan == 1 ? 0 : col - map3.colCount(pos);
       if (attrs.colwidth && attrs.colwidth[index] == width) continue;
       const colwidth = attrs.colwidth ? attrs.colwidth.slice() : zeroes(attrs.colspan);
       colwidth[index] = width;
@@ -25099,14 +36423,14 @@ ${prefix}
     const $cell = state.doc.resolve(cell2);
     const table = $cell.node(-1);
     if (!table) return DecorationSet.empty;
-    const map2 = TableMap.get(table);
+    const map3 = TableMap.get(table);
     const start = $cell.start(-1);
-    const col = map2.colCount($cell.pos - start) + $cell.nodeAfter.attrs.colspan - 1;
-    for (let row = 0; row < map2.height; row++) {
-      const index = col + row * map2.width;
-      if ((col == map2.width - 1 || map2.map[index] != map2.map[index + 1]) && (row == 0 || map2.map[index] != map2.map[index - map2.width])) {
+    const col = map3.colCount($cell.pos - start) + $cell.nodeAfter.attrs.colspan - 1;
+    for (let row = 0; row < map3.height; row++) {
+      const index = col + row * map3.width;
+      if ((col == map3.width - 1 || map3.map[index] != map3.map[index + 1]) && (row == 0 || map3.map[index] != map3.map[index - map3.width])) {
         var _columnResizingPlugin;
-        const cellPos = map2.map[index];
+        const cellPos = map3.map[index];
         const pos = start + cellPos + table.nodeAt(cellPos).nodeSize - 1;
         const dom = document.createElement("div");
         dom.className = "column-resize-handle";
@@ -25249,7 +36573,7 @@ ${prefix}
 
   // rich-editor.source.js
   var serializationSchema;
-  var escape = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  var escape2 = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
   var Subscript = Mark2.create({
     name: "subscript",
     parseHTML() {
@@ -25301,7 +36625,7 @@ ${prefix}
           field.addEventListener("input", (event) => {
             event.stopPropagation();
             const pos = getPos();
-            if (typeof pos === "number") editor.view.dispatch(editor.state.tr.setNodeMarkup(pos, void 0, { ...current.attrs, latex: field.value }));
+            if (typeof pos === "number" && editor.state.doc.nodeAt(pos)?.type.name === name) editor.view.dispatch(editor.state.tr.setNodeMarkup(pos, void 0, { ...current.attrs, latex: field.value }));
           });
           field.addEventListener("pointerdown", () => {
             leaving = false;
@@ -25320,7 +36644,7 @@ ${prefix}
             event.stopPropagation();
             const pos = getPos();
             if (typeof pos !== "number") return;
-            const backward = event.shiftKey || event.detail?.direction === "backward" || event.detail?.direction === "upward";
+            const backward = event.key === "ArrowLeft" || event.shiftKey || event.detail?.direction === "backward" || event.detail?.direction === "upward";
             leaving = true;
             clearTimeout(leaveGuard);
             leaveGuard = setTimeout(() => {
@@ -25329,14 +36653,23 @@ ${prefix}
             field.blur();
             let target = backward ? pos : pos + current.nodeSize;
             if (!inline) {
-              editor.commands.createParagraphNear();
-              target = Math.min(editor.state.doc.content.size - 1, target + 1);
+              const state = editor.state, at = backward ? pos : pos + current.nodeSize;
+              const tr2 = state.tr;
+              if (at === 0 || at === state.doc.content.size || !state.doc.resolve(at).nodeAfter?.isTextblock) tr2.insert(at, editor.schema.nodes.paragraph.create());
+              const resolved = tr2.doc.resolve(Math.max(0, Math.min(at, tr2.doc.content.size)));
+              tr2.setSelection(TextSelection.near(resolved, backward ? -1 : 1));
+              editor.view.dispatch(tr2);
+              target = editor.state.selection.from;
             }
             editor.commands.setTextSelection(target);
             editor.view.focus();
             window.dispatchEvent(new CustomEvent("mathdesk-equation-leave"));
           };
           field.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+              leave(event);
+              return;
+            }
             if (event.key !== "Tab" || event.ctrlKey || event.altKey || event.metaKey) return;
             event.preventDefault();
             event.stopPropagation();
@@ -25372,7 +36705,7 @@ ${prefix}
     atom: true,
     selectable: true,
     addAttributes() {
-      return { png: { default: "" }, strokes: { default: [] }, base: { default: "" }, graph: { default: null } };
+      return { width: { default: 100 }, align: { default: "center" }, caption: { default: "" }, png: { default: "" }, strokes: { default: [] }, base: { default: "" }, graph: { default: null } };
     },
     parseHTML() {
       return [{ tag: 'div[data-type="drawing"]', getAttrs: (node) => {
@@ -25398,20 +36731,30 @@ ${prefix}
         const dom = document.createElement("figure");
         dom.className = "document-drawing";
         dom.contentEditable = "false";
+        const caption = document.createElement("figcaption");
+        const layout = () => {
+          dom.style.width = Math.max(20, Math.min(100, Number(current.attrs.width) || 100)) + "%";
+          dom.style.marginLeft = current.attrs.align === "left" ? "0" : "auto";
+          dom.style.marginRight = current.attrs.align === "right" ? "0" : "auto";
+          caption.textContent = current.attrs.caption || "";
+        };
+        layout();
         const img = document.createElement("img");
         img.src = node.attrs.png;
         img.alt = "Drawing";
+        img.ondblclick = () => edit.click();
         const edit = document.createElement("button");
         edit.textContent = "Edit drawing";
         edit.type = "button";
         edit.onclick = () => {
           if (editor.isEditable) window.dispatchEvent(new CustomEvent("mathdesk-edit-drawing", { detail: { position: getPos(), attrs: current.attrs } }));
         };
-        dom.append(img, edit);
+        dom.append(img, caption, edit);
         return { dom, stopEvent: (event) => event.target === edit, update(next) {
           if (next.type !== current.type) return false;
           current = next;
           img.src = next.attrs.png;
+          layout();
           return true;
         } };
       };
@@ -25419,6 +36762,7 @@ ${prefix}
   });
   function textMarkdown(node) {
     if (node.type === "inlineMath") return "$" + node.attrs.latex + "$";
+    if (node.type === "crossReference") return node.attrs.label || "Missing reference";
     if (node.type === "hardBreak") return "  \n";
     if (node.type !== "text") return (node.content || []).map(textMarkdown).join("");
     let value = (0, import_text_markdown.escapeText)(node.text);
@@ -25443,6 +36787,8 @@ ${prefix}
     if (node.type === "heading") return "#".repeat(node.attrs.level) + " " + textMarkdown(node);
     if (node.type === "codeBlock") return (0, import_text_markdown.codeBlock)((node.content || []).map((n) => n.text || "").join(""), node.attrs?.language || "");
     if (node.type === "horizontalRule") return "---";
+    if (node.type === "pageBreak") return "<div data-page-break></div>";
+    if (node.type === "referenceLabel") return node.attrs.label || "";
     if (node.type === "blockquote") return (node.content || []).map(blockMarkdown).join("\n\n").split("\n").map((line) => "> " + line).join("\n");
     if (node.type === "bulletList" || node.type === "orderedList") return (node.content || []).map((item, index) => {
       const lines = (item.content || []).map(blockMarkdown).join("\n\n").split("\n");
@@ -25451,13 +36797,13 @@ ${prefix}
     }).join("\n");
     return textMarkdown(node);
   }
-  function toBlocks(doc3) {
-    return (doc3.content || []).map((node) => node.type === "drawing" ? { id: crypto.randomUUID(), type: "drawing", value: node.attrs.png, strokes: node.attrs.strokes, base: node.attrs.base, graph: node.attrs.graph } : node.type === "displayMath" ? { id: crypto.randomUUID(), type: "math", value: node.attrs.latex } : { id: crypto.randomUUID(), type: "text", value: blockMarkdown(node) });
+  function toBlocks(doc4) {
+    return (doc4.content || []).map((node) => node.type === "drawing" ? { id: crypto.randomUUID(), type: "drawing", value: node.attrs.png, strokes: node.attrs.strokes, base: node.attrs.base, graph: node.attrs.graph } : node.type === "displayMath" ? { id: crypto.randomUUID(), type: "math", value: node.attrs.latex } : { id: crypto.randomUUID(), type: "text", value: blockMarkdown(node) });
   }
   function fromBlocks(blocks) {
     return blocks.map((block) => {
-      if (block.type === "drawing") return `<div data-type="drawing" data-png="${escape(block.value)}" data-strokes="${escape(JSON.stringify(block.strokes || []))}" data-base="${escape(block.base || "")}" data-graph="${escape(JSON.stringify(block.graph || null))}"></div>`;
-      if (block.type === "math") return `<div data-type="displayMath" data-latex="${escape(block.value)}"></div>`;
+      if (block.type === "drawing") return `<div data-type="drawing" data-png="${escape2(block.value)}" data-strokes="${escape2(JSON.stringify(block.strokes || []))}" data-base="${escape2(block.base || "")}" data-graph="${escape2(JSON.stringify(block.graph || null))}"></div>`;
+      if (block.type === "math") return `<div data-type="displayMath" data-latex="${escape2(block.value)}"></div>`;
       const math = [], prefix = "MDMATH" + crypto.randomUUID().replaceAll("-", "") + "TOKEN";
       const masked = block.value.replace(/(```[\s\S]*?```|~~~[\s\S]*?~~~|`[^`\n]*`)|\$\$([\s\S]*?)\$\$|(?<![\\$])\$(?!\$)([^\n$]*?)(?<!\\)\$(?!\$)|\\\[([\s\S]*?)\\\]|\\\(([^\n]*?)\\\)/g, (raw, code2, display, inline, bracket, paren) => {
         if (code2) return code2;
@@ -25468,34 +36814,51 @@ ${prefix}
       let html = window.DOMPurify.sanitize(window.marked.parse(masked, { breaks: true }), { FORBID_TAGS: ["img", "input", "form", "style"] });
       return html.replace(new RegExp(prefix + "(\\d+)ENDTOKEN", "g"), (_, i2) => {
         const item = math[Number(i2)];
-        return `<span data-type="inlineMath" data-latex="${escape(item.latex)}"></span>`;
+        return `<span data-type="inlineMath" data-latex="${escape2(item.latex)}"></span>`;
       });
     }).join("") || "<p></p>";
   }
-  function mount(parent, { doc: doc3, blocks, onChange, onSelection }) {
+  function mount(parent, { doc: doc4, blocks, onChange, onSelection, collaboration }) {
     const extensions = [
-      src_default.configure({ link: { openOnClick: false, autolink: false } }),
+      src_default2.configure({ ...collaboration ? { undoRedo: false } : {}, link: { openOnClick: false, autolink: false } }),
       TextStyle,
       FontFamily,
       FontSize,
       Subscript,
-      src_default2.configure({ types: ["heading", "paragraph"] }),
-      src_default3.configure({ placeholder: "Start writing. Press Ctrl M when you want an equation." }),
+      src_default3.configure({ types: ["heading", "paragraph"] }),
+      src_default4.configure({ placeholder: "Start writing. Press Ctrl M when you want an equation." }),
       InlineMath,
       DisplayMath,
       Drawing,
+      ReferenceLabel,
+      CrossReference,
+      PageBreak,
+      ScienceTools,
       ...TableExtensions
     ];
+    if (collaboration) extensions.push(src_default.configure({ document: collaboration.document }), cursorExtension(collaboration));
     serializationSchema = getSchema(extensions);
-    if (doc3) {
-      const parsed = serializationSchema.nodeFromJSON(doc3);
+    if (doc4) {
+      const parsed = serializationSchema.nodeFromJSON(doc4);
       parsed.check();
     }
     const editor = new Editor({
       element: parent,
       extensions,
-      content: doc3 || fromBlocks(blocks),
-      editorProps: { attributes: { "aria-label": "Document editor", role: "textbox", "aria-multiline": "true", spellcheck: "true" } },
+      editable: collaboration?.role !== "view",
+      content: collaboration ? void 0 : doc4 || fromBlocks(blocks),
+      editorProps: { handleKeyDown(view, event) {
+        if (!view.state.selection.empty || !["ArrowLeft", "ArrowRight"].includes(event.key)) return false;
+        const selection = view.state.selection, backward = event.key === "ArrowLeft", node = backward ? selection.$from.nodeBefore : selection.$from.nodeAfter;
+        if (!["inlineMath", "displayMath"].includes(node?.type.name)) return false;
+        const position = backward ? selection.from - node.nodeSize : selection.from;
+        const field = [...parent.querySelectorAll("math-field")].find((f) => f.mathdeskGetPos?.() === position);
+        if (!field) return false;
+        event.preventDefault();
+        field.focus();
+        field.executeCommand(backward ? "moveToMathfieldEnd" : "moveToMathfieldStart");
+        return true;
+      }, attributes: { "aria-label": "Document editor", role: "textbox", "aria-multiline": "true", spellcheck: "false" } },
       onUpdate: ({ editor: editor2 }) => onChange(editor2.getJSON(), toBlocks(editor2.getJSON())),
       onSelectionUpdate: () => onSelection?.(),
       onTransaction: () => onSelection?.()
@@ -25503,10 +36866,10 @@ ${prefix}
     function insertMath(latex = "\\placeholder{}", display = false) {
       latex = latex.replace(/#(?:0|\?)/g, "\\placeholder{}");
       const type = display ? "displayMath" : "inlineMath";
-      const from2 = editor.state.selection.from;
+      const from3 = editor.state.selection.from;
       editor.chain().focus().insertContent({ type, attrs: { latex } }).run();
       requestAnimationFrame(() => {
-        const math = [...parent.querySelectorAll("math-field")].find((field) => field.mathdeskGetPos?.() === from2 || field.mathdeskGetPos?.() === from2 + 1) || [...parent.querySelectorAll("math-field")].at(-1);
+        const math = [...parent.querySelectorAll("math-field")].find((field) => field.mathdeskGetPos?.() === from3 || field.mathdeskGetPos?.() === from3 + 1) || [...parent.querySelectorAll("math-field")].at(-1);
         if (latex === "\\placeholder{}") math?.select();
         else {
           math?.focus();
@@ -25555,13 +36918,13 @@ ${prefix}
       const selection = editor.state.selection;
       let position = detail ? detail.position : selection.$from.depth ? selection.$from.after(1) : selection.from;
       let expected = detail ? JSON.stringify(detail.attrs) : null, removed = false, disposed = false;
-      const map2 = ({ transaction }) => {
+      const map3 = ({ transaction }) => {
         if (!transaction.docChanged) return;
         const mapped = transaction.mapping.mapResult(position, 1);
         position = mapped.pos;
         if (expected && mapped.deleted) removed = true;
       };
-      editor.on("transaction", map2);
+      editor.on("transaction", map3);
       return {
         commit(attrs) {
           if (disposed || editor.isDestroyed || !editor.isEditable) throw Error("Reopen the drawing in an editable document.");
@@ -25569,12 +36932,12 @@ ${prefix}
           if (expected) {
             const node = !removed && position >= 0 && position < state.doc.content.size ? state.doc.nodeAt(position) : null;
             if (node?.type.name !== "drawing" || JSON.stringify(node.attrs) !== expected) throw Error("This drawing changed or was removed. Your draft is kept; reopen it to continue.");
-            editor.off("transaction", map2);
+            editor.off("transaction", map3);
             try {
               editor.view.dispatch(state.tr.setNodeMarkup(position, void 0, attrs));
               expected = JSON.stringify(editor.state.doc.nodeAt(position).attrs);
             } finally {
-              editor.on("transaction", map2);
+              editor.on("transaction", map3);
             }
           } else {
             position = Math.max(0, Math.min(position, state.doc.content.size));
@@ -25591,14 +36954,14 @@ ${prefix}
         },
         dispose() {
           disposed = true;
-          editor.off("transaction", map2);
+          editor.off("transaction", map3);
         }
       };
     }
-    return { editor, insertMath, drawingSession, grammarSegments, applyGrammarEdits, toBlocks: () => toBlocks(editor.getJSON()), focus: () => editor.commands.focus(), destroy: () => editor.destroy(), setReadOnly: (value) => {
-      editor.setEditable(!value, false);
-      for (const field of parent.querySelectorAll("math-field")) field.readOnly = value;
+    return { editor, setReview: (suggestions) => setReview(editor, suggestions), insertMath, drawingSession, grammarSegments, applyGrammarEdits, toBlocks: () => toBlocks(editor.getJSON()), focus: () => editor.commands.focus(), destroy: () => editor.destroy(), setReadOnly: (value) => {
+      editor.setEditable(!value && collaboration?.role !== "view", false);
+      for (const field of parent.querySelectorAll("math-field")) field.readOnly = value || collaboration?.role === "view";
     }, getHTML: () => editor.getHTML(), appendBlocks: (blocks2) => editor.chain().focus("end").insertContent(fromBlocks(blocks2)).run() };
   }
-  window.RichDocument = { mount, toBlocks, fromBlocks };
+  window.RichDocument = { mount, toBlocks, fromBlocks, shared: { ...Shared, create: (json) => Shared.create(serializationSchema, json) } };
 })();

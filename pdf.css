@@ -4,3 +4,5 @@
 .pdf-display-math .katex-display>.katex{display:inline-block}
 
 table{border-collapse:collapse;table-layout:fixed;width:100%;margin:12pt 0;font-size:11pt}td,th{border:1px solid #9da89a;padding:5pt;vertical-align:top;overflow-wrap:anywhere}th{background:#edf1eb}td p,th p{margin:0!important;min-height:1.4em}tr{break-inside:avoid}thead{display:table-header-group}
+
+.pdf-page-break{break-before:page;height:0}.science-label{font-weight:bold;margin:8pt 0;break-after:avoid}.science-reference{color:#205a88}figure,table,.pdf-display-math{max-width:100%}td,th{overflow-wrap:anywhere}

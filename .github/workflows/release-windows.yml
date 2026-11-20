@@ -1,0 +1,63 @@
+name: Build and release Glass for Windows
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: glass-windows-release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Run unit tests
+        run: npm test
+      - name: Package portable application
+        run: npm run package
+      - name: Build Windows installer
+        run: npm run installer
+      - name: Prepare downloads and checksums
+        shell: pwsh
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          New-Item -ItemType Directory -Path release/downloads -Force | Out-Null
+          Copy-Item LICENSE release/Glass-win32-x64/GLASS-LICENSE.txt
+          Copy-Item THIRD_PARTY_NOTICES.md release/Glass-win32-x64/THIRD_PARTY_NOTICES.md
+          Copy-Item "docs/RELEASE-v$version.md" release/Glass-win32-x64/ABOUT-GLASS.md
+          Compress-Archive -LiteralPath release/Glass-win32-x64 -DestinationPath "release/downloads/Glass-v$version-win32-x64.zip" -CompressionLevel Optimal
+          Copy-Item "release/installer/Glass-Setup-$version.exe" release/downloads/
+          $checksums = Get-ChildItem release/downloads -File | Sort-Object Name | ForEach-Object { (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() + '  ' + $_.Name }
+          [IO.File]::WriteAllText((Join-Path (Get-Location) 'release/downloads/SHA256SUMS.txt'), ($checksums -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
+      - name: Save verified build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Glass-Windows-downloads
+          path: release/downloads/*
+          compression-level: 0
+      - name: Publish completed version as latest
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $version = (Get-Content package.json -Raw | ConvertFrom-Json).version
+          $tag = "v$version"
+          $existing = gh release view $tag --json isDraft 2>$null
+          if ($LASTEXITCODE -eq 0) {
+            if (-not ($existing | ConvertFrom-Json).isDraft) { throw "Release $tag is already published. Refusing to replace it." }
+            gh release upload $tag (Get-ChildItem release/downloads -File | ForEach-Object FullName) --clobber
+          } else {
+            gh release create $tag (Get-ChildItem release/downloads -File | ForEach-Object FullName) --draft --title "Glass $tag" --notes-file "docs/RELEASE-$tag.md" --target $env:GITHUB_SHA
+          }
+          if ($LASTEXITCODE -ne 0) { throw 'Release upload failed. The release was not published.' }
+          gh release edit $tag --draft=false --latest
+          if ($LASTEXITCODE -ne 0) { throw 'Release publication failed.' }

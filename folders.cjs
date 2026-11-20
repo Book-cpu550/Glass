@@ -1,0 +1,4 @@
+function folderPath(input){if(typeof input!=='string')throw Error('Enter a folder name.');const value=input.replace(/\\/g,'/').split('/').map(s=>s.trim()).filter(Boolean).join('/');if(!value||value.length>200||value.split('/').some(p=>p==='.'||p==='..'||/[\x00-\x1f]/.test(p)))throw Error('Use a folder name or path up to 200 characters.');return value;}
+function ancestors(value){const parts=folderPath(value).split('/');return parts.map((_,i)=>parts.slice(0,i+1).join('/'));}
+function foldersFor(notebook,notes=[]){const values=new Set();for(const value of [...(Array.isArray(notebook.folders)?notebook.folders:[]),...notes.filter(n=>(n.notebookId||'personal')===notebook.id).map(n=>n.folder).filter(Boolean)]){try{for(const folder of ancestors(value))values.add(folder);}catch{}}return [...values].sort((a,b)=>a.localeCompare(b));}
+module.exports={folderPath,ancestors,foldersFor};

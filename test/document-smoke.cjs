@@ -9,7 +9,7 @@ async function launch(){const app=await electron.launch({args:[path.resolve(__di
   assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root,'migration-backups','legacy-note.json'),'utf8')),legacy);
   assert.equal(await page.locator('.ProseMirror strong').innerText(),'bold');
   assert.equal(await page.locator('math-field').count(),1);
-  await page.getByRole('button',{name:/New note\b/}).click();await page.locator('[data-note-template="blank"]').click();
+  await page.getByRole('button',{name:/New note\b/}).click();
   await page.getByRole('textbox',{name:'Note title',exact:true}).fill('Document test');
   const document=page.getByRole('textbox',{name:'Document editor'});
   await document.fill('The integral is a topic. The value is ');

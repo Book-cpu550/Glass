@@ -1,37 +1,52 @@
 {
   "name": "glass",
   "productName": "Glass",
-  "version": "4.2.1",
+  "version": "4.2.2",
   "description": "A local math and science notebook with editable equations, chemistry, graphs and PDF export",
   "main": "main.cjs",
-  "author": "Local",
+  "author": "Glass contributors",
   "license": "MIT",
   "scripts": {
     "start": "electron .",
     "test": "node --test test/*.test.cjs",
-    "package": "electron-packager . Glass --platform=win32 --arch=x64 --out=release --overwrite --ignore=release --ignore=test --ignore=package-lock.json",
+    "package": "electron-packager . Glass --platform=win32 --arch=x64 --out=release --overwrite --asar --ignore=release --ignore=test --ignore=package-lock.json --ignore=cloud-relay",
     "build": "node build-mathlive.cjs && esbuild rich-editor.source.js --bundle --format=iife --outfile=rich-editor.js",
     "prepackage": "npm run build",
     "postpackage": "node finalize-package.cjs",
-    "install:local": "node install-local.cjs"
+    "install:local": "node install-local.cjs",
+    "installer": "electron-builder --prepackaged release/Glass-win32-x64 --config installer-config.cjs --win nsis --x64 --publish never",
+    "relay": "node collaboration-relay.cjs"
   },
   "dependencies": {
     "@tiptap/core": "^3.34.0",
+    "@tiptap/extension-collaboration": "^3.34.0",
     "@tiptap/extension-placeholder": "^3.34.0",
     "@tiptap/extension-text-align": "^3.34.0",
     "@tiptap/extension-text-style": "^3.34.0",
     "@tiptap/starter-kit": "^3.34.0",
+    "@tiptap/y-tiptap": "^3.3.1",
+    "cheerio": "^1.2.0",
+    "dictionary-en": "^4.0.0",
     "dompurify": "^3.3.0",
     "katex": "^0.19.1",
     "marked": "^17.0.0",
     "mathlive": "^0.111.4",
+    "nspell": "^2.1.5",
     "openchemlib": "file:vendor/openchemlib.tgz",
-    "plotly.js-dist-min": "file:vendor/plotly.tgz"
+    "pdfjs-dist": "^6.5.438",
+    "plotly.js-dist-min": "file:vendor/plotly.tgz",
+    "ws": "^8.23.0",
+    "y-protocols": "^1.0.7",
+    "yjs": "^13.6.33"
   },
   "devDependencies": {
     "@electron/packager": "^20.3.0",
     "electron": "^45.4.1",
+    "electron-builder": "^26.18.0",
     "esbuild": "^0.28.2",
     "playwright": "^1.65.1"
+  },
+  "overrides": {
+    "minimatch@>=7.0.0 <11.0.1": "^11.0.5"
   }
 }

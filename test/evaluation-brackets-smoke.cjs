@@ -1,10 +1,11 @@
+const {chooseSymbol}=require('./symbol-helper.cjs');
 const {_electron:electron}=require('playwright'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),assert=require('node:assert/strict'),katex=require('katex');
 const root=fs.mkdtempSync(path.join(os.tmpdir(),'mathdesk-evaluation-'));
 async function launch(){const app=await electron.launch({args:[path.resolve(__dirname,'..'),'--smoke-test'],env:{...process.env,MATHDESK_TEST_DATA:root}});const page=await app.firstWindow();await page.waitForSelector('#notes button');return {app,page};}
 (async()=>{let {app,page}=await launch();try{
  for(const display of [false,true]){
-  await page.getByRole('button',{name:/New note\b/}).click();await page.locator('[data-note-template="blank"]').click();await page.getByRole('textbox',{name:'Document editor'}).fill('Evaluate ');if(display){await page.keyboard.press('Control+Shift+m');await page.waitForFunction(()=>document.activeElement.tagName==='MATH-FIELD');}
-  await page.getByRole('combobox',{name:'Math templates'}).selectOption({label:'Evaluation brackets'});await page.waitForFunction(()=>document.activeElement.tagName==='MATH-FIELD');await page.keyboard.type('f(x)');await page.keyboard.press('Tab');await page.keyboard.type('a');await page.keyboard.press('Tab');await page.keyboard.type('b');
+  await page.getByRole('button',{name:/New note\b/}).click();await page.getByRole('textbox',{name:'Document editor'}).fill('Evaluate ');if(display){await page.keyboard.press('Control+Shift+m');await page.waitForFunction(()=>document.activeElement.tagName==='MATH-FIELD');}
+  await chooseSymbol(page,'math','Evaluation brackets');await page.waitForFunction(()=>document.activeElement.tagName==='MATH-FIELD');await page.keyboard.type('f(x)');await page.keyboard.press('Tab');await page.keyboard.type('a');await page.keyboard.press('Tab');await page.keyboard.type('b');
   const value=await page.locator('math-field').evaluate(f=>f.value);assert.ok(!value.includes('placeholder'),value);assert.match(value,/_\{?a\}?/);assert.match(value,/\^\{?b\}?/);assert.ok(value.includes('f'));katex.renderToString(value,{throwOnError:true});
   await page.keyboard.press('Tab');await page.keyboard.type(' then continue.');assert.ok((await page.locator('.ProseMirror').innerText()).includes('then continue.'));
   for(const [letter,replacement]of [['b','d'],['a','c']]){

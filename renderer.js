@@ -7,28 +7,32 @@ let notes=[],current=null,reading=false,lastMath=null,timer,queue=Promise.resolv
 let collection={notebooks:[{id:'personal',name:'Personal notebook'}],activeId:'personal'},notebookBusy=false,notebookAction='create';
 const notebookNotes=()=>notes.filter(note=>(note.notebookId||'personal')===collection.activeId);
 function notebookControls(){for(const id of ['notebook-select','note-move']){const select=$(id);select.replaceChildren();for(const entry of collection.notebooks){const option=document.createElement('option');option.value=entry.id;option.textContent=entry.name;select.append(option);}select.value=collection.activeId;}$('notebook-crumb').textContent=collection.notebooks.find(n=>n.id===collection.activeId)?.name||'Notebook';}
-async function switchNotebook(id,preferred){if(notebookBusy)return;notebookBusy=true;$('notebook-select').disabled=true;try{await window.MathdeskDrawing?.flushDraft();await flush();collection=await desk.updateNotebooks({action:'select',id});notebookControls();$('search').value='';current=notebookNotes().find(n=>n.id===(preferred||collection.notebooks.find(b=>b.id===collection.activeId)?.lastNoteId))?.id||[...notebookNotes()].sort((a,b)=>b.updated.localeCompare(a.updated))[0]?.id;if(current)render();else await newNote();document.body.classList.remove('library-mode');}finally{notebookBusy=false;$('notebook-select').disabled=false;$('notebook-select').value=collection.activeId;}}
+async function switchNotebook(id,preferred){if(notebookBusy)return;notebookBusy=true;$('notebook-select').disabled=true;try{await window.MathdeskDrawing?.flushDraft();await flush();collection=await desk.updateNotebooks({action:'select',id});notebookControls();$('search').value='';current=notebookNotes().find(n=>n.id===(preferred||collection.notebooks.find(b=>b.id===collection.activeId)?.lastNoteId))?.id||[...notebookNotes()].sort((a,b)=>Number(!!b.pinned)-Number(!!a.pinned)||noteRank(a)-noteRank(b)||b.updated.localeCompare(a.updated))[0]?.id;if(current){await ensureNote(current);render();}else await newNote();document.body.classList.remove('library-mode');}finally{notebookBusy=false;$('notebook-select').disabled=false;$('notebook-select').value=collection.activeId;}}
 const documents=new Map();
+async function ensureNote(id){const old=notes.find(n=>n.id===id);if(!old?._summary)return old;const loaded=await desk.getNote(id);const at=notes.findIndex(n=>n.id===id);if(at>=0)notes[at]=loaded;return loaded;}
+function trimDocuments(){for(const [id,handle]of documents){if(documents.size<=5)break;if(id===current||dirtyNotes.has(id)||window.GlassSharing?.forNote(id))continue;handle.destroy();documents.delete(id);const at=notes.findIndex(n=>n.id===id);if(at>=0){const note=notes[at],searchText=GlassNoteSearch.text(note);notes[at]={id:note.id,title:note.title,notebookId:note.notebookId,created:note.created,updated:note.updated,folder:note.folder||'',tags:note.tags||[],pinned:!!note.pinned,searchText,hasMath:/inlineMath|displayMath/.test(JSON.stringify(note.doc)),hasDrawing:note.blocks.some(b=>b.type==='drawing'),hasTable:JSON.stringify(note.doc).includes('table'),_summary:true};}}}
+
 const dirtyNotes=new Set(),saveErrors=new Map();
-const templates=[['Square root','\\sqrt{#0}'],['Integral','\\int_{#?}^{#?} #0 \\, dx'],['Line integral','\\int_{#?} #0 \\, ds'],['Line integral (vector)','\\int_{#?} #0 \\cdot d\\mathbf{r}'],['Closed line integral','\\oint_{#?} #0 \\cdot d\\mathbf{r}'],['Closed curve integral (scalar)','\\oint_{#?} #0 \\, d#?'],['Centroid x (closed curve)','\\bar{x}=\\frac{1}{2A}\\oint_C x^2\\,dy'],['Surface integral','\\iint_{#?} #0 \\, dS'],['Surface flux','\\iint_{#?} #0 \\cdot \\mathbf{n} \\, dS'],['Closed surface flux','\\oiint_{#?} #0 \\cdot \\mathbf{n} \\, dS'],['Evaluation brackets','\\left[#0\\right]_{#?}^{#?}'],['Fraction','\\frac{#0}{#?}'],['Subscript','{#0}_{#?}'],['Summation','\\sum_{n=1}^{\\infty} #0'],['Limit','\\lim_{x\\to 0} #0'],['Derivative','\\frac{\\partial #0}{\\partial x}'],['Matrix','\\begin{pmatrix}#0 & #? \\\\ #? & #?\\end{pmatrix}'],['Overbar','\\bar{#0}'],['Overline','\\overline{#0}'],['Barred coordinates','(\\bar{#0},\\bar{#?})'],['Vector arrow','\\vec{#0}'],['Hat','\\hat{#0}'],['Greek letters','\\alpha + \\beta'],['QED square','\\blacksquare']];
+const templates=[['Square root','\\sqrt{#0}'],['Integral','\\int_{#?}^{#?} #0 \\, dx'],['Line integral','\\int_{#?} #0 \\, ds'],['Line integral (vector)','\\int_{#?} #0 \\cdot d\\mathbf{r}'],['Closed line integral','\\oint_{#?} #0 \\cdot d\\mathbf{r}'],['Closed curve integral (scalar)','\\oint_{#?} #0 \\, d#?'],['Surface integral','\\iint_{#?} #0 \\, dS'],['Surface flux','\\iint_{#?} #0 \\cdot \\mathbf{n} \\, dS'],['Closed surface flux','\\oiint_{#?} #0 \\cdot \\mathbf{n} \\, dS'],['Evaluation brackets','\\left[#0\\right]_{#?}^{#?}'],['Fraction','\\frac{#0}{#?}'],['Subscript','{#0}_{#?}'],['Summation','\\sum_{n=1}^{\\infty} #0'],['Limit','\\lim_{x\\to 0} #0'],['Derivative','\\frac{\\partial #0}{\\partial x}'],['Matrix','\\begin{pmatrix}#0 & #? \\\\ #? & #?\\end{pmatrix}'],['Overbar','\\bar{#0}'],['Overline','\\overline{#0}'],['Barred coordinates','(\\bar{#0},\\bar{#?})'],['Vector arrow','\\vec{#0}'],['Hat','\\hat{#0}'],['Greek letters','\\alpha + \\beta'],['QED square','\\blacksquare']];
 function active(){return notes.find(note=>note.id===current);}
 function toast(message,error=false){$('toast').textContent=message;$('toast').className=error?'error':'';$('toast').hidden=false;clearTimeout(toast.timer);toast.timer=setTimeout(()=>$('toast').hidden=true,error?12000:4500);}
 function safely(fn){return async(...args)=>{try{await fn(...args);}catch(error){toast(error.message,true);}};}
+function noteRank(note){const order=collection.notebooks.find(n=>n.id===(note.notebookId||'personal'))?.noteOrder||[],index=order.indexOf(note.id);return index<0?-1:index;}
 function list(){
  const query=$('search').value.toLowerCase();$('notes').replaceChildren();$('count').textContent=notebookNotes().length;
- for(const note of [...notebookNotes()].sort((a,b)=>b.updated.localeCompare(a.updated))){
-  if(!GlassNoteSearch.matches(note,query))continue;
+ for(const note of [...notebookNotes()].sort((a,b)=>Number(!!b.pinned)-Number(!!a.pinned)||noteRank(a)-noteRank(b)||b.updated.localeCompare(a.updated))){
+  if(!GlassNoteSearch.matches(note,query)||window.GlassWorkspace&&!GlassWorkspace.filter(note))continue;
   const button=document.createElement('button');button.className='note-link'+(note.id===current?' active':'');
   const symbol=document.createElement('span');symbol.className='note-symbol';symbol.textContent='ƒ';const body=document.createElement('div'),title=document.createElement('strong'),date=document.createElement('small');
-  title.textContent=note.title||'Untitled note';date.textContent=new Date(note.updated).toLocaleDateString(undefined,{month:'short',day:'numeric'});body.append(title,date);button.append(symbol,body);
-  button.onclick=safely(async()=>{await flush();current=note.id;render();});$('notes').append(button);
+  title.textContent=note.title||'Untitled note';if(note.pinned)symbol.textContent='★';date.textContent=new Date(note.updated).toLocaleDateString(undefined,{month:'short',day:'numeric'});body.append(title,date);button.append(symbol,body);
+  button.dataset.noteId=note.id;button.draggable=true;button.onclick=safely(async()=>{await flush();current=note.id;await ensureNote(current);render();});$('notes').append(button);
  }
 }
 function doc(){
  const note=active();if(documents.has(note.id))return documents.get(note.id);
  const host=document.createElement('div');host.className='document-host';
- const handle=RichDocument.mount(host,{doc:note.doc,blocks:note.blocks,onChange:(json,blocks)=>{note.doc=json;note.blocks=blocks;changed(note);},onSelection:()=>updateToolbar()});
- handle.host=host;documents.set(note.id,handle);note.doc=handle.editor.getJSON();note.blocks=handle.toBlocks();
+ const handle=RichDocument.mount(host,{doc:note.doc,blocks:note.blocks,collaboration:window.GlassSharing?.forNote(note.id),onChange:(json,blocks)=>{note.doc=json;note.blocks=blocks;changed(note);},onSelection:()=>updateToolbar()});
+ handle.host=host;documents.set(note.id,handle);trimDocuments();note.doc=handle.editor.getJSON();note.blocks=handle.toBlocks();
  host.addEventListener('mousedown',event=>{if(!event.target.closest('math-field'))lastMath=null;});
  return handle;
 }
@@ -40,15 +44,16 @@ function updateToolbar(){
  for(const [id,mark]of [['bold','bold'],['italic','italic'],['underline','underline'],['subscript','subscript'],['bullet-list','bulletList'],['numbered-list','orderedList']]){$(id).classList.toggle('selected',editor.isActive(mark));$(id).setAttribute('aria-pressed',String(editor.isActive(mark)));}
  $('undo').disabled=!editor.can().undo();$('redo').disabled=!editor.can().redo();
 }
-function header(){const note=active();$('crumb').textContent=note.title||'Untitled';const words=documents.get(current)?.editor.getText().trim().split(/\s+/).filter(Boolean).length||0;let equations=0;documents.get(current)?.editor.state.doc.descendants(node=>{if(node.type.name==='inlineMath'||node.type.name==='displayMath')equations++;});$('word-count').textContent=`${words} words · ${equations} equations`;}
+function header(){window.GlassSharing?.refreshUI();window.dispatchEvent(new Event('glass-note-change'));const note=active();$('crumb').textContent=note.title||'Untitled';const words=documents.get(current)?.editor.getText().trim().split(/\s+/).filter(Boolean).length||0;let equations=0;documents.get(current)?.editor.state.doc.descendants(node=>{if(node.type.name==='inlineMath'||node.type.name==='displayMath')equations++;});$('word-count').textContent=`${words} words · ${equations} equations`;}
 function changed(note=active()){if(!note)return;note.updated=new Date().toISOString();dirtyNotes.add(note.id);if(note.id===current){saveErrors.delete(note.id);$('save-state').textContent='Saving…';header();}clearTimeout(timer);timer=setTimeout(()=>flush().catch(e=>toast(e.message,true)),450);}
 async function flush(){
  clearTimeout(timer);const ids=new Set([...dirtyNotes,...(active()?[current]:[])]),snapshots=notes.filter(note=>ids.has(note.id)).map(note=>structuredClone(note)),selection=active()?{action:'select-note',id:collection.activeId,noteId:current}:null;
  queue=queue.catch(()=>{}).then(async()=>{const errors=[];for(const snapshot of snapshots){try{await window.desk.save(snapshot);const note=notes.find(n=>n.id===snapshot.id);saveErrors.delete(snapshot.id);if(note&&JSON.stringify(note)===JSON.stringify(snapshot)){dirtyNotes.delete(note.id);if(note.id===current){$('save-state').textContent='Saved locally';$('save-state').title='';}}}catch(error){dirtyNotes.add(snapshot.id);saveErrors.set(snapshot.id,error.message);if(snapshot.id===current){$('save-state').textContent='Not saved · Ctrl+S to retry';$('save-state').title=error.message;}errors.push(error.message);}}if(selection){await desk.updateNotebooks(selection);const entry=collection.notebooks.find(n=>n.id===selection.id);if(entry)entry.lastNoteId=selection.noteId;}if(errors.length)throw Error(errors.join('\n'));});await queue;list();
 }
-function render(){list();reading=false;lastMath=null;$('preview').textContent='Read view';$('title').readOnly=false;$('title').value=active().title;const handle=doc();handle.setReadOnly(false);$('editor').replaceChildren(handle.host);document.querySelector('.document-toolbar').inert=false;header();list();updateToolbar();$('save-state').textContent=saveErrors.has(current)?'Not saved · Ctrl+S to retry':dirtyNotes.has(current)?'Saving…':'Saved locally';$('save-state').title=saveErrors.get(current)||'';$('export-state').textContent='Local notebook · PDF export';}
-async function newNote(templateId='blank'){await flush();const template=NoteTemplates.templates.find(t=>t.id===templateId)||NoteTemplates.templates[0],now=new Date().toISOString(),note={id:uid(),notebookId:collection.activeId,title:template.title,created:now,updated:now,blocks:[],doc:NoteTemplates.document(template.id)};notes.push(note);current=note.id;render();await flush();$('title').focus();$('title').select();}
-function toggleRead(){reading=!reading;doc().setReadOnly(reading);$('title').readOnly=reading;document.querySelector('.document-toolbar').inert=reading;$('preview').textContent=reading?'Edit document':'Read view';}
+function render(){trimDocuments();list();reading=false;lastMath=null;$('preview').textContent='Read view';$('title').readOnly=false;$('title').value=active().title;const handle=doc();handle.setReadOnly(false);$('editor').replaceChildren(handle.host);document.querySelector('.document-toolbar').inert=false;header();list();updateToolbar();$('save-state').textContent=saveErrors.has(current)?'Not saved · Ctrl+S to retry':dirtyNotes.has(current)?'Saving…':'Saved locally';$('save-state').title=saveErrors.get(current)||'';$('export-state').textContent='Local notebook · PDF export';}
+async function newNote(){await flush();const now=new Date().toISOString(),note={id:uid(),notebookId:collection.activeId,folder:$('folder-filter')?.value||'',title:'Untitled note',created:now,updated:now,blocks:[],doc:{type:'doc',content:[{type:'paragraph'}]}};notes.push(note);current=note.id;render();await flush();$('title').focus();$('title').select();}
+
+function toggleRead(){reading=!reading;if(reading)window.GlassWritingReview?.clear();else setTimeout(()=>window.GlassWritingReview?.review(),0);doc().setReadOnly(reading);$('title').readOnly=reading;document.querySelector('.document-toolbar').inert=reading;$('preview').textContent=reading?'Edit document':'Read view';window.GlassSharing?.refreshUI();}
 let exportBusy=false;
 async function exportPDF(){
  if(exportBusy)return;exportBusy=true;$('pdf-export').disabled=true;$('pdf-export').textContent='Exporting…';$('export-state').textContent='Preparing PDF…';
@@ -56,11 +61,10 @@ async function exportPDF(){
  catch(error){$('export-state').textContent='PDF export failed';throw error;}
  finally{exportBusy=false;$('pdf-export').disabled=false;$('pdf-export').textContent='Export PDF';}
 }
-function forgetNote(id){documents.get(id)?.destroy();documents.delete(id);conversations.delete(id);dirtyNotes.delete(id);saveErrors.delete(id);notes=notes.filter(note=>note.id!==id);current=[...notebookNotes()].sort((a,b)=>b.updated.localeCompare(a.updated))[0]?.id;}
-async function chooseNewNote(){await flush();$('new-note-dialog').showModal();}
+function forgetNote(id){documents.get(id)?.destroy();documents.delete(id);conversations.delete(id);dirtyNotes.delete(id);saveErrors.delete(id);notes=notes.filter(note=>note.id!==id);current=[...notebookNotes()].sort((a,b)=>Number(!!b.pinned)-Number(!!a.pinned)||noteRank(a)-noteRank(b)||b.updated.localeCompare(a.updated))[0]?.id;}
+async function chooseNewNote(){await newNote();}
 $('new').onclick=safely(chooseNewNote);
-for(const template of NoteTemplates.templates){const button=document.createElement('button');button.textContent=template.name;button.dataset.noteTemplate=template.id;button.onclick=safely(async()=>{for(const b of $('new-note-choices').children)b.disabled=true;try{await newNote(template.id);$('new-note-dialog').close();}finally{for(const b of $('new-note-choices').children)b.disabled=false;}});$('new-note-choices').append(button);}
-$('new-note-close').onclick=()=>$('new-note-dialog').close();$('search').oninput=list;$('title').oninput=()=>{active().title=$('title').value;changed();list();};$('preview').onclick=toggleRead;$('pdf-export').onclick=safely(exportPDF);
+$('search').oninput=list;$('title').oninput=()=>{active().title=$('title').value;changed();list();};$('preview').onclick=toggleRead;$('pdf-export').onclick=safely(exportPDF);
 $('settings').onclick=()=>$('settings-dialog').showModal();
 $('notebook-select').onchange=safely(()=>switchNotebook($('notebook-select').value));
 for(const action of ['create','rename'])$('notebook-'+action).onclick=()=>{notebookAction=action;$('notebook-dialog-title').textContent=action==='create'?'New notebook':'Rename notebook';$('notebook-name').value=action==='rename'?collection.notebooks.find(n=>n.id===collection.activeId).name:'';$('notebook-error').textContent='';$('notebook-dialog').showModal();$('notebook-name').focus();};
@@ -70,9 +74,9 @@ $('note-move-save').onclick=safely(async()=>{const target=$('note-move').value;i
 $('rename-document').onclick=()=>{if(reading)toggleRead();$('title').focus();$('title').select();};
 $('title').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();$('title').blur();doc().focus();}});
 $('title').addEventListener('blur',()=>{const name=$('title').value.trim()||'Untitled note';if(active().title!==name){active().title=name;$('title').value=name;changed();list();}});
-$('import').onclick=safely(async()=>{await flush();const data=await window.desk.importFile();if(!data)return;const now=new Date().toISOString(),note={id:uid(),notebookId:collection.activeId,title:data.title,created:now,updated:now,blocks:parseBlocks(data.content)};notes.push(note);current=note.id;render();await flush();toast('Imported into a new document.');});
-$('delete-note').onclick=safely(async()=>{await flush();const id=current;if(!await window.desk.deleteNote(id))return;forgetNote(id);if(current)render();else await newNote();toast('Note moved to the Recycle Bin.');});
-$('archive').onclick=safely(async()=>{if(!confirm('Archive this note? You can restore it from History.'))return;await flush();const id=current;await window.desk.archive(id);forgetNote(id);if(current)render();else await newNote();});
+$('import').onclick=safely(async()=>{await flush();const data=await window.desk.importFile();if(!data)return;if(data.kind==='pdf'){window.GlassWorkspace.reviewPDFImport(data);return;}const now=new Date().toISOString(),note={id:uid(),notebookId:collection.activeId,title:data.title,created:now,updated:now,blocks:parseBlocks(data.content)};notes.push(note);current=note.id;render();await flush();toast('Imported into a new document.');});
+$('delete-note').onclick=safely(async()=>{await flush();const id=current;if(!await window.desk.deleteNote(id))return;forgetNote(id);if(current){await ensureNote(current);render();}else await newNote();toast('Note moved to the Recycle Bin.');});
+$('archive').onclick=safely(async()=>{if(!confirm('Archive this note? You can restore it from History.'))return;await flush();const id=current;await window.desk.archive(id);forgetNote(id);if(current){await ensureNote(current);render();}else await newNote();});
 for(const button of document.querySelectorAll('.document-toolbar button'))button.onmousedown=e=>e.preventDefault();
 for(const [id,command]of [['bold','toggleBold'],['italic','toggleItalic'],['underline','toggleUnderline'],['bullet-list','toggleBulletList'],['numbered-list','toggleOrderedList'],['undo','undo'],['redo','redo']])$(id).onclick=()=>doc().editor.chain().focus()[command]().run();
 $('subscript').onclick=()=>doc().editor.chain().focus().toggleMark('subscript').run();
@@ -81,20 +85,16 @@ $('font-size').onchange=()=>{const size=Number($('font-size').value);if(!Number.
 $('paragraph-style').onchange=()=>{const level=Number($('paragraph-style').value);if(level)doc().editor.chain().focus().setHeading({level}).run();else doc().editor.chain().focus().setParagraph().run();};
 $('text-align').onchange=()=>doc().editor.chain().focus().setTextAlign($('text-align').value).run();
 const mathTemplateGroups=[
- ['Basic notation',[11,0,12]],
- ['Calculus',[14,15,13,10]],
- ['Integrals',[1,2,3,4,5,7,8,9,6]],
- ['Matrices & vectors',[16,20]],
- ['Accents & coordinates',[17,18,19,21]],
- ['Symbols & proofs',[22,23]]
-];
+ ['Basic notation',['Fraction','Square root','Subscript']],
+ ['Calculus',['Limit','Derivative','Summation','Evaluation brackets']],
+ ['Integrals',['Integral','Line integral','Line integral (vector)','Closed line integral','Closed curve integral (scalar)','Surface integral','Surface flux','Closed surface flux']],
+ ['Matrices & vectors',['Matrix','Vector arrow']],
+ ['Accents & coordinates',['Overbar','Overline','Barred coordinates','Hat']],
+ ['Symbols & proofs',['Greek letters','QED square']]
+].map(([group,names])=>[group,names.map(name=>templates.findIndex(t=>t[0]===name)).filter(i=>i>=0)]);
 for(const group of AdvancedMathSymbols.groups){const indices=group.items.map(item=>templates.push(item)-1);mathTemplateGroups.push([group.name,indices]);}
-for(const [label,indices]of mathTemplateGroups){const section=document.createElement('optgroup');section.label=label;for(const index of indices){const option=document.createElement('option');option.value=String(index);option.textContent=templates[index][0];section.append(option);}$('formula-select').append(section);}
-for(const group of ChemistryTemplates.groups){const section=document.createElement('optgroup');section.label=group.name;for(const [id,label]of group.items){const option=document.createElement('option');option.value=id;option.textContent=label;section.append(option);}$('chemistry-template-select').append(section);}
 function insertTemplate(latex){if(lastMath?.isConnected){lastMath.insert(latex);lastMath.dispatchEvent(new Event('input',{bubbles:true}));lastMath.focus();}else doc().insertMath(latex);}
-$('chemistry-template-select').onchange=()=>{const entry=ChemistryTemplates.entries.find(t=>t.id===$('chemistry-template-select').value);$('chemistry-template-select').value='';if(entry)insertTemplate(entry.latex);};
 let matrixSize='2x2';
-$('formula-select').onchange=()=>{if($('formula-select').value==='')return;const template=templates[Number($('formula-select').value)];$('formula-select').value='';insertTemplate(template[0]==='Matrix'?matrixTemplate(matrixSize).latex:template[1]);};
 $('insert-matrix').onclick=()=>insertTemplate(matrixTemplate(matrixSize).latex);
 $('matrix-size-popover').addEventListener('beforetoggle',event=>{if(event.newState==='open'){$('matrix-size').value=matrixSize;$('matrix-size-error').textContent='';}});
 $('matrix-size-popover').addEventListener('toggle',event=>{if(event.newState==='open'){$('matrix-size').focus();$('matrix-size').select();}});
@@ -118,9 +118,9 @@ function renderMarkdown(container,content){
 }
 function insertBlocks(blocks){if(!blocks.length){toast('There is no content to insert.');return;}if(reading)toggleRead();doc().appendBlocks(blocks);toast('Added to your document. Equations remain editable.');}
 
-function renderConversation(){const log=$('ai-chat');log.replaceChildren();for(const m of conversation()){const box=document.createElement('div');box.className='ai-message '+m.role;const label=document.createElement('div');label.className='role';label.textContent=m.role==='user'?'You':'Glass AI';const body=document.createElement('div');renderMarkdown(body,m.content);box.append(label,body);if(m.role==='assistant'&&m.blocks?.length){const insert=document.createElement('button');insert.textContent='＋ Add answer to note';insert.disabled=aiBusy;insert.onclick=()=>{insertBlocks(m.blocks);$('ai-dialog').close();};box.append(insert);}log.append(box);}if(aiBusy){const busy=document.createElement('div');busy.className='busy-text';busy.textContent='Thinking with your note…';log.append(busy);}log.scrollTop=log.scrollHeight;}
-$('ai-open').onclick=safely(async()=>{await flush();$('ai-context').textContent='Using note: '+active().title;$('ai-dialog').showModal();renderConversation();const status=await window.desk.aiStatus();$('ai-connection').textContent=status.label;$('ai-ask').disabled=!status.available||aiBusy;$('ai-question').focus();});
-async function askAI(){const prompt=$('ai-question').value.trim();if(!prompt||aiBusy)return;const history=conversation();const prior=history.slice(-10).map(({role,content})=>({role,content}));history.push({role:'user',content:prompt});$('ai-question').value='';aiBusy=true;$('ai-ask').disabled=true;$('ai-stop').hidden=false;renderConversation();try{await flush();const result=await window.desk.askAI({note:structuredClone(active()),prompt,history:prior});history.push({role:'assistant',content:result.answer,blocks:result.blocks});}catch(e){toast(e.message,true);history.push({role:'assistant',content:'Request failed: '+e.message});}finally{aiBusy=false;$('ai-ask').disabled=false;$('ai-stop').hidden=true;renderConversation();await flush();}}
+function renderConversation(){const log=$('ai-chat');log.replaceChildren();for(const m of conversation()){const box=document.createElement('div');box.className='ai-message '+m.role;const label=document.createElement('div');label.className='role';label.textContent=m.role==='user'?'You':'Glass AI';const body=document.createElement('div');renderMarkdown(body,m.content);box.append(label,body);if(m.role==='assistant'&&(m.blocks?.length||m.edits?.length)){const review=document.createElement('button');review.textContent='Review changes to selected text';review.onclick=()=>window.GlassWorkspace.reviewAI(m);box.append(review);const insert=document.createElement('button');insert.textContent='＋ Add answer to note';insert.disabled=aiBusy;insert.onclick=()=>{insertBlocks(m.blocks);$('ai-dialog').close();};box.append(insert);}log.append(box);}if(aiBusy){const busy=document.createElement('div');busy.className='busy-text';busy.textContent='Thinking with your note…';log.append(busy);}log.scrollTop=log.scrollHeight;}
+$('ai-open').onclick=safely(async()=>{await flush();$('ai-context').textContent='Using note: '+active().title;$('ai-dialog').showModal();window.GlassWorkspace?.refreshAIContext();renderConversation();const status=await window.desk.aiStatus();$('ai-connection').textContent=status.label;$('ai-ask').disabled=!status.available||aiBusy;$('ai-question').focus();});
+async function askAI(){const prompt=$('ai-question').value.trim();if(!prompt||aiBusy)return;const history=conversation();const prior=history.slice(-10).map(({role,content})=>({role,content}));history.push({role:'user',content:prompt});$('ai-question').value='';aiBusy=true;$('ai-ask').disabled=true;$('ai-stop').hidden=false;renderConversation();try{await flush();const result=await window.desk.askAI({note:window.GlassWorkspace?.aiContext()||structuredClone(active()),prompt,history:window.GlassWorkspace?.aiHistory(prior)||prior});history.push({role:'assistant',content:result.answer,blocks:result.blocks,edits:result.edits||[]});}catch(e){toast(e.message,true);history.push({role:'assistant',content:'Request failed: '+e.message});}finally{aiBusy=false;$('ai-ask').disabled=false;$('ai-stop').hidden=true;renderConversation();await flush();}}
 $('ai-ask').onclick=safely(askAI);$('ai-stop').onclick=safely(()=>window.desk.cancelAI());$('photo-stop').onclick=safely(()=>window.desk.cancelAI());
 function closeAI(){if(aiBusy){toast('Wait for the answer or press Stop before closing.');return;}$('ai-dialog').close();}
 $('ai-close').onclick=closeAI;$('ai-dialog').addEventListener('cancel',e=>{if(aiBusy){e.preventDefault();toast('Press Stop to end the current request.');}});
@@ -180,13 +180,13 @@ $('grammar-check').onclick=safely(async()=>{
  if(!segments.length){$('grammar-summary').textContent='There is no prose to check. Equations and code are skipped.';return;}
  grammarBusy=true;grammarItems=[];renderGrammar();$('grammar-check').disabled=true;$('grammar-stop').hidden=false;$('grammar-stop').hidden=$('grammar-mode').value==='quick';$('grammar-summary').textContent=$('grammar-mode').value==='quick'?'Checking common grammar and spelling locally…':'Reviewing compact prose batches with Codex…';
  try{
-  const mode=$('grammar-mode').value;const result=mode==='quick'?DocGrammar.quick(segments):await window.desk.checkGrammar(DocGrammar.pack(segments));
+  const mode=$('grammar-mode').value;const result=mode==='quick'?await desk.offlineReview(segments):await window.desk.checkGrammar(DocGrammar.pack(segments));
   if(current!==noteId||JSON.stringify(doc().editor.getJSON())!==snapshot)throw Error('The document changed while checking. Please check again.');
   let skipped=0;
   const candidates=[];
   for(const suggestion of result.suggestions){
-   const segment=segments.find(segment=>segment.id===suggestion.segmentId),offset=segment?.text.indexOf(suggestion.original);
-   if(!segment||offset<0||segment.text.lastIndexOf(suggestion.original)!==offset||suggestion.original===suggestion.replacement||suggestion.original.includes('[equation]')||suggestion.replacement.includes('[equation]')||suggestion.replacement.length>20000){skipped++;continue;}
+   const segment=segments.find(segment=>segment.id===suggestion.segmentId),offset=Number.isInteger(suggestion.offset)?suggestion.offset:segment?.text.indexOf(suggestion.original);
+   if(!segment||offset<0||(!Number.isInteger(suggestion.offset)&&segment.text.lastIndexOf(suggestion.original)!==offset)||suggestion.original===suggestion.replacement||suggestion.original.includes('[equation]')||suggestion.replacement.includes('[equation]')||suggestion.replacement.length>20000){skipped++;continue;}
    candidates.push({...suggestion,from:segment.from+offset,to:segment.from+offset+suggestion.original.length,status:'pending'});
   }
   for(const item of candidates.sort((a,b)=>a.from-b.from)){if(grammarItems.length&&grammarItems.at(-1).to>item.from){skipped++;continue;}grammarItems.push(item);}
@@ -211,11 +211,11 @@ async function showArchives(){
  if(!archived.length)$('history-list').textContent='No archived notes.';
 }
 $('history-open').onclick=safely(async()=>{await flush();await showVersions();$('history-dialog').showModal();});$('history-close').onclick=()=>$('history-dialog').close();$('versions-tab').onclick=safely(showVersions);$('archive-tab').onclick=safely(showArchives);
-window.addEventListener('beforeunload',event=>{if(closing)return;event.preventDefault();Promise.all([window.MathdeskDrawing?.flushDraft(),window.GlassBiologyTools?.flush()]).then(()=>flush()).then(()=>{closing=true;window.close();}).catch(error=>toast('Could not save: '+error.message,true));});
+window.addEventListener('beforeunload',event=>{if(closing)return;event.preventDefault();Promise.all([window.MathdeskDrawing?.flushDraft(),window.GlassBiologyTools?.flush(),window.GlassSharing?.flush(),window.GlassCitationsUI?.flushDraft()]).then(()=>flush()).then(()=>{closing=true;window.close();}).catch(error=>toast('Could not save: '+error.message,true));});
 (async()=>{
  const data=await window.desk.load();notes=data.notes;collection=data.collection||collection;notebookControls();
  if(data.warnings?.length){$('load-warnings').textContent=data.warnings.join(' ');$('load-warnings').hidden=false;}
  if(!notes.length){const now=new Date().toISOString();notes=[{id:uid(),notebookId:collection.activeId,title:'A space to think',created:now,updated:now,blocks:[{type:'text',value:'Welcome to your notebook. Write freely on this page, just as you would in a document.\n\nSelect text to change its font, size, or formatting. Times New Roman is the default.'},{type:'math',value:'\\int_0^1 x^2\\,dx=\\frac{1}{3}'},{type:'text',value:'Typing the word integral in a sentence leaves it as text. Press Ctrl M only when you want an editable equation, then press Tab to keep writing.\n\nUse Export PDF to save a shareable copy with your text, equations, and drawings.'}]}];}
- const selected=collection.notebooks.find(n=>n.id===collection.activeId)?.lastNoteId;current=notebookNotes().find(n=>n.id===selected)?.id||[...notebookNotes()].sort((a,b)=>b.updated.localeCompare(a.updated))[0]?.id;if(current){render();await flush();}else await newNote();
+ const selected=collection.notebooks.find(n=>n.id===collection.activeId)?.lastNoteId;current=notebookNotes().find(n=>n.id===selected)?.id||[...notebookNotes()].sort((a,b)=>Number(!!b.pinned)-Number(!!a.pinned)||noteRank(a)-noteRank(b)||b.updated.localeCompare(a.updated))[0]?.id;if(current){await ensureNote(current);render();await flush();}else await newNote();
 })().catch(error=>toast('Could not load notebook: '+error.message,true));
 

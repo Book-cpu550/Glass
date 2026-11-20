@@ -1,7 +1,7 @@
 (function(root){
  'use strict';
- const blocks=new Set(['paragraph','heading','blockquote','bulletList','orderedList','horizontalRule','codeBlock','displayMath','drawing','table']);
- const inline=new Set(['text','hardBreak','inlineMath']);
+ const blocks=new Set(['paragraph','heading','blockquote','bulletList','orderedList','horizontalRule','codeBlock','displayMath','drawing','table','referenceLabel','pageBreak']);
+ const inline=new Set(['text','hardBreak','inlineMath','crossReference']);
  const marks=new Set(['bold','italic','strike','code','underline','subscript','textStyle','link']);
  function validDocument(doc){
   let count=0;
@@ -10,6 +10,9 @@
    const children=node.content||[];if(!Array.isArray(children)||node.marks&&!Array.isArray(node.marks))return false;
    if(children.some(child=>!child||typeof child!=='object'||typeof child.type!=='string'))return false;
    if((node.marks||[]).some(mark=>!mark||!marks.has(mark.type)))return false;
+   if(node.type==='referenceLabel')return typeof node.attrs?.id==='string'&&/^[a-zA-Z0-9-]{1,80}$/.test(node.attrs.id)&&['equation','figure','table','theorem'].includes(node.attrs.kind)&&typeof node.attrs.title==='string'&&node.attrs.title.length<=300&&!children.length;
+   if(node.type==='crossReference')return typeof node.attrs?.target==='string'&&node.attrs.target.length<=80&&!children.length;
+   if(node.type==='pageBreak')return !children.length;
    if(node.type==='text')return typeof node.text==='string'&&node.text.length>0&&!children.length;
    if(node.type==='drawing')return typeof node.attrs?.png==='string'&&/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(node.attrs.png)&&Array.isArray(node.attrs.strokes)&&!children.length;
    if(['inlineMath','displayMath'].includes(node.type))return typeof node.attrs?.latex==='string'&&!children.length;
