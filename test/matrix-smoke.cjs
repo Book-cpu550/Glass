@@ -1,0 +1,13 @@
+const {_electron:electron}=require('playwright'),fs=require('node:fs'),os=require('node:os'),path=require('node:path'),assert=require('node:assert/strict'),katex=require('katex'),matrix=require('../matrix-tools.js');
+const root=fs.mkdtempSync(path.join(os.tmpdir(),'mathdesk-matrix-'));
+(async()=>{const app=await electron.launch({args:[path.resolve(__dirname,'..'),'--smoke-test'],env:{...process.env,MATHDESK_TEST_DATA:root}});try{
+ const page=await app.firstWindow();await page.waitForSelector('#notes button');
+ for(const size of ['5x4','3x3','2x12']){
+  await page.getByRole('button',{name:/New note\b/}).click();await page.locator('[data-note-template="blank"]').click();await page.getByRole('textbox',{name:'Document editor'}).fill('A matrix: ');if(size==='3x3'){await page.keyboard.press('Control+m');await page.waitForFunction(()=>document.activeElement.tagName==='MATH-FIELD');}await page.getByRole('button',{name:'Choose matrix size',exact:true}).click();await page.getByRole('textbox',{name:'Matrix size',exact:true}).fill(size);await page.locator('#matrix-size-form button').click();await page.waitForFunction(()=>document.activeElement.tagName==='MATH-FIELD');
+  const expected=matrix(size);assert.equal((await page.locator('math-field').evaluate(f=>f.value).then(s=>s.match(/\\placeholder/g)||[])).length,expected.rows*expected.columns,size);
+  for(let i=0;i<expected.rows*expected.columns;i++){if(i)await page.keyboard.press('Tab');await page.keyboard.type(String(i+1));}
+  const value=await page.locator('math-field').evaluate(f=>f.value);assert.ok(!value.includes('placeholder'),size+': '+value);assert.equal((value.match(/&/g)||[]).length,expected.rows*(expected.columns-1));katex.renderToString(value,{throwOnError:true});await page.keyboard.press('Tab');await page.keyboard.type(' then continue.');assert.ok((await page.locator('.ProseMirror').innerText()).includes('then continue.'));await page.keyboard.press('Control+s');await page.waitForFunction(()=>document.getElementById('save-state').textContent==='Saved locally');
+ }
+ await page.getByRole('button',{name:'Choose matrix size',exact:true}).click();await page.getByRole('textbox',{name:'Matrix size',exact:true}).fill('0x4');await page.locator('#matrix-size-form button').click();assert.ok((await page.locator('#matrix-size-error').innerText()).includes('1 and 20'));assert.equal(await page.locator('math-field').count(),1);
+ console.log('PASS: custom 5x4/3x3/2x12 matrices, every cell editable with Tab, prose continuation, local save, and invalid size rejection.');
+}finally{await app.close();fs.rmSync(root,{recursive:true,force:true});}})().catch(e=>{console.error(e);process.exitCode=1;});
