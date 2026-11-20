@@ -1,0 +1,3 @@
+Mode: built-in image generation (blue color edit)
+
+Edit target: the attached faceted purple crystal app icon. Change only its colors from purple/violet to blue. Preserve exactly the angular crystal silhouette, facets, proportions, composition, crisp edges and actual transparent background. Use icy pale blue highlights on the upper facet, saturated clear azure and sapphire blue on the main facets, and deep cobalt/navy blue on the shaded lower facets. No purple or violet. No added elements, text, letters, tile, shadows or sparkles. This is the production logo for the Glass app.
