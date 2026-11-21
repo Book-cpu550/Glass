@@ -130,7 +130,7 @@ handle('deleteNote',async id=>{
   return true;
 });
 const {LibraryStore}=require('./library-store.cjs');
-const mathReference=require('./theorem-data.js'),chemReference=require('./chemistry-data.js'),bioReference=require('./biology-data.js'),reference={entries:[...mathReference.entries,...chemReference.entries,...bioReference.entries],sources:{...mathReference.sources,...chemReference.sources,...bioReference.sources}},libraryAI=require('./library-ai.cjs');
+const mathReference=require('./theorem-data.js'),chemReference=require('./chemistry-data.js'),bioReference=require('./biology-data.js'),physicsReference=require('./physics-data.js'),reference={entries:[...mathReference.entries,...chemReference.entries,...bioReference.entries,...physicsReference.entries],sources:{...mathReference.sources,...chemReference.sources,...bioReference.sources,...physicsReference.sources}},libraryAI=require('./library-ai.cjs');
 let localLibrary;function library(){return localLibrary||=new LibraryStore(app.getPath('userData'));}
 handle('getLibrary',()=>{try{return {...library().read(),storage:app.getPath('userData')};}catch(error){return {entries:[],favorites:[],storage:app.getPath('userData'),error:error.message};}});
 handle('saveLibraryEntry',entry=>library().save(entry));
@@ -141,7 +141,7 @@ handle('copyLibraryFormula',id=>{const entry=[...reference.entries,...library().
 handle('openDataFolder',()=>shell.openPath(app.getPath('userData')));
 handle('draftLibraryEntries',async input=>{
  if(!input||typeof input.query!=='string'||!input.query.trim()||input.query.length>2000)throw Error('Enter a reference name or an HTTPS source link.');
- const query=input.query.trim(),subject=input.subject==='biology'?'biology':input.subject==='chemistry'?'chemistry':'math';let page=null;
+ const query=input.query.trim(),subject=input.subject==='physics'?'physics':input.subject==='biology'?'biology':input.subject==='chemistry'?'chemistry':'math';let page=null;
  if(/^https?:/i.test(query))page=await libraryAI.fetchPage(query,(...args)=>net.fetch(...args));
  const result=await ai.runAI({workspace:dataPath('ai-work'),prompt:libraryAI.prompt(query,page,subject),responseSchema:libraryAI.schema,validateResult:result=>libraryAI.validate(result,subject)});
  if(!result.entries.length)throw Error(result.summary||'The source did not contain a usable mathematical entry. Try a specific name.');

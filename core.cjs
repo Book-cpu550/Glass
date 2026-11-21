@@ -14,6 +14,7 @@ function validateNote(note) {
   if(note.tags!==undefined&&(!Array.isArray(note.tags)||note.tags.length>30||note.tags.some(t=>typeof t!=='string'||t.length>50)))throw Error('Invalid note tags');
   if(note.pinned!==undefined&&typeof note.pinned!=='boolean')throw Error('Invalid pin');
   if(note.citations!==undefined&&(!Array.isArray(note.citations)||note.citations.length>500||note.citations.some(c=>!c||typeof c.id!=='string'||typeof c.title!=='string'||!['book','website','journal','chapter'].includes(c.type)||Object.values(c).some(v=>typeof v!=='string'&&typeof v!=='boolean')||JSON.stringify(c).length>20000)))throw Error('Invalid saved citations');
+  if(note.flashcards!==undefined&&(!Array.isArray(note.flashcards)||note.flashcards.length>500||note.flashcards.some(c=>!c||typeof c.id!=='string'||typeof c.front!=='string'||typeof c.back!=='string'||c.front.length>10000||c.back.length>10000||typeof c.image!=='string'||c.image&&!/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(c.image)||![c.due,c.interval,c.reviews].every(Number.isFinite))))throw Error('Invalid flashcards');
   if(note._summary)throw Error('Load the full note before saving.');
   if (note.blocks.some(b => !b || !['text','math','drawing'].includes(b.type) || typeof b.value !== 'string'||b.type==='drawing'&&!/^data:image\/png;base64,iVBORw0KGgo[A-Za-z0-9+/=]*$/.test(b.value))) throw Error('Invalid block');
   if(note.title.length>5000)throw Error('Document names must be under 5,000 characters.');

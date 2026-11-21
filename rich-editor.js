@@ -14,9 +14,9 @@
   };
   var __copyProps = (to, from3, except, desc) => {
     if (from3 && typeof from3 === "object" || typeof from3 === "function") {
-      for (let key2 of __getOwnPropNames(from3))
-        if (!__hasOwnProp.call(to, key2) && key2 !== except)
-          __defProp(to, key2, { get: () => from3[key2], enumerable: !(desc = __getOwnPropDesc(from3, key2)) || desc.enumerable });
+      for (let key3 of __getOwnPropNames(from3))
+        if (!__hasOwnProp.call(to, key3) && key3 !== except)
+          __defProp(to, key3, { get: () => from3[key3], enumerable: !(desc = __getOwnPropDesc(from3, key3)) || desc.enumerable });
     }
     return to;
   };
@@ -94,27 +94,27 @@
   }
   OrderedMap.prototype = {
     constructor: OrderedMap,
-    find: function(key2) {
+    find: function(key3) {
       for (var i2 = 0; i2 < this.content.length; i2 += 2)
-        if (this.content[i2] === key2) return i2;
+        if (this.content[i2] === key3) return i2;
       return -1;
     },
     // :: (string) → ?any
     // Retrieve the value stored under `key`, or return undefined when
     // no such key exists.
-    get: function(key2) {
-      var found2 = this.find(key2);
+    get: function(key3) {
+      var found2 = this.find(key3);
       return found2 == -1 ? void 0 : this.content[found2 + 1];
     },
     // :: (string, any, ?string) → OrderedMap
     // Create a new map by replacing the value of `key` with a new
     // value, or adding a binding to the end of the map. If `newKey` is
     // given, the key of the binding will be replaced with that key.
-    update: function(key2, value, newKey) {
-      var self = newKey && newKey != key2 ? this.remove(newKey) : this;
-      var found2 = self.find(key2), content = self.content.slice();
+    update: function(key3, value, newKey) {
+      var self = newKey && newKey != key3 ? this.remove(newKey) : this;
+      var found2 = self.find(key3), content = self.content.slice();
       if (found2 == -1) {
-        content.push(newKey || key2, value);
+        content.push(newKey || key3, value);
       } else {
         content[found2 + 1] = value;
         if (newKey) content[found2] = newKey;
@@ -123,8 +123,8 @@
     },
     // :: (string) → OrderedMap
     // Return a map with the given key removed, if it existed.
-    remove: function(key2) {
-      var found2 = this.find(key2);
+    remove: function(key3) {
+      var found2 = this.find(key3);
       if (found2 == -1) return this;
       var content = this.content.slice();
       content.splice(found2, 2);
@@ -132,23 +132,23 @@
     },
     // :: (string, any) → OrderedMap
     // Add a new key to the start of the map.
-    addToStart: function(key2, value) {
-      return new OrderedMap([key2, value].concat(this.remove(key2).content));
+    addToStart: function(key3, value) {
+      return new OrderedMap([key3, value].concat(this.remove(key3).content));
     },
     // :: (string, any) → OrderedMap
     // Add a new key to the end of the map.
-    addToEnd: function(key2, value) {
-      var content = this.remove(key2).content.slice();
-      content.push(key2, value);
+    addToEnd: function(key3, value) {
+      var content = this.remove(key3).content.slice();
+      content.push(key3, value);
       return new OrderedMap(content);
     },
     // :: (string, string, any) → OrderedMap
     // Add a key after the given key. If `place` is not found, the new
     // key is added to the end.
-    addBefore: function(place, key2, value) {
-      var without = this.remove(key2), content = without.content.slice();
+    addBefore: function(place, key3, value) {
+      var without = this.remove(key3), content = without.content.slice();
       var found2 = without.find(place);
-      content.splice(found2 == -1 ? content.length : found2, 0, key2, value);
+      content.splice(found2 == -1 ? content.length : found2, 0, key3, value);
       return new OrderedMap(content);
     },
     // :: ((key: string, value: any))
@@ -188,8 +188,8 @@
     // Turn ordered map into a plain object.
     toObject: function() {
       var result = {};
-      this.forEach(function(key2, value) {
-        result[key2] = value;
+      this.forEach(function(key3, value) {
+        result[key3] = value;
       });
       return result;
     },
@@ -5951,15 +5951,15 @@
     Store a metadata property in this transaction, keyed either by
     name or by plugin.
     */
-    setMeta(key2, value) {
-      this.meta[typeof key2 == "string" ? key2 : key2.key] = value;
+    setMeta(key3, value) {
+      this.meta[typeof key3 == "string" ? key3 : key3.key] = value;
       return this;
     }
     /**
     Retrieve a metadata property for a given name or plugin.
     */
-    getMeta(key2) {
-      return this.meta[typeof key2 == "string" ? key2 : key2.key];
+    getMeta(key3) {
+      return this.meta[typeof key3 == "string" ? key3 : key3.key];
     }
     /**
     Returns true if this transaction doesn't contain any metadata,
@@ -6806,8 +6806,8 @@
     "Ctrl-a": selectTextblockStart,
     "Ctrl-e": selectTextblockEnd
   };
-  for (let key2 in pcBaseKeymap)
-    macBaseKeymap[key2] = pcBaseKeymap[key2];
+  for (let key3 in pcBaseKeymap)
+    macBaseKeymap[key3] = pcBaseKeymap[key3];
   var mac = typeof navigator != "undefined" ? /Mac|iP(hone|[oa]d)/.test(navigator.platform) : typeof os != "undefined" && os.platform ? os.platform() == "darwin" : false;
 
   // node_modules/prosemirror-schema-list/dist/index.js
@@ -7064,11 +7064,11 @@
     if (range.focusNode != range.anchorNode || range.focusOffset != range.anchorOffset)
       sel.extend(range.focusNode, range.focusOffset);
   }
-  function keyEvent(keyCode, key2) {
+  function keyEvent(keyCode, key3) {
     let event = document.createEvent("Event");
     event.initEvent("keydown", true, true);
     event.keyCode = keyCode;
-    event.key = event.code = key2;
+    event.key = event.code = key3;
     return event;
   }
   function deepActiveElement(doc4) {
@@ -13438,10 +13438,10 @@
   function objectIncludes(object1, object2, options = { strict: true }) {
     const keys3 = Object.keys(object2);
     if (!keys3.length) return true;
-    return keys3.every((key2) => {
-      if (options.strict) return object2[key2] === object1[key2];
-      if (isRegExp(object2[key2])) return object2[key2].test(object1[key2]);
-      return object2[key2] === object1[key2];
+    return keys3.every((key3) => {
+      if (options.strict) return object2[key3] === object1[key3];
+      if (isRegExp(object2[key3])) return object2[key3].test(object1[key3]);
+      return object2[key3] === object1[key3];
     });
   }
   function findMarkInSet(marks, type, attributes = {}) {
@@ -13775,7 +13775,7 @@
     const defaultType = defaultBlockAt2($pos.parent.contentMatchAt($pos.index()));
     if (!defaultType) return false;
     const validAttrKeys = Object.keys(defaultType.spec.attrs || {});
-    const filteredAttrs = attrs ? Object.fromEntries(Object.entries(attrs).filter(([key2]) => validAttrKeys.includes(key2))) : {};
+    const filteredAttrs = attrs ? Object.fromEntries(Object.entries(attrs).filter(([key3]) => validAttrKeys.includes(key3))) : {};
     let node;
     if (content) {
       const parsed = createNodeFromContent(content, editor.schema);
@@ -13867,14 +13867,14 @@
   }
   var keyboardShortcut = (name) => ({ editor, view, tr: tr2, dispatch }) => {
     const keys3 = normalizeKeyName2(name).split(/-(?!$)/);
-    const key2 = keys3.find((item) => ![
+    const key3 = keys3.find((item) => ![
       "Alt",
       "Ctrl",
       "Meta",
       "Shift"
     ].includes(item));
     const event = new KeyboardEvent("keydown", {
-      key: key2 === "Space" ? " " : key2,
+      key: key3 === "Space" ? " " : key3,
       altKey: keys3.includes("Alt"),
       ctrlKey: keys3.includes("Ctrl"),
       metaKey: keys3.includes("Meta"),
@@ -14151,7 +14151,7 @@
   }
   function mergeType(name, local, external, fields) {
     return {
-      ...Object.fromEntries(Object.entries(local).filter(([key2]) => key2 !== "attrs" && !Object.hasOwn(fields, key2))),
+      ...Object.fromEntries(Object.entries(local).filter(([key3]) => key3 !== "attrs" && !Object.hasOwn(fields, key3))),
       ...structuralFields(external, fields, name),
       attrs: external.attrs
     };
@@ -14328,9 +14328,9 @@
   function mergeAttributes(...objects) {
     return objects.filter((item) => !!item).reduce((items, item) => {
       const mergedAttributes = { ...items };
-      Object.entries(item).forEach(([key2, value]) => {
-        if (key2 === "__proto__") {
-          Object.defineProperty(mergedAttributes, key2, {
+      Object.entries(item).forEach(([key3, value]) => {
+        if (key3 === "__proto__") {
+          Object.defineProperty(mergedAttributes, key3, {
             configurable: true,
             enumerable: true,
             value,
@@ -14338,19 +14338,19 @@
           });
           return;
         }
-        if (!mergedAttributes[key2]) {
-          mergedAttributes[key2] = value;
+        if (!mergedAttributes[key3]) {
+          mergedAttributes[key3] = value;
           return;
         }
-        if (key2 === "class") {
+        if (key3 === "class") {
           const valueClasses = value ? String(value).split(" ") : [];
-          const existingClasses = mergedAttributes[key2] ? mergedAttributes[key2].split(" ") : [];
+          const existingClasses = mergedAttributes[key3] ? mergedAttributes[key3].split(" ") : [];
           const insertClasses = valueClasses.filter((valueClass) => !existingClasses.includes(valueClass));
-          mergedAttributes[key2] = [...existingClasses, ...insertClasses].join(" ");
-        } else if (key2 === "style") {
-          const styleMap = new Map([...parseStyleEntries(mergedAttributes[key2]), ...parseStyleEntries(value)]);
-          mergedAttributes[key2] = Array.from(styleMap.entries()).map(([property, val]) => `${property}: ${val}`).join("; ");
-        } else mergedAttributes[key2] = value;
+          mergedAttributes[key3] = [...existingClasses, ...insertClasses].join(" ");
+        } else if (key3 === "style") {
+          const styleMap = new Map([...parseStyleEntries(mergedAttributes[key3]), ...parseStyleEntries(value)]);
+          mergedAttributes[key3] = Array.from(styleMap.entries()).map(([property, val]) => `${property}: ${val}`).join("; ");
+        } else mergedAttributes[key3] = value;
       });
       return mergedAttributes;
     }, {});
@@ -14391,8 +14391,8 @@
     };
   }
   function cleanUpSchemaItem(data) {
-    return Object.fromEntries(Object.entries(data).filter(([key2, value]) => {
-      if (key2 === "attrs" && isEmptyObject(value)) return false;
+    return Object.fromEntries(Object.entries(data).filter(([key3, value]) => {
+      if (key3 === "attrs" && isEmptyObject(value)) return false;
       return value !== null && value !== void 0;
     }));
   }
@@ -14563,8 +14563,8 @@
   function removeDuplicates(array, by = JSON.stringify) {
     const seen = {};
     return array.filter((item) => {
-      const key2 = by(item);
-      return Object.prototype.hasOwnProperty.call(seen, key2) ? false : seen[key2] = true;
+      const key3 = by(item);
+      return Object.prototype.hasOwnProperty.call(seen, key3) ? false : seen[key3] = true;
     });
   }
   function simplifyChangedRanges(changes) {
@@ -14879,8 +14879,8 @@
     }
     return canSetMark(state, tr2, type);
   };
-  var setMeta = (key2, value) => ({ tr: tr2 }) => {
-    tr2.setMeta(key2, value);
+  var setMeta = (key3, value) => ({ tr: tr2 }) => {
+    tr2.setMeta(key3, value);
     return true;
   };
   var setNode = (typeOrName, attributes = {}) => ({ state, dispatch, chain }) => {
@@ -15619,28 +15619,28 @@
   }
   function widgetKeyOf(decoration) {
     var _decoration$spec;
-    const key2 = (_decoration$spec = decoration.spec) === null || _decoration$spec === void 0 ? void 0 : _decoration$spec.key;
-    return typeof key2 === "string" ? key2 : void 0;
+    const key3 = (_decoration$spec = decoration.spec) === null || _decoration$spec === void 0 ? void 0 : _decoration$spec.key;
+    return typeof key3 === "string" ? key3 : void 0;
   }
   function findDuplicateWidgetKeys(decorationSet) {
     const extensionsByKey = /* @__PURE__ */ new Map();
     const counts = /* @__PURE__ */ new Map();
     for (const decoration of decorationSet.find()) {
       var _extensionName, _extensionsByKey$get, _counts$get;
-      const key2 = widgetKeyOf(decoration);
-      if (!key2) continue;
+      const key3 = widgetKeyOf(decoration);
+      if (!key3) continue;
       const extension = (_extensionName = decoration.spec.extensionName) !== null && _extensionName !== void 0 ? _extensionName : "unknown";
-      const extensions = (_extensionsByKey$get = extensionsByKey.get(key2)) !== null && _extensionsByKey$get !== void 0 ? _extensionsByKey$get : /* @__PURE__ */ new Set();
+      const extensions = (_extensionsByKey$get = extensionsByKey.get(key3)) !== null && _extensionsByKey$get !== void 0 ? _extensionsByKey$get : /* @__PURE__ */ new Set();
       extensions.add(extension);
-      extensionsByKey.set(key2, extensions);
-      counts.set(key2, ((_counts$get = counts.get(key2)) !== null && _counts$get !== void 0 ? _counts$get : 0) + 1);
+      extensionsByKey.set(key3, extensions);
+      counts.set(key3, ((_counts$get = counts.get(key3)) !== null && _counts$get !== void 0 ? _counts$get : 0) + 1);
     }
-    return Array.from(extensionsByKey, ([key2, extensions]) => ({
-      key: key2,
+    return Array.from(extensionsByKey, ([key3, extensions]) => ({
+      key: key3,
       extensions
-    })).filter(({ key: key2 }) => {
+    })).filter(({ key: key3 }) => {
       var _counts$get2;
-      return ((_counts$get2 = counts.get(key2)) !== null && _counts$get2 !== void 0 ? _counts$get2 : 0) > 1;
+      return ((_counts$get2 = counts.get(key3)) !== null && _counts$get2 !== void 0 ? _counts$get2 : 0) > 1;
     });
   }
   function isAttrStep(step) {
@@ -15703,8 +15703,8 @@
   }
   function mapDecorationSet(set, mapping, doc4, widgetKeys) {
     return set.map(mapping, doc4, { onRemove: (removedSpec) => {
-      const key2 = removedSpec === null || removedSpec === void 0 ? void 0 : removedSpec.key;
-      if (typeof key2 === "string") widgetKeys.delete(key2);
+      const key3 = removedSpec === null || removedSpec === void 0 ? void 0 : removedSpec.key;
+      if (typeof key3 === "string") widgetKeys.delete(key3);
     } });
   }
   function mapDecorations(name, previous, tr2) {
@@ -15722,7 +15722,7 @@
   }
   function unionWidgetKeys(widgetKeysByExtension) {
     const merged = /* @__PURE__ */ new Set();
-    for (const keys3 of Object.values(widgetKeysByExtension)) for (const key2 of keys3) merged.add(key2);
+    for (const keys3 of Object.values(widgetKeysByExtension)) for (const key3 of keys3) merged.add(key3);
     return merged;
   }
   function validateDecorationSpec(name, spec) {
@@ -15916,8 +15916,8 @@
           docSize
         }));
         for (const decoration of stale) {
-          const key2 = widgetKeyOf(decoration);
-          if (key2) widgetKeys.delete(key2);
+          const key3 = widgetKeyOf(decoration);
+          if (key3) widgetKeys.delete(key3);
         }
         set = set.remove(stale);
         const { decorations: pmDecorations, widgetKeys: addedKeys } = decorationsToPMDecorations(filterOutOfRangeDecorations({
@@ -15935,7 +15935,7 @@
           warnedExtensions: this.warnedOutOfRangeExtensions
         }), name);
         set = set.add(newState.doc, pmDecorations);
-        for (const key2 of addedKeys) widgetKeys.add(key2);
+        for (const key3 of addedKeys) widgetKeys.add(key3);
       }
       return {
         set,
@@ -15980,11 +15980,11 @@
         return;
       }
       const duplicateKeys = findDuplicateWidgetKeys(state.mergedDecorationSet);
-      const nextWarningKeys = new Set(duplicateKeys.map(({ key: key2 }) => key2));
-      for (const { key: key2, extensions } of duplicateKeys) {
-        if (this.warnedWidgetKeys.has(key2)) continue;
+      const nextWarningKeys = new Set(duplicateKeys.map(({ key: key3 }) => key3));
+      for (const { key: key3, extensions } of duplicateKeys) {
+        if (this.warnedWidgetKeys.has(key3)) continue;
         const names = Array.from(extensions).map((name) => `"${name}"`).join(", ");
-        console.warn(`[tiptap warn]: Duplicate widget decoration key "${key2}" in extension${extensions.size === 1 ? "" : "s"} ${names}. Widget decoration keys must be globally unique, otherwise ProseMirror misplaces the widget DOM. Use a stable, unique key (e.g. \`comment-\${id}\`).`);
+        console.warn(`[tiptap warn]: Duplicate widget decoration key "${key3}" in extension${extensions.size === 1 ? "" : "s"} ${names}. Widget decoration keys must be globally unique, otherwise ProseMirror misplaces the widget DOM. Use a stable, unique key (e.g. \`comment-\${id}\`).`);
       }
       this.warnedWidgetKeys = nextWarningKeys;
     }
@@ -16190,9 +16190,9 @@ ${indentedChild}`;
   }
   function mergeDeep(target, source) {
     const output = { ...target };
-    if (isPlainObject(target) && isPlainObject(source)) Object.keys(source).forEach((key2) => {
-      if (isPlainObject(source[key2]) && isPlainObject(target[key2])) output[key2] = mergeDeep(target[key2], source[key2]);
-      else output[key2] = source[key2];
+    if (isPlainObject(target) && isPlainObject(source)) Object.keys(source).forEach((key3) => {
+      if (isPlainObject(source[key3]) && isPlainObject(target[key3])) output[key3] = mergeDeep(target[key3], source[key3]);
+      else output[key3] = source[key3];
     });
     return output;
   }
@@ -17460,8 +17460,8 @@ ${indentedChild}`;
             const nodeAttributes = currentNode.node.attrs;
             const attrKeys = Object.keys(attributes);
             for (let index = 0; index < attrKeys.length; index += 1) {
-              const key2 = attrKeys[index];
-              if (nodeAttributes[key2] !== attributes[key2]) break;
+              const key3 = attrKeys[index];
+              if (nodeAttributes[key3] !== attributes[key3]) break;
             }
           } else node = currentNode;
         }
@@ -17479,7 +17479,7 @@ ${indentedChild}`;
       this.children.forEach((childPos) => {
         if (firstItemOnly && nodes.length > 0) return;
         if (childPos.node.type.name === selector) {
-          if (attrKeys.every((key2) => attributes[key2] === childPos.node.attrs[key2])) nodes.push(childPos);
+          if (attrKeys.every((key3) => attributes[key3] === childPos.node.attrs[key3])) nodes.push(childPos);
         }
         if (firstItemOnly && nodes.length > 0) return;
         nodes = nodes.concat(childPos.querySelectorAll(selector, attributes, firstItemOnly));
@@ -17769,11 +17769,11 @@ img.ProseMirror-separator {
         dragging: null,
         editable: true,
         isDestroyed: false
-      }, { get: (obj, key2) => {
-        if (this.editorView) return this.editorView[key2];
-        if (key2 === "state") return this.editorState;
-        if (key2 in obj) return Reflect.get(obj, key2);
-        throw new Error(`[tiptap error]: The editor view is not available. Cannot access view['${key2}']. The editor may not be mounted yet.`);
+      }, { get: (obj, key3) => {
+        if (this.editorView) return this.editorView[key3];
+        if (key3 === "state") return this.editorState;
+        if (key3 in obj) return Reflect.get(obj, key3);
+        throw new Error(`[tiptap error]: The editor view is not available. Cannot access view['${key3}']. The editor may not be mounted yet.`);
       } });
     }
     /**
@@ -18232,6 +18232,53 @@ img.ProseMirror-separator {
     });
   }
 
+  // productivity-editor.source.js
+  var key = new PluginKey("glassSections");
+  var Sections = Extension.create({ name: "glassSections", addCommands() {
+    return { toggleSection: (position) => ({ tr: tr2, dispatch }) => {
+      if (dispatch) dispatch(tr2.setMeta(key, { toggle: position }).setMeta("addToHistory", false));
+      return true;
+    }, expandSections: () => ({ tr: tr2, dispatch }) => {
+      if (dispatch) dispatch(tr2.setMeta(key, { clear: true }).setMeta("addToHistory", false));
+      return true;
+    } };
+  }, addProseMirrorPlugins() {
+    return [new Plugin({ key, state: { init: () => /* @__PURE__ */ new Set(), apply(tr2, old) {
+      let next = new Set([...old].map((p) => tr2.mapping.map(p)).filter((p) => tr2.doc.nodeAt(p)?.type.name === "heading"));
+      const action = tr2.getMeta(key);
+      if (action?.clear) next.clear();
+      if (Number.isInteger(action?.toggle)) {
+        next.has(action.toggle) ? next.delete(action.toggle) : next.add(action.toggle);
+      }
+      return next;
+    } }, props: { decorations(state) {
+      const folded = key.getState(state), nodes = [];
+      state.doc.forEach((node, pos) => nodes.push({ node, pos }));
+      const decorations = [];
+      for (let i2 = 0; i2 < nodes.length; i2++) {
+        const { node, pos } = nodes[i2];
+        if (node.type.name !== "heading") continue;
+        decorations.push(Decoration.widget(pos + 1, (view) => {
+          const b = document.createElement("button");
+          b.type = "button";
+          b.className = "section-fold";
+          b.textContent = folded.has(pos) ? "\u25B8" : "\u25BE";
+          b.setAttribute("aria-label", (folded.has(pos) ? "Expand" : "Collapse") + " section " + node.textContent);
+          b.setAttribute("aria-expanded", String(!folded.has(pos)));
+          b.onmousedown = (e) => e.preventDefault();
+          b.onclick = () => view.dispatch(view.state.tr.setMeta(key, { toggle: pos }).setMeta("addToHistory", false));
+          return b;
+        }, { key: "fold-" + pos + "-" + folded.has(pos), side: -1 }));
+        if (folded.has(pos)) for (let j = i2 + 1; j < nodes.length; j++) {
+          const n = nodes[j];
+          if (n.node.type.name === "heading" && n.node.attrs.level <= node.attrs.level) break;
+          decorations.push(Decoration.node(n.pos, n.pos + n.node.nodeSize, { class: "section-folded" }));
+        }
+      }
+      return DecorationSet.create(state.doc, decorations);
+    } } })];
+  } });
+
   // node_modules/lib0/map.js
   var create = () => /* @__PURE__ */ new Map();
   var copy2 = (m) => {
@@ -18241,23 +18288,23 @@ img.ProseMirror-separator {
     });
     return r;
   };
-  var setIfUndefined = (map3, key2, createT) => {
-    let set = map3.get(key2);
+  var setIfUndefined = (map3, key3, createT) => {
+    let set = map3.get(key3);
     if (set === void 0) {
-      map3.set(key2, set = createT());
+      map3.set(key3, set = createT());
     }
     return set;
   };
   var map2 = (m, f) => {
     const res = [];
-    for (const [key2, value] of m) {
-      res.push(f(value, key2));
+    for (const [key3, value] of m) {
+      res.push(f(value, key3));
     }
     return res;
   };
   var any = (m, f) => {
-    for (const [key2, value] of m) {
-      if (f(value, key2)) {
+    for (const [key3, value] of m) {
+      if (f(value, key3)) {
         return true;
       }
     }
@@ -18681,9 +18728,9 @@ img.ProseMirror-separator {
           const keys3 = Object.keys(data);
           writeVarUint(encoder, keys3.length);
           for (let i2 = 0; i2 < keys3.length; i2++) {
-            const key2 = keys3[i2];
-            writeVarString(encoder, key2);
-            writeAny(encoder, data[key2]);
+            const key3 = keys3[i2];
+            writeVarString(encoder, key3);
+            writeAny(encoder, data[key3]);
           }
         }
         break;
@@ -18969,8 +19016,8 @@ img.ProseMirror-separator {
       const len = readVarUint(decoder);
       const obj = {};
       for (let i2 = 0; i2 < len; i2++) {
-        const key2 = readVarString(decoder);
-        obj[key2] = readAny(decoder);
+        const key3 = readVarString(decoder);
+        obj[key3] = readAny(decoder);
       }
       return obj;
     },
@@ -19124,14 +19171,14 @@ img.ProseMirror-separator {
      * @param {string} key
      * @param {any} newValue
      */
-    setItem(key2, newValue) {
-      this.map.set(key2, newValue);
+    setItem(key3, newValue) {
+      this.map.set(key3, newValue);
     }
     /**
      * @param {string} key
      */
-    getItem(key2) {
-      return this.map.get(key2);
+    getItem(key3) {
+      return this.map.get(key3);
     }
   };
   var _localStorage = new VarStoragePolyfill();
@@ -19154,8 +19201,8 @@ img.ProseMirror-separator {
   var assign = Object.assign;
   var keys2 = Object.keys;
   var forEach3 = (obj, f) => {
-    for (const key2 in obj) {
-      f(obj[key2], key2);
+    for (const key3 in obj) {
+      f(obj[key3], key3);
     }
   };
   var size = (obj) => keys2(obj).length;
@@ -19166,21 +19213,21 @@ img.ProseMirror-separator {
     return true;
   };
   var every2 = (obj, f) => {
-    for (const key2 in obj) {
-      if (!f(obj[key2], key2)) {
+    for (const key3 in obj) {
+      if (!f(obj[key3], key3)) {
         return false;
       }
     }
     return true;
   };
-  var hasProperty = (obj, key2) => Object.prototype.hasOwnProperty.call(obj, key2);
-  var equalFlat = (a, b) => a === b || size(a) === size(b) && every2(a, (val, key2) => (val !== void 0 || hasProperty(b, key2)) && equals(b[key2], val));
+  var hasProperty = (obj, key3) => Object.prototype.hasOwnProperty.call(obj, key3);
+  var equalFlat = (a, b) => a === b || size(a) === size(b) && every2(a, (val, key3) => (val !== void 0 || hasProperty(b, key3)) && equals(b[key3], val));
   var freeze = Object.freeze;
   var deepFreeze = (o) => {
-    for (const key2 in o) {
-      const c = o[key2];
+    for (const key3 in o) {
+      const c = o[key3];
       if (typeof c === "object" || typeof c === "function") {
-        deepFreeze(o[key2]);
+        deepFreeze(o[key3]);
       }
     }
     return freeze(o);
@@ -19240,8 +19287,8 @@ img.ProseMirror-separator {
         if (a.size !== b.size) {
           return false;
         }
-        for (const key2 of a.keys()) {
-          if (!b.has(key2) || !equalityDeep(a.get(key2), b.get(key2))) {
+        for (const key3 of a.keys()) {
+          if (!b.has(key3) || !equalityDeep(a.get(key3), b.get(key3))) {
             return false;
           }
         }
@@ -19252,8 +19299,8 @@ img.ProseMirror-separator {
         if (size(a) !== size(b)) {
           return false;
         }
-        for (const key2 in a) {
-          if (!hasProperty(a, key2) || !equalityDeep(a[key2], b[key2])) {
+        for (const key3 in a) {
+          if (!hasProperty(a, key3) || !equalityDeep(a[key3], b[key3])) {
             return false;
           }
         }
@@ -19310,9 +19357,9 @@ img.ProseMirror-separator {
         params = create();
         (location.search || "?").slice(1).split("&").forEach((kv) => {
           if (kv.length !== 0) {
-            const [key2, value] = kv.split("=");
-            params.set(`--${fromCamelCase(key2, "-")}`, value);
-            params.set(`-${fromCamelCase(key2, "-")}`, value);
+            const [key3, value] = kv.split("=");
+            params.set(`--${fromCamelCase(key3, "-")}`, value);
+            params.set(`-${fromCamelCase(key3, "-")}`, value);
           }
         });
       } else {
@@ -20100,9 +20147,9 @@ ${err.toString()}`);
       const res = {};
       const keysN = int53(gen, 0, 3);
       for (let i2 = 0; i2 < keysN; i2++) {
-        const key2 = random(gen, o.shape.keys);
+        const key3 = random(gen, o.shape.keys);
         const val = random(gen, o.shape.values);
-        res[key2] = val;
+        res[key3] = val;
       }
       return res;
     }).done()
@@ -20124,7 +20171,7 @@ ${err.toString()}`);
   );
   var $element = $custom((el) => el.nodeType === ELEMENT_NODE);
   var $text = $custom((el) => el.nodeType === TEXT_NODE);
-  var mapToStyleString = (m) => map2(m, (value, key2) => `${key2}:${value};`).join("");
+  var mapToStyleString = (m) => map2(m, (value, key3) => `${key3}:${value};`).join("");
   var ELEMENT_NODE = doc3.ELEMENT_NODE;
   var TEXT_NODE = doc3.TEXT_NODE;
   var CDATA_SECTION_NODE = doc3.CDATA_SECTION_NODE;
@@ -20716,8 +20763,8 @@ ${err.toString()}`);
      */
     toJSON() {
       const doc4 = {};
-      this.share.forEach((value, key2) => {
-        doc4[key2] = value.toJSON();
+      this.share.forEach((value, key3) => {
+        doc4[key3] = value.toJSON();
       });
       return doc4;
     }
@@ -20985,9 +21032,9 @@ ${err.toString()}`);
       if (keyClock < this.keys.length) {
         return this.keys[keyClock];
       } else {
-        const key2 = this.stringDecoder.read();
-        this.keys.push(key2);
-        return key2;
+        const key3 = this.stringDecoder.read();
+        this.keys.push(key3);
+        return key3;
       }
     }
   };
@@ -21088,8 +21135,8 @@ ${err.toString()}`);
     /**
      * @param {string} key
      */
-    writeKey(key2) {
-      writeVarString(this.restEncoder, key2);
+    writeKey(key3) {
+      writeVarString(this.restEncoder, key3);
     }
   };
   var DSEncoderV2 = class {
@@ -21234,11 +21281,11 @@ ${err.toString()}`);
      *
      * @param {string} key
      */
-    writeKey(key2) {
-      const clock = this.keyMap.get(key2);
+    writeKey(key3) {
+      const clock = this.keyMap.get(key3);
       if (clock === void 0) {
         this.keyClockEncoder.write(this.keyClock++);
-        this.stringEncoder.write(key2);
+        this.stringEncoder.write(key3);
       } else {
         this.keyClockEncoder.write(clock);
       }
@@ -21568,9 +21615,9 @@ ${err.toString()}`);
   var compareIDs = (a, b) => a === b || a !== null && b !== null && a.client === b.client && a.clock === b.clock;
   var createID = (client, clock) => new ID(client, clock);
   var findRootTypeKey = (type) => {
-    for (const [key2, value] of type.doc.share.entries()) {
+    for (const [key3, value] of type.doc.share.entries()) {
       if (value === type) {
-        return key2;
+        return key3;
       }
     }
     throw unexpectedCase();
@@ -22735,11 +22782,11 @@ ${err.toString()}`);
           /** @type Set<string|null> */
           this.transaction.changed.get(target)
         );
-        changed.forEach((key2) => {
-          if (key2 !== null) {
+        changed.forEach((key3) => {
+          if (key3 !== null) {
             const item = (
               /** @type {Item} */
-              target._map.get(key2)
+              target._map.get(key3)
             );
             let action;
             let oldValue;
@@ -22775,7 +22822,7 @@ ${err.toString()}`);
                 return;
               }
             }
-            keys3.set(key2, { action, oldValue });
+            keys3.set(key3, { action, oldValue });
           }
         });
         this._keys = keys3;
@@ -23410,14 +23457,14 @@ ${err.toString()}`);
       );
     }
   };
-  var typeMapDelete = (transaction, parent, key2) => {
-    const c = parent._map.get(key2);
+  var typeMapDelete = (transaction, parent, key3) => {
+    const c = parent._map.get(key3);
     if (c !== void 0) {
       c.delete(transaction);
     }
   };
-  var typeMapSet = (transaction, parent, key2, value) => {
-    const left = parent._map.get(key2) || null;
+  var typeMapSet = (transaction, parent, key3, value) => {
+    const left = parent._map.get(key3) || null;
     const doc4 = transaction.doc;
     const ownClientId = doc4.clientID;
     let content;
@@ -23454,37 +23501,37 @@ ${err.toString()}`);
           }
       }
     }
-    new Item2(createID(ownClientId, getState(doc4.store, ownClientId)), left, left && left.lastId, null, null, parent, key2, content).integrate(transaction, 0);
+    new Item2(createID(ownClientId, getState(doc4.store, ownClientId)), left, left && left.lastId, null, null, parent, key3, content).integrate(transaction, 0);
   };
-  var typeMapGet = (parent, key2) => {
+  var typeMapGet = (parent, key3) => {
     parent.doc ?? warnPrematureAccess();
-    const val = parent._map.get(key2);
+    const val = parent._map.get(key3);
     return val !== void 0 && !val.deleted ? val.content.getContent()[val.length - 1] : void 0;
   };
   var typeMapGetAll = (parent) => {
     const res = {};
     parent.doc ?? warnPrematureAccess();
-    parent._map.forEach((value, key2) => {
+    parent._map.forEach((value, key3) => {
       if (!value.deleted) {
-        res[key2] = value.content.getContent()[value.length - 1];
+        res[key3] = value.content.getContent()[value.length - 1];
       }
     });
     return res;
   };
-  var typeMapHas = (parent, key2) => {
+  var typeMapHas = (parent, key3) => {
     parent.doc ?? warnPrematureAccess();
-    const val = parent._map.get(key2);
+    const val = parent._map.get(key3);
     return val !== void 0 && !val.deleted;
   };
   var typeMapGetAllSnapshot = (parent, snapshot2) => {
     const res = {};
-    parent._map.forEach((value, key2) => {
+    parent._map.forEach((value, key3) => {
       let v = value;
       while (v !== null && (!snapshot2.sv.has(v.id.client) || v.id.clock >= (snapshot2.sv.get(v.id.client) || 0))) {
         v = v.left;
       }
       if (v !== null && isVisible(v, snapshot2)) {
-        res[key2] = v.content.getContent()[v.length - 1];
+        res[key3] = v.content.getContent()[v.length - 1];
       }
     });
     return res;
@@ -23758,8 +23805,8 @@ ${err.toString()}`);
      */
     _integrate(y, item) {
       super._integrate(y, item);
-      this._prelimContent.forEach((value, key2) => {
-        this.set(key2, value);
+      this._prelimContent.forEach((value, key3) => {
+        this.set(key3, value);
       });
       this._prelimContent = null;
     }
@@ -23778,8 +23825,8 @@ ${err.toString()}`);
      */
     clone() {
       const map3 = new _YMap();
-      this.forEach((value, key2) => {
-        map3.set(key2, value instanceof AbstractType ? (
+      this.forEach((value, key3) => {
+        map3.set(key3, value instanceof AbstractType ? (
           /** @type {typeof value} */
           value.clone()
         ) : value);
@@ -23803,10 +23850,10 @@ ${err.toString()}`);
     toJSON() {
       this.doc ?? warnPrematureAccess();
       const map3 = {};
-      this._map.forEach((item, key2) => {
+      this._map.forEach((item, key3) => {
         if (!item.deleted) {
           const v = item.content.getContent()[item.length - 1];
-          map3[key2] = v instanceof AbstractType ? v.toJSON() : v;
+          map3[key3] = v instanceof AbstractType ? v.toJSON() : v;
         }
       });
       return map3;
@@ -23865,9 +23912,9 @@ ${err.toString()}`);
      */
     forEach(f) {
       this.doc ?? warnPrematureAccess();
-      this._map.forEach((item, key2) => {
+      this._map.forEach((item, key3) => {
         if (!item.deleted) {
-          f(item.content.getContent()[item.length - 1], key2, this);
+          f(item.content.getContent()[item.length - 1], key3, this);
         }
       });
     }
@@ -23884,13 +23931,13 @@ ${err.toString()}`);
      *
      * @param {string} key The key of the element to remove.
      */
-    delete(key2) {
+    delete(key3) {
       if (this.doc !== null) {
         transact(this.doc, (transaction) => {
-          typeMapDelete(transaction, this, key2);
+          typeMapDelete(transaction, this, key3);
         });
       } else {
-        this._prelimContent.delete(key2);
+        this._prelimContent.delete(key3);
       }
     }
     /**
@@ -23901,19 +23948,19 @@ ${err.toString()}`);
      * @param {VAL} value The value of the element to add
      * @return {VAL}
      */
-    set(key2, value) {
+    set(key3, value) {
       if (this.doc !== null) {
         transact(this.doc, (transaction) => {
           typeMapSet(
             transaction,
             this,
-            key2,
+            key3,
             /** @type {any} */
             value
           );
         });
       } else {
-        this._prelimContent.set(key2, value);
+        this._prelimContent.set(key3, value);
       }
       return value;
     }
@@ -23923,10 +23970,10 @@ ${err.toString()}`);
      * @param {string} key
      * @return {MapType|undefined}
      */
-    get(key2) {
+    get(key3) {
       return (
         /** @type {any} */
-        typeMapGet(this, key2)
+        typeMapGet(this, key3)
       );
     }
     /**
@@ -23935,8 +23982,8 @@ ${err.toString()}`);
      * @param {string} key The key to test.
      * @return {boolean}
      */
-    has(key2) {
-      return typeMapHas(this, key2);
+    has(key3) {
+      return typeMapHas(this, key3);
     }
     /**
      * Removes all elements from this YMap.
@@ -23944,8 +23991,8 @@ ${err.toString()}`);
     clear() {
       if (this.doc !== null) {
         transact(this.doc, (transaction) => {
-          this.forEach(function(_value, key2, map3) {
-            typeMapDelete(transaction, map3, key2);
+          this.forEach(function(_value, key3, map3) {
+            typeMapDelete(transaction, map3, key3);
           });
         });
       } else {
@@ -24058,21 +24105,21 @@ ${err.toString()}`);
     }
     const doc4 = transaction.doc;
     const ownClientId = doc4.clientID;
-    negatedAttributes.forEach((val, key2) => {
+    negatedAttributes.forEach((val, key3) => {
       const left = currPos.left;
       const right = currPos.right;
-      const nextFormat = new Item2(createID(ownClientId, getState(doc4.store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentFormat(key2, val));
+      const nextFormat = new Item2(createID(ownClientId, getState(doc4.store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentFormat(key3, val));
       nextFormat.integrate(transaction, 0);
       currPos.right = nextFormat;
       currPos.forward();
     });
   };
   var updateCurrentAttributes = (currentAttributes, format) => {
-    const { key: key2, value } = format;
+    const { key: key3, value } = format;
     if (value === null) {
-      currentAttributes.delete(key2);
+      currentAttributes.delete(key3);
     } else {
-      currentAttributes.set(key2, value);
+      currentAttributes.set(key3, value);
     }
   };
   var minimizeAttributeChanges = (currPos, attributes) => {
@@ -24097,13 +24144,13 @@ ${err.toString()}`);
     const doc4 = transaction.doc;
     const ownClientId = doc4.clientID;
     const negatedAttributes = /* @__PURE__ */ new Map();
-    for (const key2 in attributes) {
-      const val = attributes[key2];
-      const currentVal = currPos.currentAttributes.get(key2) ?? null;
+    for (const key3 in attributes) {
+      const val = attributes[key3];
+      const currentVal = currPos.currentAttributes.get(key3) ?? null;
       if (!equalAttrs(currentVal, val)) {
-        negatedAttributes.set(key2, currentVal);
+        negatedAttributes.set(key3, currentVal);
         const { left, right } = currPos;
-        currPos.right = new Item2(createID(ownClientId, getState(doc4.store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentFormat(key2, val));
+        currPos.right = new Item2(createID(ownClientId, getState(doc4.store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentFormat(key3, val));
         currPos.right.integrate(transaction, 0);
         currPos.forward();
       }
@@ -24111,9 +24158,9 @@ ${err.toString()}`);
     return negatedAttributes;
   };
   var insertText = (transaction, parent, currPos, text2, attributes) => {
-    currPos.currentAttributes.forEach((_val, key2) => {
-      if (attributes[key2] === void 0) {
-        attributes[key2] = null;
+    currPos.currentAttributes.forEach((_val, key3) => {
+      if (attributes[key3] === void 0) {
+        attributes[key3] = null;
       }
     });
     const doc4 = transaction.doc;
@@ -24144,23 +24191,23 @@ ${err.toString()}`);
       if (!currPos.right.deleted) {
         switch (currPos.right.content.constructor) {
           case ContentFormat: {
-            const { key: key2, value } = (
+            const { key: key3, value } = (
               /** @type {ContentFormat} */
               currPos.right.content
             );
-            const attr = attributes[key2];
+            const attr = attributes[key3];
             if (attr !== void 0) {
               if (equalAttrs(attr, value)) {
-                negatedAttributes.delete(key2);
+                negatedAttributes.delete(key3);
               } else {
                 if (length2 === 0) {
                   break iterationLoop;
                 }
-                negatedAttributes.set(key2, value);
+                negatedAttributes.set(key3, value);
               }
               currPos.right.delete(transaction);
             } else {
-              currPos.currentAttributes.set(key2, value);
+              currPos.currentAttributes.set(key3, value);
             }
             break;
           }
@@ -24208,19 +24255,19 @@ ${err.toString()}`);
         const content = start.content;
         switch (content.constructor) {
           case ContentFormat: {
-            const { key: key2, value } = (
+            const { key: key3, value } = (
               /** @type {ContentFormat} */
               content
             );
-            const startAttrValue = startAttributes.get(key2) ?? null;
-            if (endFormats.get(key2) !== content || startAttrValue === value) {
+            const startAttrValue = startAttributes.get(key3) ?? null;
+            if (endFormats.get(key3) !== content || startAttrValue === value) {
               start.delete(transaction);
               cleanups++;
-              if (!reachedCurr && (currAttributes.get(key2) ?? null) === value && startAttrValue !== value) {
+              if (!reachedCurr && (currAttributes.get(key3) ?? null) === value && startAttrValue !== value) {
                 if (startAttrValue === null) {
-                  currAttributes.delete(key2);
+                  currAttributes.delete(key3);
                 } else {
-                  currAttributes.set(key2, startAttrValue);
+                  currAttributes.set(key3, startAttrValue);
                 }
               }
             }
@@ -24247,14 +24294,14 @@ ${err.toString()}`);
     const attrs = /* @__PURE__ */ new Set();
     while (item && (item.deleted || !item.countable)) {
       if (!item.deleted && item.content.constructor === ContentFormat) {
-        const key2 = (
+        const key3 = (
           /** @type {ContentFormat} */
           item.content.key
         );
-        if (attrs.has(key2)) {
+        if (attrs.has(key3)) {
           item.delete(transaction);
         } else {
-          attrs.add(key2);
+          attrs.add(key3);
         }
       }
       item = item.left;
@@ -24453,9 +24500,9 @@ ${err.toString()}`);
                     op = { insert };
                     if (currentAttributes.size > 0) {
                       op.attributes = {};
-                      currentAttributes.forEach((value, key2) => {
+                      currentAttributes.forEach((value, key3) => {
                         if (value !== null) {
-                          op.attributes[key2] = value;
+                          op.attributes[key3] = value;
                         }
                       });
                     }
@@ -24526,47 +24573,47 @@ ${err.toString()}`);
                 }
                 break;
               case ContentFormat: {
-                const { key: key2, value } = (
+                const { key: key3, value } = (
                   /** @type {ContentFormat} */
                   item.content
                 );
                 if (this.adds(item)) {
                   if (!this.deletes(item)) {
-                    const curVal = currentAttributes.get(key2) ?? null;
+                    const curVal = currentAttributes.get(key3) ?? null;
                     if (!equalAttrs(curVal, value)) {
                       if (action === "retain") {
                         addOp();
                       }
-                      if (equalAttrs(value, oldAttributes.get(key2) ?? null)) {
-                        delete attributes[key2];
+                      if (equalAttrs(value, oldAttributes.get(key3) ?? null)) {
+                        delete attributes[key3];
                       } else {
-                        attributes[key2] = value;
+                        attributes[key3] = value;
                       }
                     } else if (value !== null) {
                       item.delete(transaction);
                     }
                   }
                 } else if (this.deletes(item)) {
-                  oldAttributes.set(key2, value);
-                  const curVal = currentAttributes.get(key2) ?? null;
+                  oldAttributes.set(key3, value);
+                  const curVal = currentAttributes.get(key3) ?? null;
                   if (!equalAttrs(curVal, value)) {
                     if (action === "retain") {
                       addOp();
                     }
-                    attributes[key2] = curVal;
+                    attributes[key3] = curVal;
                   }
                 } else if (!item.deleted) {
-                  oldAttributes.set(key2, value);
-                  const attr = attributes[key2];
+                  oldAttributes.set(key3, value);
+                  const attr = attributes[key3];
                   if (attr !== void 0) {
                     if (!equalAttrs(attr, value)) {
                       if (action === "retain") {
                         addOp();
                       }
                       if (value === null) {
-                        delete attributes[key2];
+                        delete attributes[key3];
                       } else {
-                        attributes[key2] = value;
+                        attributes[key3] = value;
                       }
                     } else if (attr !== null) {
                       item.delete(transaction);
@@ -24750,9 +24797,9 @@ ${err.toString()}`);
         if (str.length > 0) {
           const attributes = {};
           let addAttributes = false;
-          currentAttributes.forEach((value, key2) => {
+          currentAttributes.forEach((value, key3) => {
             addAttributes = true;
-            attributes[key2] = value;
+            attributes[key3] = value;
           });
           const op = { insert: str };
           if (addAttributes) {
@@ -24798,8 +24845,8 @@ ${err.toString()}`);
                     {}
                   );
                   op.attributes = attrs;
-                  currentAttributes.forEach((value, key2) => {
-                    attrs[key2] = value;
+                  currentAttributes.forEach((value, key3) => {
+                    attrs[key3] = value;
                   });
                 }
                 ops.push(op);
@@ -25398,8 +25445,8 @@ ${err.toString()}`);
     _integrate(y, item) {
       super._integrate(y, item);
       /** @type {Map<string, any>} */
-      this._prelimAttrs.forEach((value, key2) => {
-        this.setAttribute(key2, value);
+      this._prelimAttrs.forEach((value, key3) => {
+        this.setAttribute(key3, value);
       });
       this._prelimAttrs = null;
     }
@@ -25421,9 +25468,9 @@ ${err.toString()}`);
     clone() {
       const el = new _YXmlElement(this.nodeName);
       const attrs = this.getAttributes();
-      forEach3(attrs, (value, key2) => {
+      forEach3(attrs, (value, key3) => {
         el.setAttribute(
-          key2,
+          key3,
           /** @type {any} */
           value
         );
@@ -25444,14 +25491,14 @@ ${err.toString()}`);
       const attrs = this.getAttributes();
       const stringBuilder = [];
       const keys3 = [];
-      for (const key2 in attrs) {
-        keys3.push(key2);
+      for (const key3 in attrs) {
+        keys3.push(key3);
       }
       keys3.sort();
       const keysLen = keys3.length;
       for (let i2 = 0; i2 < keysLen; i2++) {
-        const key2 = keys3[i2];
-        stringBuilder.push(key2 + '="' + attrs[key2] + '"');
+        const key3 = keys3[i2];
+        stringBuilder.push(key3 + '="' + attrs[key3] + '"');
       }
       const nodeName = this.nodeName.toLocaleLowerCase();
       const attrsString = stringBuilder.length > 0 ? " " + stringBuilder.join(" ") : "";
@@ -25555,10 +25602,10 @@ ${err.toString()}`);
     toDOM(_document = document, hooks = {}, binding) {
       const dom = _document.createElement(this.nodeName);
       const attrs = this.getAttributes();
-      for (const key2 in attrs) {
-        const value = attrs[key2];
+      for (const key3 in attrs) {
+        const value = attrs[key3];
         if (typeof value === "string") {
-          dom.setAttribute(key2, value);
+          dom.setAttribute(key3, value);
         }
       }
       typeListForEach(this, (yxml) => {
@@ -25627,8 +25674,8 @@ ${err.toString()}`);
      */
     clone() {
       const el = new _YXmlHook(this.hookName);
-      this.forEach((value, key2) => {
-        el.set(key2, value);
+      this.forEach((value, key3) => {
+        el.set(key3, value);
       });
       return el;
     }
@@ -25740,8 +25787,8 @@ ${err.toString()}`);
         const nestedNodes = [];
         for (const nodeName in delta.attributes) {
           const attrs = [];
-          for (const key2 in delta.attributes[nodeName]) {
-            attrs.push({ key: key2, value: delta.attributes[nodeName][key2] });
+          for (const key3 in delta.attributes[nodeName]) {
+            attrs.push({ key: key3, value: delta.attributes[nodeName][key3] });
           }
           attrs.sort((a, b) => a.key < b.key ? -1 : 1);
           nestedNodes.push({ nodeName, attrs });
@@ -26205,8 +26252,8 @@ ${err.toString()}`);
      * @param {string} key
      * @param {Object} value
      */
-    constructor(key2, value) {
-      this.key = key2;
+    constructor(key3, value) {
+      this.key = key3;
       this.value = value;
     }
     /**
@@ -27668,9 +27715,9 @@ ${err.toString()}`);
     viewsToUpdate = null;
     const entries = [];
     pending === null || pending === void 0 || pending.forEach((metas, view) => {
-      metas.forEach((value, key2) => entries.push({
+      metas.forEach((value, key3) => entries.push({
         view,
-        key: key2,
+        key: key3,
         value
       }));
     });
@@ -27679,10 +27726,10 @@ ${err.toString()}`);
   function updateMetas(entries = takePendingMetas(), isRetry = false) {
     let isFirst = true;
     while (entries.length > 0) {
-      const { view, key: key2, value } = entries[0];
+      const { view, key: key3, value } = entries[0];
       try {
         const syncState = ySyncPluginKey.getState(view.state);
-        if (syncState && syncState.binding.prosemirrorView !== null) view.dispatch(view.state.tr.setMeta(key2, value));
+        if (syncState && syncState.binding.prosemirrorView !== null) view.dispatch(view.state.tr.setMeta(key3, value));
       } catch (error) {
         if (!(error instanceof RangeError)) throw error;
         if (isRetry && isFirst) entries.shift();
@@ -27693,7 +27740,7 @@ ${err.toString()}`);
       entries.shift();
     }
   }
-  function setMeta2(view, key2, value) {
+  function setMeta2(view, key3, value) {
     if (viewsToUpdate === null) {
       viewsToUpdate = /* @__PURE__ */ new Map();
       timeout(0, updateMetas);
@@ -27703,7 +27750,7 @@ ${err.toString()}`);
       metas = /* @__PURE__ */ new Map();
       viewsToUpdate.set(view, metas);
     }
-    metas.set(key2, value);
+    metas.set(key3, value);
   }
   var defaultAwarenessStateFilter = (currentClientId, userClientId, _user) => currentClientId !== userClientId;
   var defaultCursorBuilder = (user) => {
@@ -27903,9 +27950,9 @@ ${err.toString()}`);
   };
   var hasDistinctiveAttrs = (node) => {
     const specAttrs = node.type.spec.attrs || {};
-    return Object.keys(node.attrs).some((key2) => {
-      const spec = specAttrs[key2];
-      return spec == null || !Object.prototype.hasOwnProperty.call(spec, "default") || spec.default !== node.attrs[key2];
+    return Object.keys(node.attrs).some((key3) => {
+      const spec = specAttrs[key3];
+      return spec == null || !Object.prototype.hasOwnProperty.call(spec, "default") || spec.default !== node.attrs[key3];
     });
   };
   var findAbsolutePositionAfterStructuralChange = (oldDoc, newDoc, absPos) => {
@@ -28247,9 +28294,9 @@ ${err.toString()}`);
   var createTypeFromTextOrElementNode = (node, meta) => node instanceof Array ? createTypeFromTextNodes(node, meta) : createTypeFromElementNode(node, meta);
   var createTypeFromElementNode = (node, meta) => {
     const type = new YXmlElement(node.type.name);
-    for (const key2 in node.attrs) {
-      const val = node.attrs[key2];
-      if (val !== null && key2 !== "ychange") type.setAttribute(key2, val);
+    for (const key3 in node.attrs) {
+      const val = node.attrs[key3];
+      if (val !== null && key3 !== "ychange") type.setAttribute(key3, val);
     }
     type.insert(0, normalizePNodeContent(node).map((n) => createTypeFromTextOrElementNode(n, meta)));
     meta.mapping.set(type, node);
@@ -28257,13 +28304,13 @@ ${err.toString()}`);
   };
   var isObject2 = (val) => typeof val === "object" && val !== null;
   var equalAttrs2 = (pattrs, yattrs) => {
-    const keys3 = Object.keys(pattrs).filter((key2) => pattrs[key2] !== null);
-    let eq = keys3.length === Object.keys(yattrs).filter((key2) => yattrs[key2] !== null).length;
+    const keys3 = Object.keys(pattrs).filter((key3) => pattrs[key3] !== null);
+    let eq = keys3.length === Object.keys(yattrs).filter((key3) => yattrs[key3] !== null).length;
     for (let i2 = 0; i2 < keys3.length && eq; i2++) {
-      const key2 = keys3[i2];
-      const l = pattrs[key2];
-      const r = yattrs[key2];
-      eq = key2 === "ychange" || l === r || isObject2(l) && isObject2(r) && equalAttrs2(l, r);
+      const key3 = keys3[i2];
+      const l = pattrs[key3];
+      const r = yattrs[key3];
+      eq = key3 === "ychange" || l === r || isObject2(l) && isObject2(r) && equalAttrs2(l, r);
     }
     return eq;
   };
@@ -28444,14 +28491,14 @@ ${err.toString()}`);
     if (yDomFragment instanceof YXmlElement) {
       const yDomAttrs = yDomFragment.getAttributes();
       const pAttrs = pNode.attrs;
-      for (const key2 in pAttrs) {
-        if (pAttrs[key2] === null) {
-          yDomFragment.removeAttribute(key2);
+      for (const key3 in pAttrs) {
+        if (pAttrs[key3] === null) {
+          yDomFragment.removeAttribute(key3);
           continue;
         }
-        if (yDomAttrs[key2] !== pAttrs[key2] && key2 !== "ychange") yDomFragment.setAttribute(key2, pAttrs[key2]);
+        if (yDomAttrs[key3] !== pAttrs[key3] && key3 !== "ychange") yDomFragment.setAttribute(key3, pAttrs[key3]);
       }
-      for (const key2 in yDomAttrs) if (pAttrs[key2] === void 0) yDomFragment.removeAttribute(key2);
+      for (const key3 in yDomAttrs) if (pAttrs[key3] === void 0) yDomFragment.removeAttribute(key3);
     }
     const pChildren = normalizePNodeContent(pNode);
     const pChildCnt = pChildren.length;
@@ -28709,7 +28756,7 @@ ${err.toString()}`);
         applyUpdateV2(historyDoc, snapshot2);
         snapshot2 = snapshot(historyDoc);
         if (historyType._item === null) {
-          const rootKey = Array.from(this.doc.share.keys()).find((key2) => Object.is(this.doc.share.get(key2), historyType));
+          const rootKey = Array.from(this.doc.share.keys()).find((key3) => Object.is(this.doc.share.get(key3), historyType));
           historyType = historyDoc.getXmlFragment(rootKey);
         } else {
           var _historyDoc$store$cli;
@@ -31006,14 +31053,14 @@ ${prefix}
      * @param {MultiToken} [token] The token from linkify.tokenize
      * @returns {Opts[K] | any}
      */
-    get(key2, operator, token) {
+    get(key3, operator, token) {
       const isCallable = operator != null;
-      let option = this.o[key2];
+      let option = this.o[key3];
       if (!option) {
         return option;
       }
       if (typeof option === "object") {
-        option = token.t in option ? option[token.t] : defaults[key2];
+        option = token.t in option ? option[token.t] : defaults[key3];
         if (typeof option === "function" && isCallable) {
           option = option(operator, token);
         }
@@ -31029,8 +31076,8 @@ ${prefix}
      * @param {MultiToken} [token]
      * @returns {Opts[L] | any}
      */
-    getObj(key2, operator, token) {
-      let obj = this.o[key2];
+    getObj(key3, operator, token) {
+      let obj = this.o[key3];
       if (typeof obj === "function" && operator != null) {
         obj = obj(operator, token.t, token);
       }
@@ -33078,15 +33125,15 @@ ${prefix}
             if (!this.options.onReadOnlyChecked(node, checked)) checkbox.checked = !checkbox.checked;
           }
         });
-        Object.entries(this.options.HTMLAttributes).forEach(([key2, value]) => {
-          listItem.setAttribute(key2, value);
+        Object.entries(this.options.HTMLAttributes).forEach(([key3, value]) => {
+          listItem.setAttribute(key3, value);
         });
         listItem.dataset.checked = node.attrs.checked;
         checkbox.checked = node.attrs.checked;
         checkboxWrapper.append(checkbox, checkboxStyler);
         listItem.append(checkboxWrapper, content);
-        Object.entries(HTMLAttributes).forEach(([key2, value]) => {
-          listItem.setAttribute(key2, value);
+        Object.entries(HTMLAttributes).forEach(([key3, value]) => {
+          listItem.setAttribute(key3, value);
         });
         let prevRenderedAttributeKeys = new Set(Object.keys(HTMLAttributes));
         return {
@@ -33101,17 +33148,17 @@ ${prefix}
             const newHTMLAttributes = getRenderedAttributes(updatedNode, extensionAttributes);
             const newKeys = new Set(Object.keys(newHTMLAttributes));
             const staticAttrs = this.options.HTMLAttributes;
-            prevRenderedAttributeKeys.forEach((key2) => {
-              if (!newKeys.has(key2)) {
-                if (key2 in staticAttrs) listItem.setAttribute(key2, staticAttrs[key2]);
-                else listItem.removeAttribute(key2);
+            prevRenderedAttributeKeys.forEach((key3) => {
+              if (!newKeys.has(key3)) {
+                if (key3 in staticAttrs) listItem.setAttribute(key3, staticAttrs[key3]);
+                else listItem.removeAttribute(key3);
               }
             });
-            Object.entries(newHTMLAttributes).forEach(([key2, value]) => {
+            Object.entries(newHTMLAttributes).forEach(([key3, value]) => {
               if (value === null || value === void 0) {
-                if (key2 in staticAttrs) listItem.setAttribute(key2, staticAttrs[key2]);
-                else listItem.removeAttribute(key2);
-              } else listItem.setAttribute(key2, value);
+                if (key3 in staticAttrs) listItem.setAttribute(key3, staticAttrs[key3]);
+                else listItem.removeAttribute(key3);
+              } else listItem.setAttribute(key3, value);
             });
             prevRenderedAttributeKeys = newKeys;
             return true;
@@ -34708,12 +34755,12 @@ ${prefix}
   }, renderHTML() {
     return ["div", { "data-page-break": "true", class: "document-page-break" }, "Page break"];
   } });
-  var key = new PluginKey("glassReview");
+  var key2 = new PluginKey("glassReview");
   var ScienceTools = Extension.create({ name: "scienceTools", addGlobalAttributes() {
     return [{ types: ["paragraph"], attributes: { hanging: { default: false, parseHTML: (el) => el.hasAttribute("data-hanging"), renderHTML: (attrs) => attrs.hanging ? { "data-hanging": "true", style: "padding-left:0.5in;text-indent:-0.5in" } : {} } } }];
   }, addProseMirrorPlugins() {
-    return [new Plugin({ key, state: { init: () => DecorationSet.empty, apply(tr2, old) {
-      const review = tr2.getMeta(key);
+    return [new Plugin({ key: key2, state: { init: () => DecorationSet.empty, apply(tr2, old) {
+      const review = tr2.getMeta(key2);
       if (review) return DecorationSet.create(tr2.doc, review.filter((s) => s.from >= 0 && s.to <= tr2.doc.content.size && s.to > s.from).map((s, i2) => Decoration.inline(s.from, s.to, { class: "grammar-underline " + (s.kind === "spelling" ? "spelling" : "grammar"), "data-review-index": String(i2), tabindex: "0", role: "button", "aria-label": s.explanation || "Review suggestion" })));
       return tr2.docChanged ? DecorationSet.empty : old;
     } }, props: { decorations(state) {
@@ -34744,7 +34791,7 @@ ${prefix}
     } })];
   } });
   function setReview(editor, suggestions) {
-    editor.view.dispatch(editor.state.tr.setMeta(key, suggestions));
+    editor.view.dispatch(editor.state.tr.setMeta(key2, suggestions));
   }
 
   // node_modules/prosemirror-tables/dist/index.js
@@ -34752,21 +34799,21 @@ ${prefix}
   var addToCache;
   if (typeof WeakMap != "undefined") {
     let cache = /* @__PURE__ */ new WeakMap();
-    readFromCache = (key2) => cache.get(key2);
-    addToCache = (key2, value) => {
-      cache.set(key2, value);
+    readFromCache = (key3) => cache.get(key3);
+    addToCache = (key3, value) => {
+      cache.set(key3, value);
       return value;
     };
   } else {
     const cache = [];
     const cacheSize = 10;
     let cachePos = 0;
-    readFromCache = (key2) => {
-      for (let i2 = 0; i2 < cache.length; i2 += 2) if (cache[i2] == key2) return cache[i2 + 1];
+    readFromCache = (key3) => {
+      for (let i2 = 0; i2 < cache.length; i2 += 2) if (cache[i2] == key3) return cache[i2 + 1];
     };
-    addToCache = (key2, value) => {
+    addToCache = (key3, value) => {
       if (cachePos == cacheSize) cachePos = 0;
-      cache[cachePos++] = key2;
+      cache[cachePos++] = key3;
       return cache[cachePos++] = value;
     };
   }
@@ -36594,7 +36641,7 @@ ${prefix}
       atom: true,
       selectable: true,
       addAttributes() {
-        return { latex: { default: "", parseHTML: (el) => el.getAttribute("data-latex") || "", renderHTML: (attrs) => ({ "data-latex": attrs.latex }) } };
+        return { equationId: { default: "" }, latex: { default: "", parseHTML: (el) => el.getAttribute("data-latex") || "", renderHTML: (attrs) => ({ "data-latex": attrs.latex }) } };
       },
       parseHTML() {
         return [{ tag: `${inline ? "span" : "div"}[data-type="${name}"]` }];
@@ -36750,12 +36797,27 @@ ${prefix}
           if (editor.isEditable) window.dispatchEvent(new CustomEvent("mathdesk-edit-drawing", { detail: { position: getPos(), attrs: current.attrs } }));
         };
         dom.append(img, caption, edit);
-        return { dom, stopEvent: (event) => event.target === edit, update(next) {
+        const commitView = (attrs, expected) => {
+          if (editor.isDestroyed || !editor.isEditable) throw Error("Switch to Edit document to save this view.");
+          const position = getPos();
+          if (!Number.isInteger(position) || position < 0 || position >= editor.state.doc.content.size) throw Error("This figure was removed.");
+          const live = editor.state.doc.nodeAt(position);
+          if (live?.type.name !== "drawing" || JSON.stringify(live.attrs) !== JSON.stringify(expected)) throw Error("This figure changed. Reopen its 3D view.");
+          editor.view.dispatch(editor.state.tr.setNodeMarkup(position, void 0, attrs));
+        };
+        const interactive = window.GlassInlineGraphs?.mount({ dom, img, attrs: () => current.attrs, editable: () => editor.isEditable, save: commitView });
+        const biological = window.GlassInlineBiology?.mount({ dom, img, attrs: () => current.attrs, editable: () => editor.isEditable, save: commitView });
+        return { dom, ignoreMutation: () => true, stopEvent: (event) => event.target === edit || !!event.target.closest?.(".inline-graph-ui,.inline-bio-ui"), update(next) {
           if (next.type !== current.type) return false;
           current = next;
           img.src = next.attrs.png;
           layout();
+          interactive?.update();
+          biological?.update();
           return true;
+        }, destroy() {
+          interactive?.destroy();
+          biological?.destroy();
         } };
       };
     }
@@ -36834,6 +36896,7 @@ ${prefix}
       CrossReference,
       PageBreak,
       ScienceTools,
+      Sections,
       ...TableExtensions
     ];
     if (collaboration) extensions.push(src_default.configure({ document: collaboration.document }), cursorExtension(collaboration));
