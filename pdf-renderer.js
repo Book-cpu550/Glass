@@ -13,12 +13,12 @@
    if(source.type==='referenceLabel'||source.type==='crossReference'){const node=el(source.type==='referenceLabel'?'div':'span',GlassReferences.labelFor(source,targets));node.className=source.type==='referenceLabel'?'science-label':'science-reference';return node;}
    if(source.type==='text')return mark(document.createTextNode(source.text),source.marks);
    if(source.type==='inlineMath')return mark(math(source.attrs.latex,false),source.marks);
-   if(source.type==='displayMath')return math(source.attrs.latex,true);
+   if(source.type==='displayMath'){const result=math(source.attrs.latex,true);result.style.fontSize=Math.max(.4,Math.min(1.5,Number(source.attrs.displayScale)||1))+'em';return result;}
    if(source.type==='hardBreak')return el('br');if(source.type==='horizontalRule')return el('hr');
    if(source.type==='drawing'){const figure=el('figure');figure.className='pdf-drawing';const image=el('img');image.src=source.attrs.png;image.alt=source.attrs.caption||'Drawing';figure.style.width=Math.max(20,Math.min(100,Number(source.attrs.width)||100))+'%';figure.style.marginLeft=source.attrs.align==='left'?'0':'auto';figure.style.marginRight=source.attrs.align==='right'?'0':'auto';figure.append(image);if(source.attrs.caption)figure.append(el('figcaption',source.attrs.caption));return figure;}
    const tag={paragraph:'p',heading:'h'+(source.attrs?.level||1),blockquote:'blockquote',bulletList:'ul',orderedList:'ol',listItem:'li',codeBlock:'pre',table:'table',tableRow:'tr',tableCell:'td',tableHeader:'th'}[source.type];if(!tag)throw Error('Unsupported document content: '+source.type);const node=el(tag);
    if(['tableCell','tableHeader'].includes(source.type)){node.colSpan=source.attrs?.colspan||1;node.rowSpan=source.attrs?.rowspan||1;if(source.attrs?.backgroundColor)node.style.backgroundColor=source.attrs.backgroundColor;}
-   if(source.type==='table'){const widths=(source.content?.[0]?.content||[]).flatMap(cell=>Array.from({length:cell.attrs?.colspan||1},(_,i)=>cell.attrs?.colwidth?.[i]||100)),total=widths.reduce((a,b)=>a+b,0),group=el('colgroup');for(const width of widths){const col=el('col');col.style.width=(width/total*100)+'%';group.append(col);}node.append(group);}
+   if(source.type==='table'){if(source.attrs?.compact)node.style.fontSize='9pt';const widths=(source.content?.[0]?.content||[]).flatMap(cell=>Array.from({length:cell.attrs?.colspan||1},(_,i)=>cell.attrs?.colwidth?.[i]||100)),total=widths.reduce((a,b)=>a+b,0),group=el('colgroup');for(const width of widths){const col=el('col');col.style.width=(width/total*100)+'%';group.append(col);}node.append(group);}
    if(source.attrs?.hanging){node.style.paddingLeft='0.5in';node.style.textIndent='-0.5in';}
    if(['left','right','center','justify'].includes(source.attrs?.textAlign))node.style.textAlign=source.attrs.textAlign;
    if(source.type==='orderedList'&&Number.isInteger(source.attrs?.start))node.start=source.attrs.start;

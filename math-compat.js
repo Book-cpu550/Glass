@@ -1,6 +1,6 @@
-// Translate editor-specific notation only at the export boundary. Stored LaTeX
+// Translate editor-specific notation at rendering and export boundaries. Stored LaTeX
 // and the user's prose are left untouched.
-const aliases={differentialD:'\\mathrm{d}',capitalDifferentialD:'\\mathrm{D}',imaginaryI:'\\mathrm{i}',imaginaryJ:'\\mathrm{j}',exponentialE:'\\mathrm{e}'};
+const aliases={doubleprime:'{\\prime\\prime}',differentialD:'\\mathrm{d}',capitalDifferentialD:'\\mathrm{D}',imaginaryI:'\\mathrm{i}',imaginaryJ:'\\mathrm{j}',exponentialE:'\\mathrm{e}'};
 function latex(source){
  let result='';
  for(let i=0;i<source.length;){

@@ -44,3 +44,9 @@ account-session.json
 
 sharing-deploy-secret.json
 .wrangler/
+
+# Download native runtimes separately; retain their pinned verification metadata.
+runtimes/**
+!runtimes/*/
+!runtimes/*/GLASS-RUNTIME.json
+!runtimes/*/GLASS-SOURCE-NOTICE.txt

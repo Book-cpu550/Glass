@@ -10,7 +10,7 @@ function notebookControls(){for(const id of ['notebook-select','note-move']){con
 async function switchNotebook(id,preferred){if(notebookBusy)return;notebookBusy=true;$('notebook-select').disabled=true;try{await window.MathdeskDrawing?.flushDraft();await flush();collection=await desk.updateNotebooks({action:'select',id});notebookControls();$('search').value='';current=notebookNotes().find(n=>n.id===(preferred||collection.notebooks.find(b=>b.id===collection.activeId)?.lastNoteId))?.id||[...notebookNotes()].sort((a,b)=>Number(!!b.pinned)-Number(!!a.pinned)||noteRank(a)-noteRank(b)||b.updated.localeCompare(a.updated))[0]?.id;if(current){await ensureNote(current);render();}else await newNote();document.body.classList.remove('library-mode');}finally{notebookBusy=false;$('notebook-select').disabled=false;$('notebook-select').value=collection.activeId;}}
 const documents=new Map();
 async function ensureNote(id){const old=notes.find(n=>n.id===id);if(!old?._summary)return old;const loaded=await desk.getNote(id);const at=notes.findIndex(n=>n.id===id);if(at>=0)notes[at]=loaded;return loaded;}
-function trimDocuments(){for(const [id,handle]of documents){if(documents.size<=5)break;if(id===current||dirtyNotes.has(id)||window.GlassSharing?.forNote(id))continue;handle.destroy();documents.delete(id);const at=notes.findIndex(n=>n.id===id);if(at>=0){const note=notes[at],searchText=GlassNoteSearch.text(note);notes[at]={id:note.id,title:note.title,notebookId:note.notebookId,created:note.created,updated:note.updated,folder:note.folder||'',tags:note.tags||[],pinned:!!note.pinned,searchText,hasMath:/inlineMath|displayMath/.test(JSON.stringify(note.doc)),hasDrawing:note.blocks.some(b=>b.type==='drawing'),hasTable:JSON.stringify(note.doc).includes('table'),_summary:true};}}}
+function trimDocuments(){for(const [id,handle]of documents){if(documents.size<=5)break;if(id===current||dirtyNotes.has(id)||window.GlassSharing?.forNote(id))continue;handle.destroy();documents.delete(id);const at=notes.findIndex(n=>n.id===id);if(at>=0){const note=notes[at],searchText=GlassNoteSearch.text(note);notes[at]={id:note.id,kind:note.kind,codeLanguage:note.codeLanguage,title:note.title,notebookId:note.notebookId,created:note.created,updated:note.updated,folder:note.folder||'',tags:note.tags||[],pinned:!!note.pinned,searchText,hasMath:/inlineMath|displayMath/.test(JSON.stringify(note.doc)),hasDrawing:note.blocks.some(b=>b.type==='drawing'),hasTable:JSON.stringify(note.doc).includes('table'),_summary:true};}}}
 
 const dirtyNotes=new Set(),saveErrors=new Map();
 const templates=[['Square root','\\sqrt{#0}'],['Integral','\\int_{#?}^{#?} #0 \\, dx'],['Line integral','\\int_{#?} #0 \\, ds'],['Line integral (vector)','\\int_{#?} #0 \\cdot d\\mathbf{r}'],['Closed line integral','\\oint_{#?} #0 \\cdot d\\mathbf{r}'],['Closed curve integral (scalar)','\\oint_{#?} #0 \\, d#?'],['Surface integral','\\iint_{#?} #0 \\, dS'],['Surface flux','\\iint_{#?} #0 \\cdot \\mathbf{n} \\, dS'],['Closed surface flux','\\oiint_{#?} #0 \\cdot \\mathbf{n} \\, dS'],['Evaluation brackets','\\left[#0\\right]_{#?}^{#?}'],['Fraction','\\frac{#0}{#?}'],['Subscript','{#0}_{#?}'],['Summation','\\sum_{n=1}^{\\infty} #0'],['Limit','\\lim_{x\\to 0} #0'],['Derivative','\\frac{\\partial #0}{\\partial x}'],['Matrix','\\begin{pmatrix}#0 & #? \\\\ #? & #?\\end{pmatrix}'],['Overbar','\\bar{#0}'],['Overline','\\overline{#0}'],['Barred coordinates','(\\bar{#0},\\bar{#?})'],['Vector arrow','\\vec{#0}'],['Hat','\\hat{#0}'],['Greek letters','\\alpha + \\beta'],['QED square','\\blacksquare']];
@@ -23,7 +23,7 @@ function list(){
  for(const note of [...notebookNotes()].sort((a,b)=>Number(!!b.pinned)-Number(!!a.pinned)||noteRank(a)-noteRank(b)||b.updated.localeCompare(a.updated))){
   if(!GlassNoteSearch.matches(note,query)||window.GlassWorkspace&&!GlassWorkspace.filter(note))continue;
   const button=document.createElement('button');button.className='note-link'+(note.id===current?' active':'');
-  const symbol=document.createElement('span');symbol.className='note-symbol';symbol.textContent='ƒ';const body=document.createElement('div'),title=document.createElement('strong'),date=document.createElement('small');
+  const symbol=document.createElement('span');symbol.className='note-symbol';symbol.textContent=note.kind==='code'?'</>':'ƒ';const body=document.createElement('div'),title=document.createElement('strong'),date=document.createElement('small');
   title.textContent=note.title||'Untitled note';if(note.pinned)symbol.textContent='★';date.textContent=new Date(note.updated).toLocaleDateString(undefined,{month:'short',day:'numeric'});body.append(title,date);button.append(symbol,body);
   button.dataset.noteId=note.id;button.draggable=true;button.onclick=safely(async()=>{await flush();current=note.id;await ensureNote(current);render();});$('notes').append(button);
  }
@@ -31,7 +31,7 @@ function list(){
 function doc(){
  const note=active();if(documents.has(note.id))return documents.get(note.id);
  const host=document.createElement('div');host.className='document-host';
- const handle=RichDocument.mount(host,{doc:note.doc,blocks:note.blocks,collaboration:window.GlassSharing?.forNote(note.id),onChange:(json,blocks)=>{note.doc=json;note.blocks=blocks;changed(note);},onSelection:()=>updateToolbar()});
+ const handle=RichDocument.mount(host,{codeMode:note.kind==='code',doc:note.doc,blocks:note.blocks,collaboration:window.GlassSharing?.forNote(note.id),onChange:(json,blocks)=>{note.doc=json;note.blocks=blocks;changed(note);},onSelection:()=>updateToolbar()});
  handle.host=host;documents.set(note.id,handle);trimDocuments();note.doc=handle.editor.getJSON();note.blocks=handle.toBlocks();
  host.addEventListener('mousedown',event=>{if(!event.target.closest('math-field'))lastMath=null;});
  return handle;
@@ -51,9 +51,9 @@ async function flush(){
  queue=queue.catch(()=>{}).then(async()=>{const errors=[];for(const snapshot of snapshots){try{await window.desk.save(snapshot);const note=notes.find(n=>n.id===snapshot.id);saveErrors.delete(snapshot.id);if(note&&JSON.stringify(note)===JSON.stringify(snapshot)){dirtyNotes.delete(note.id);if(note.id===current){$('save-state').textContent='Saved locally';$('save-state').title='';}}}catch(error){dirtyNotes.add(snapshot.id);saveErrors.set(snapshot.id,error.message);if(snapshot.id===current){$('save-state').textContent='Not saved · Ctrl+S to retry';$('save-state').title=error.message;}errors.push(error.message);}}if(selection){await desk.updateNotebooks(selection);const entry=collection.notebooks.find(n=>n.id===selection.id);if(entry)entry.lastNoteId=selection.noteId;}if(errors.length)throw Error(errors.join('\n'));});await queue;list();
 }
 function render(){trimDocuments();list();reading=false;lastMath=null;$('preview').textContent='Read view';$('title').readOnly=false;$('title').value=active().title;const handle=doc();handle.setReadOnly(false);$('editor').replaceChildren(handle.host);document.querySelector('.document-toolbar').inert=false;header();list();updateToolbar();$('save-state').textContent=saveErrors.has(current)?'Not saved · Ctrl+S to retry':dirtyNotes.has(current)?'Saving…':'Saved locally';$('save-state').title=saveErrors.get(current)||'';$('export-state').textContent='Local notebook · PDF export';}
-async function newNote(){await flush();const now=new Date().toISOString(),note={id:uid(),notebookId:collection.activeId,folder:$('folder-filter')?.value||'',title:'Untitled note',created:now,updated:now,blocks:[],doc:{type:'doc',content:[{type:'paragraph'}]}};notes.push(note);current=note.id;render();await flush();$('title').focus();$('title').select();}
+async function newNote(kind='document'){await flush();const now=new Date().toISOString(),coding=['code','matlab','python'].includes(kind),language=kind==='matlab'?'matlab':kind==='python'?'python':'javascript',note={id:uid(),notebookId:collection.activeId,folder:$('folder-filter')?.value||'',kind:coding?'code':undefined,codeLanguage:coding?language:undefined,title:coding?(language==='matlab'?'Untitled MATLAB note':language==='python'?'Untitled Python note':'Untitled code note'):'Untitled note',created:now,updated:now,blocks:[],doc:{type:'doc',content:coding?[{type:'codeBlock',attrs:{language},content:[{type:'text',text:language==='matlab'?"% Write MATLAB-compatible code here.\nx = [1 2 3];\ndisp(sum(x));":language==='python'?"# Write Python here.\nprint(\"Hello, Glass!\")":"// Write JavaScript here.\nconsole.log(\"Hello, Glass!\");"}]}]:[{type:'paragraph'}]}};notes.push(note);current=note.id;render();await flush();$('title').focus();$('title').select();}
 
-function toggleRead(){reading=!reading;if(reading)window.GlassWritingReview?.clear();else setTimeout(()=>window.GlassWritingReview?.review(),0);doc().setReadOnly(reading);$('title').readOnly=reading;document.querySelector('.document-toolbar').inert=reading;$('preview').textContent=reading?'Edit document':'Read view';window.GlassSharing?.refreshUI();}
+function toggleRead(){reading=!reading;if(reading)window.GlassWritingReview?.clear();else setTimeout(()=>window.GlassWritingReview?.review(),0);doc().setReadOnly(reading);$('title').readOnly=reading;document.querySelector('.document-toolbar').inert=reading;$('preview').textContent=reading?'Edit document':'Read view';window.GlassSharing?.refreshUI();window.GlassCoding?.refresh();}
 let exportBusy=false;
 async function exportPDF(){
  if(exportBusy)return;exportBusy=true;$('pdf-export').disabled=true;$('pdf-export').textContent='Exporting…';$('export-state').textContent='Preparing PDF…';
@@ -62,8 +62,8 @@ async function exportPDF(){
  finally{exportBusy=false;$('pdf-export').disabled=false;$('pdf-export').textContent='Export PDF';}
 }
 function forgetNote(id){documents.get(id)?.destroy();documents.delete(id);conversations.delete(id);dirtyNotes.delete(id);saveErrors.delete(id);notes=notes.filter(note=>note.id!==id);current=[...notebookNotes()].sort((a,b)=>Number(!!b.pinned)-Number(!!a.pinned)||noteRank(a)-noteRank(b)||b.updated.localeCompare(a.updated))[0]?.id;}
-async function chooseNewNote(){await newNote();}
-$('new').onclick=safely(chooseNewNote);
+async function chooseNewNote(){if(document.querySelector('dialog[open]'))return;$('new').click();}
+$('new').onclick=null;
 $('search').oninput=list;$('title').oninput=()=>{active().title=$('title').value;changed();list();};$('preview').onclick=toggleRead;$('pdf-export').onclick=safely(exportPDF);
 $('settings').onclick=()=>$('settings-dialog').showModal();
 $('notebook-select').onchange=safely(()=>switchNotebook($('notebook-select').value));
@@ -106,21 +106,45 @@ const conversations=new Map();let aiBusy=false,photo=null,photoResult=null,photo
 function conversation(){if(!conversations.has(current)){const saved=active().aiHistory;const history=Array.isArray(saved)?saved.filter(m=>m&&['user','assistant'].includes(m.role)&&typeof m.content==='string'):[];conversations.set(current,history);active().aiHistory=history;}return conversations.get(current);}
 function renderMarkdown(container,content){
  const math=[],prefix='MATHDESK'+crypto.randomUUID().replaceAll('-','')+'TOKEN';
+ const code=[],codePrefix=prefix+'CODE';
+ content=content.replace(/```[\s\S]*?```|~~~[\s\S]*?~~~|`[^`\n]*`/g,raw=>codePrefix+(code.push(raw)-1)+'ENDCODE');
  const masked=content.replace(/(```[\s\S]*?```|~~~[\s\S]*?~~~|`[^`\n]*`)|\$\$([\s\S]*?)\$\$|(?<![\\$])\$(?!\$)([^\n$]*?)(?<!\\)\$(?!\$)|\\\[([\s\S]*?)\\\]|\\\(([^\n]*?)\\\)/g,(raw,code,display,inline,bracket,paren)=>{
   if(code)return code;const index=math.length;math.push({latex:display??inline??bracket??paren,display:display!==undefined||bracket!==undefined});return prefix+index+'ENDTOKEN';
  });
- container.innerHTML=DOMPurify.sanitize(marked.parse(masked),{FORBID_TAGS:['img','a','input','form','style']});
+ container.innerHTML=DOMPurify.sanitize(marked.parse(masked.replace(new RegExp(codePrefix+'(\\d+)ENDCODE','g'),(_raw,index)=>code[Number(index)])),{FORBID_TAGS:['img','a','input','form','style']});
  const walker=document.createTreeWalker(container,NodeFilter.SHOW_TEXT),nodes=[];while(walker.nextNode())nodes.push(walker.currentNode);
  for(const node of nodes){const re=new RegExp(prefix+'(\\d+)ENDTOKEN','g');let end=0,match;const fragment=document.createDocumentFragment();let found=false;
-  while((match=re.exec(node.textContent))){found=true;fragment.append(document.createTextNode(node.textContent.slice(end,match.index)));const span=document.createElement('span'),item=math[Number(match[1])];katex.render(item.latex,span,{displayMode:item.display,throwOnError:false,trust:false});fragment.append(span);end=match.index+match[0].length;}
+  while((match=re.exec(node.textContent))){found=true;fragment.append(document.createTextNode(node.textContent.slice(end,match.index)));const span=document.createElement('span'),item=math[Number(match[1])];katex.render(MathCompat.latex(item.latex),span,{displayMode:item.display,throwOnError:false,trust:false});fragment.append(span);end=match.index+match[0].length;}
   if(found){fragment.append(document.createTextNode(node.textContent.slice(end)));node.replaceWith(fragment);}
  }
 }
+// Keep the original prompt intact for editing and sending; render a local preview only.
+function previewAIQuestion(collapse=false){
+ const input=$('ai-question'),preview=$('ai-question-preview');
+ renderMarkdown(preview,input.value);
+ const hasMath=!!preview.querySelector('.katex');
+ preview.hidden=!hasMath;
+ input.hidden=collapse&&hasMath;
+ $('ai-question-edit').hidden=!input.hidden;
+ preview.setAttribute('aria-label',input.hidden?'Edit question':'Equation preview; edit question');
+}
+function editAIQuestion(){
+ $('ai-question').hidden=false;$('ai-question-edit').hidden=true;
+ $('ai-question').focus();
+}
+$('ai-question').addEventListener('input',()=>previewAIQuestion());
+$('ai-question').addEventListener('blur',()=>previewAIQuestion(true));
+$('ai-question-preview').onclick=editAIQuestion;
+$('ai-question-edit').onclick=editAIQuestion;
+$('ai-question-preview').addEventListener('keydown',event=>{
+ if(event.ctrlKey&&event.key==='Enter'){event.preventDefault();askAI();}
+ else if(event.key==='Enter'||event.key===' '){event.preventDefault();editAIQuestion();}
+});
 function insertBlocks(blocks){if(!blocks.length){toast('There is no content to insert.');return;}if(reading)toggleRead();doc().appendBlocks(blocks);toast('Added to your document. Equations remain editable.');}
 
-function renderConversation(){const log=$('ai-chat');log.replaceChildren();for(const m of conversation()){const box=document.createElement('div');box.className='ai-message '+m.role;const label=document.createElement('div');label.className='role';label.textContent=m.role==='user'?'You':'Glass AI';const body=document.createElement('div');renderMarkdown(body,m.content);box.append(label,body);if(m.role==='assistant'&&(m.blocks?.length||m.edits?.length)){const review=document.createElement('button');review.textContent='Review changes to selected text';review.onclick=()=>window.GlassWorkspace.reviewAI(m);box.append(review);const insert=document.createElement('button');insert.textContent='＋ Add answer to note';insert.disabled=aiBusy;insert.onclick=()=>{insertBlocks(m.blocks);$('ai-dialog').close();};box.append(insert);}log.append(box);}if(aiBusy){const busy=document.createElement('div');busy.className='busy-text';busy.textContent='Thinking with your note…';log.append(busy);}log.scrollTop=log.scrollHeight;}
-$('ai-open').onclick=safely(async()=>{await flush();$('ai-context').textContent='Using note: '+active().title;$('ai-dialog').showModal();window.GlassWorkspace?.refreshAIContext();renderConversation();const status=await window.desk.aiStatus();$('ai-connection').textContent=status.label;$('ai-ask').disabled=!status.available||aiBusy;$('ai-question').focus();});
-async function askAI(){const prompt=$('ai-question').value.trim();if(!prompt||aiBusy)return;const history=conversation();const prior=history.slice(-10).map(({role,content})=>({role,content}));history.push({role:'user',content:prompt});$('ai-question').value='';aiBusy=true;$('ai-ask').disabled=true;$('ai-stop').hidden=false;renderConversation();try{await flush();const result=await window.desk.askAI({note:window.GlassWorkspace?.aiContext()||structuredClone(active()),prompt,history:window.GlassWorkspace?.aiHistory(prior)||prior});history.push({role:'assistant',content:result.answer,blocks:result.blocks,edits:result.edits||[]});}catch(e){toast(e.message,true);history.push({role:'assistant',content:'Request failed: '+e.message});}finally{aiBusy=false;$('ai-ask').disabled=false;$('ai-stop').hidden=true;renderConversation();await flush();}}
+function renderConversation(){const log=$('ai-chat');log.replaceChildren();for(const m of conversation()){const box=document.createElement('div');box.className='ai-message '+m.role;const label=document.createElement('div');label.className='role';label.textContent=m.role==='user'?'You':'Glass AI';const body=document.createElement('div');renderMarkdown(body,m.content);box.append(label,body);if(m.role==='assistant'&&(m.blocks?.length||m.edits?.length)){const review=document.createElement('button');review.textContent=active().kind==='code'?'Review code changes':'Review changes to selected text';review.onclick=()=>window.GlassWorkspace.reviewAI(m);box.append(review);const insert=document.createElement('button');insert.textContent='＋ Add answer to note';insert.disabled=aiBusy;insert.onclick=()=>{insertBlocks(m.blocks);$('ai-dialog').close();};box.append(insert);}log.append(box);}if(aiBusy){const busy=document.createElement('div');busy.className='busy-text';busy.textContent='Thinking with your note…';log.append(busy);}log.scrollTop=log.scrollHeight;}
+$('ai-open').onclick=safely(async()=>{await flush();$('ai-context').textContent='Using note: '+active().title;$('ai-dialog').showModal();window.GlassWorkspace?.refreshAIContext();renderConversation();const status=await window.desk.aiStatus();$('ai-connection').textContent=status.label;$('ai-ask').disabled=!status.available||aiBusy;previewAIQuestion();$('ai-question').hidden=false;$('ai-question-edit').hidden=true;$('ai-question').focus();});
+async function askAI(){const prompt=$('ai-question').value.trim();if(!prompt||aiBusy)return;const history=conversation();const prior=history.slice(-10).map(({role,content})=>({role,content}));history.push({role:'user',content:prompt});$('ai-question').value='';previewAIQuestion();aiBusy=true;$('ai-ask').disabled=true;$('ai-stop').hidden=false;renderConversation();try{await flush();const result=await window.desk.askAI({note:window.GlassWorkspace?.aiContext()||structuredClone(active()),prompt,history:window.GlassWorkspace?.aiHistory(prior)||prior});history.push({role:'assistant',content:result.answer,blocks:result.blocks,edits:result.edits||[]});}catch(e){toast(e.message,true);history.push({role:'assistant',content:'Request failed: '+e.message});}finally{aiBusy=false;$('ai-ask').disabled=false;$('ai-stop').hidden=true;renderConversation();await flush();}}
 $('ai-ask').onclick=safely(askAI);$('ai-stop').onclick=safely(()=>window.desk.cancelAI());$('photo-stop').onclick=safely(()=>window.desk.cancelAI());
 function closeAI(){if(aiBusy){toast('Wait for the answer or press Stop before closing.');return;}$('ai-dialog').close();}
 $('ai-close').onclick=closeAI;$('ai-dialog').addEventListener('cancel',e=>{if(aiBusy){e.preventDefault();toast('Press Stop to end the current request.');}});
@@ -200,12 +224,38 @@ $('grammar-all').onclick=safely(()=>applyGrammar(grammarItems.map((_,index)=>ind
 $('grammar-stop').onclick=safely(()=>window.desk.cancelAI());
 $('grammar-close').onclick=()=>{if(grammarBusy){toast('Press Stop to end the grammar check first.');return;}$('grammar-dialog').close();};
 $('grammar-dialog').addEventListener('cancel',event=>{if(grammarBusy){event.preventDefault();toast('Press Stop to end the grammar check first.');}});
-async function showVersions(){
- $('history-list').replaceChildren();const versions=await window.desk.listVersions(current);$('history-caption').textContent='Up to 50 earlier versions, captured after substantial editing (about 250 changed characters or comparable equation, layout, or diagram changes). Small edits still autosave. Restoring keeps the current version.';
- for(const version of versions){const row=document.createElement('div');row.className='history-row';const label=document.createElement('span');label.textContent=new Date(version.date).toLocaleString();const restore=document.createElement('button');restore.textContent='Restore';restore.onclick=safely(async()=>{await flush();const restored=await window.desk.restoreVersion({id:current,name:version.name});documents.get(current)?.destroy();documents.delete(current);notes[notes.findIndex(n=>n.id===current)]=restored;render();$('history-dialog').close();toast('Earlier version restored. The previous version is in History.');});row.append(label,restore);$('history-list').append(row);}
- if(!versions.length)$('history-list').textContent='No earlier versions yet. History appears after substantial editing; all smaller edits are still saved locally.';
+function renderHistoryChange(row,note,index,fallback){
+ const source=(note.doc?.content||note.blocks||[])[index];if(!source){row.append(document.createTextNode(fallback));return;}
+ const visit=node=>{
+  if(node.type==='text'){row.append(document.createTextNode(node.text??node.value??''));return;}
+  if(['inlineMath','displayMath','math'].includes(node.type)){const math=document.createElement('span');math.className='history-change-math';try{katex.render(MathCompat.latex(node.attrs?.latex??node.value??''),math,{displayMode:node.type!=='inlineMath',throwOnError:true,trust:false});}catch(error){math.textContent=node.attrs?.latex??node.value??'';math.classList.add('math-render-fallback');math.title='This equation could not be rendered: '+error.message;}row.append(math);return;}
+  if(node.type==='drawing'){row.append(document.createTextNode(WorkspaceTools.text(node)));return;}
+  if(node.type==='hardBreak'){row.append(document.createElement('br'));return;}
+  for(const child of node.content||[])visit(child);if(['paragraph','heading','listItem','tableRow'].includes(node.type))row.append(document.createElement('br'));
+ };visit(source);
 }
+let historyOwner=null,historySelection=null,historyPreview=null,historyEpoch=0;
+function clearHistoryPreview(){historyEpoch++;historyPreview?.destroy();historyPreview=null;$('history-preview-document').replaceChildren();historySelection=null;$('history-restore').disabled=true;lastMath=null;}
+async function previewHistory(name=null){
+ const owner=historyOwner;clearHistoryPreview();const request=historyEpoch;$('history-preview-status').textContent='Loading preview…';$('history-preview-title').textContent='';$('history-changes').hidden=true;
+ try{const note=name?await desk.getVersion({id:owner,name}):structuredClone(active());if(request!==historyEpoch||owner!==historyOwner||owner!==current)return;
+  historyPreview=RichDocument.mount($('history-preview-document'),{doc:note.doc,blocks:note.blocks,onChange:()=>{}});historyPreview.setReadOnly(true);historyPreview.editor.view.dom.setAttribute('aria-label','Historical document preview');
+  $('history-preview-title').textContent=note.title||'Untitled note';$('history-preview-date').textContent=name?new Date(Number(name.split('-')[0])).toLocaleString():'Current version';$('history-preview-status').textContent=name?'Read-only preview · your current document is unchanged.':'Latest saved document · select an earlier version to preview it.';
+  historySelection=name;$('history-restore').disabled=!name;for(const button of $('history-list').querySelectorAll('button'))button.setAttribute('aria-pressed',String(button.dataset.version===(name||'current')));
+  $('history-preview-scroll').scrollTop=0;const changes=$('history-changes-content');changes.replaceChildren();$('history-changes').open=false;if(name){const comparison=WorkspaceTools.diff(note,active());for(const change of comparison.changes.filter(c=>c.type!=='same')){const row=document.createElement('div');row.className='history-change-row '+change.type;const label=document.createElement('strong');label.className='history-change-label';label.textContent=change.type==='added'?'Added in current:':'Only in this version:';row.append(label);renderHistoryChange(row,change.type==='added'?active():note,change.index,change.text);changes.append(row);}if(!changes.childElementCount)changes.textContent=comparison.limited?'This document is too large for a text comparison. Review the preview.':'No prose or equation changes. Formatting and figures may differ.';$('history-changes').hidden=false;}
+ }catch(error){if(request!==historyEpoch)return;$('history-preview-status').textContent='Could not preview: '+error.message;}
+}
+async function showVersions(){
+ clearHistoryPreview();historyOwner=current;const owner=historyOwner;$('history-dialog').classList.remove('archive-mode');$('versions-tab').setAttribute('aria-pressed','true');$('archive-tab').setAttribute('aria-pressed','false');$('history-list').replaceChildren();
+ const versions=await desk.listVersions(owner);if(owner!==historyOwner)return;$('history-caption').textContent='Select a version to preview it without changing your note. Up to 50 earlier versions are captured after substantial editing; smaller edits still autosave. Restoring keeps the current version in History.';
+ const add=(name,label)=>{const button=document.createElement('button');button.type='button';button.className='history-version';button.dataset.version=name||'current';button.textContent=label;button.onclick=safely(()=>previewHistory(name));$('history-list').append(button);};add(null,'Current version');
+ for(const [index,version]of versions.entries())add(version.name,'Version '+(versions.length-index)+' · '+new Date(version.date).toLocaleString());
+ if(!versions.length){const message=document.createElement('p');message.textContent='No earlier versions yet. History appears after substantial editing; all smaller edits are still saved locally.';$('history-list').append(message);}await previewHistory();
+}
+$('history-restore').onclick=safely(async()=>{const id=historyOwner,name=historySelection;if(!name||id!==current)throw Error('Select a version of the current document first.');$('history-restore').disabled=true;try{await flush();const restored=await desk.restoreVersion({id,name});documents.get(id)?.destroy();documents.delete(id);notes[notes.findIndex(n=>n.id===id)]=restored;render();$('history-dialog').close();toast('Earlier version restored. The previous version is in History.');}finally{if($('history-dialog').open)$('history-restore').disabled=!historySelection;}});
+$('history-dialog').addEventListener('close',()=>{clearHistoryPreview();historyOwner=null;});
 async function showArchives(){
+ clearHistoryPreview();historyOwner=null;$('history-dialog').classList.add('archive-mode');$('versions-tab').setAttribute('aria-pressed','false');$('archive-tab').setAttribute('aria-pressed','true');
  $('history-list').replaceChildren();$('history-caption').textContent='Restore an archived document to your notebook.';const archived=await window.desk.listArchive();
  for(const note of archived){const row=document.createElement('div');row.className='history-row';const label=document.createElement('span');label.textContent=note.title||'Untitled note';const restore=document.createElement('button');restore.textContent='Restore';restore.onclick=safely(async()=>{const restored=await window.desk.restoreArchive(note.id);restored.notebookId=collection.activeId;await desk.save(restored);notes.push(restored);current=restored.id;render();$('history-dialog').close();toast('Archived note restored.');});row.append(label,restore);$('history-list').append(row);}
  if(!archived.length)$('history-list').textContent='No archived notes.';

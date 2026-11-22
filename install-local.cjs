@@ -20,7 +20,9 @@ async function install(){
  const packaged=path.join(__dirname,'release','Glass-win32-x64'),target=path.join(process.env.LOCALAPPDATA,'Programs','Glass'),exe=path.join(target,'Glass.exe');
  if(!fs.existsSync(exe))throw Error('Install the full Glass package before applying a local update.');
  if(hash(exe)!==hash(path.join(packaged,'Glass.exe')))throw Error('The Electron runtime changed. A full application update is required.');
+ const {DIRECTORY,copyRuntime}=require('./bundle-matlab-runtime.cjs');copyRuntime(path.join(packaged,'resources',DIRECTORY),path.join(target,'resources',DIRECTORY));const pythonDirectory=require('./python-runtime.cjs').DIRECTORY;copyRuntime(path.join(packaged,'resources',pythonDirectory),path.join(target,'resources',pythonDirectory));
  const result=await installArchive({source:path.join(packaged,'resources','app.asar'),destination:path.join(target,'resources','app.asar'),isRunning:()=>running(exe)});
+ const iconSource=path.join(packaged,'Glass.ico'),iconTarget=path.join(target,'Glass.ico');if(fs.existsSync(iconSource)&&(!fs.existsSync(iconTarget)||hash(iconSource)!==hash(iconTarget)))fs.copyFileSync(iconSource,iconTarget);
  console.log(result.changed?'Installed and verified the Glass update.':'The verified Glass update is already installed.');
 }
 module.exports={installArchive,hash};

@@ -46,9 +46,14 @@ class Notebook{
   atomicWrite(file,JSON.stringify(note,null,2));
   if(advance||!fs.existsSync(baseline))atomicWrite(baseline,JSON.stringify(advance?note:checkpoint||note,null,2));return note;
  }
- restoreVersion(id,name){
+ getVersion(id,name){
   if(!this.versions(id).includes(name))throw Error('Unknown saved version');
-  const restored=validateNote(JSON.parse(fs.readFileSync(path.join(this.root,'versions',id,name),'utf8')));restored.id=id;restored.notebookId=this.read(id).notebookId||'personal';restored.updated=new Date().toISOString();return this.save(restored,{forceVersion:true});
+  const note=validateNote(JSON.parse(fs.readFileSync(path.join(this.root,'versions',id,name),'utf8')));
+  if(note.id!==id||note.doc&&!validDocument(note.doc))throw Error('This saved version is damaged. It has not been changed.');
+  return note;
+ }
+ restoreVersion(id,name){
+  const restored=this.getVersion(id,name);restored.id=id;restored.notebookId=this.read(id).notebookId||'personal';restored.updated=new Date().toISOString();return this.save(restored,{forceVersion:true});
  }
 }
 module.exports={Notebook};

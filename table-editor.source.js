@@ -6,7 +6,7 @@ const roles={table:'table',tableRow:'row',tableCell:'cell',tableHeader:'header_c
 // Table commands map positions from their own transaction's starting document.
 // Use a fresh transaction so earlier steps in a Tiptap chain aren't mapped twice.
 function applyTableCommand(command,{state,tr,dispatch}){const fresh=EditorState.create({schema:state.schema,doc:tr.doc,selection:tr.selection,storedMarks:tr.storedMarks});return command(fresh,dispatch?result=>{for(const step of result.steps)tr.step(step);tr.setSelection(Selection.fromJSON(tr.doc,result.selection.toJSON()));if(result.storedMarksSet)tr.setStoredMarks(result.storedMarks);if(result.scrolledIntoView)tr.scrollIntoView();}:undefined);}
-const Table=Node.create({name:'table',group:'block',content:'tableRow+',isolating:true,
+const Table=Node.create({name:'table',addAttributes(){return {compact:{default:false,parseHTML:el=>el.hasAttribute('data-compact'),renderHTML:attrs=>attrs.compact?{'data-compact':'true'}:{}}};},group:'block',content:'tableRow+',isolating:true,
  extendNodeSchema(extension){return roles[extension.name]?{tableRole:roles[extension.name]}:{};},
  parseHTML(){return [{tag:'table'}];},renderHTML({HTMLAttributes}){return ['table',mergeAttributes(HTMLAttributes,{'class':'glass-table'}),['tbody',0]];},
  addCommands(){return {

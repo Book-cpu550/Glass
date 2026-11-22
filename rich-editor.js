@@ -18234,7 +18234,9 @@ img.ProseMirror-separator {
 
   // productivity-editor.source.js
   var key = new PluginKey("glassSections");
-  var Sections = Extension.create({ name: "glassSections", addCommands() {
+  var Sections = Extension.create({ name: "glassSections", addGlobalAttributes() {
+    return [{ types: ["paragraph", "heading", "displayMath", "drawing", "table", "blockquote"], attributes: { reviewId: { default: "", parseHTML: (el) => el.getAttribute("data-review-id") || "", renderHTML: (attrs) => attrs.reviewId ? { "data-review-id": attrs.reviewId } : {} } } }];
+  }, addCommands() {
     return { toggleSection: (position) => ({ tr: tr2, dispatch }) => {
       if (dispatch) dispatch(tr2.setMeta(key, { toggle: position }).setMeta("addToHistory", false));
       return true;
@@ -36532,6 +36534,9 @@ ${prefix}
   }
   var Table = Node2.create({
     name: "table",
+    addAttributes() {
+      return { compact: { default: false, parseHTML: (el) => el.hasAttribute("data-compact"), renderHTML: (attrs) => attrs.compact ? { "data-compact": "true" } : {} } };
+    },
     group: "block",
     content: "tableRow+",
     isolating: true,
@@ -36641,7 +36646,7 @@ ${prefix}
       atom: true,
       selectable: true,
       addAttributes() {
-        return { equationId: { default: "" }, latex: { default: "", parseHTML: (el) => el.getAttribute("data-latex") || "", renderHTML: (attrs) => ({ "data-latex": attrs.latex }) } };
+        return { displayScale: { default: 1 }, equationId: { default: "" }, latex: { default: "", parseHTML: (el) => el.getAttribute("data-latex") || "", renderHTML: (attrs) => ({ "data-latex": attrs.latex }) } };
       },
       parseHTML() {
         return [{ tag: `${inline ? "span" : "div"}[data-type="${name}"]` }];
@@ -36666,6 +36671,15 @@ ${prefix}
           field.readOnly = !editor.isEditable;
           field.title = "Click a bound or box to edit. Tab: next box; Shift+Tab: previous box.";
           field.value = node.attrs.latex;
+          dom.style.fontSize = Math.max(0.4, Math.min(1.5, Number(node.attrs.displayScale) || 1)) + "em";
+          const describe = () => {
+            try {
+              field.setAttribute("aria-label", (inline ? "Inline equation: " : "Display equation: ") + field.getValue("spoken-text").replace(/<[^>]*>/g, ""));
+            } catch {
+            }
+          };
+          field.addEventListener("mount", describe);
+          field.addEventListener("input", describe);
           field.addEventListener("mount", () => {
             field.inlineShortcuts = { ...field.inlineShortcuts, root: "\\sqrt{#0}", integral: "\\int #0 \\, dx", summation: "\\sum_{n=1}^{\\infty} #0" };
           });
@@ -36736,7 +36750,9 @@ ${prefix}
             update(next) {
               if (next.type !== current.type) return false;
               current = next;
+              dom.style.fontSize = Math.max(0.4, Math.min(1.5, Number(next.attrs.displayScale) || 1)) + "em";
               if (field.value !== next.attrs.latex) field.value = next.attrs.latex;
+              describe();
               return true;
             }
           };
@@ -36784,11 +36800,12 @@ ${prefix}
           dom.style.marginLeft = current.attrs.align === "left" ? "0" : "auto";
           dom.style.marginRight = current.attrs.align === "right" ? "0" : "auto";
           caption.textContent = current.attrs.caption || "";
+          if (dom.querySelector("img")) dom.querySelector("img").alt = current.attrs.caption || "Science figure: " + (current.attrs.graph?.equations || current.attrs.graph?.input || current.attrs.graph?.kind || "drawing");
         };
         layout();
         const img = document.createElement("img");
         img.src = node.attrs.png;
-        img.alt = "Drawing";
+        img.alt = node.attrs.caption || "Science figure: " + (node.attrs.graph?.equations || node.attrs.graph?.input || node.attrs.graph?.kind || "drawing");
         img.ondblclick = () => edit.click();
         const edit = document.createElement("button");
         edit.textContent = "Edit drawing";
@@ -36880,9 +36897,9 @@ ${prefix}
       });
     }).join("") || "<p></p>";
   }
-  function mount(parent, { doc: doc4, blocks, onChange, onSelection, collaboration }) {
+  function mount(parent, { doc: doc4, blocks, onChange, onSelection, collaboration, codeMode = false }) {
     const extensions = [
-      src_default2.configure({ ...collaboration ? { undoRedo: false } : {}, link: { openOnClick: false, autolink: false } }),
+      src_default2.configure({ codeBlock: { exitOnTripleEnter: !codeMode }, ...collaboration ? { undoRedo: false } : {}, link: { openOnClick: false, autolink: false } }),
       TextStyle,
       FontFamily,
       FontSize,
