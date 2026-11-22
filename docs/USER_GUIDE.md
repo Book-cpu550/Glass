@@ -17,7 +17,7 @@ Click **Account** to create/sign in to a username/password account. Open shared 
 - **Writing review:** enable Offline writing review above the document, then click an underlined issue. Accept a correction, Dismiss it, or add a spelling to your personal dictionary. Grammar → Quick check also reviews locally. Deep review is optional AI. Equations/code are excluded.
 - **Citations:** Citations opens the MLA form. Fill source details, preview, and Save citation. Select a saved source to edit/remove it or insert an in-text/full citation. Create Works Cited page makes an alphabetized, editable page with hanging indents; its PDF uses MLA-style spacing and margins. DOI lookup is optional and online.
 - **Organization:** Organize sets a folder path, tags, and a pin. Sidebar filters narrow notes by folder, tag, or content. Type `[[another document name]]` for links; Organize lists incoming/outgoing links across notebooks. Duplicate titles can be selected from the list.
-- **Backups:** Notebook settings → Backups & recovery. Choose a local folder, back up all notebooks, export one/all notebooks as `.glassbackup`, or restore. Matching files are restored; other notes remain. Every restore first makes a safety backup. Automatic backups happen after editing at most every 30 minutes; 14 automatic backups are retained. Manual backups are kept until you remove them.
+- **Backups:** Notebook settings → Backups & recovery. Choose a local folder, back up all notebooks, export one/all notebooks as `.glassbackup`, or restore. Matching files are restored; other notes remain. Every restore first makes a safety backup. Automatic backups happen after editing at most every 30 minutes; 14 automatic backups are retained. Manual backups are kept until you remove them. Single-notebook exports include only that notebook’s notes, archives, versions, checkpoints, and associated drafts/recovery files. App-wide libraries and other notebooks’ metadata are excluded. Importing a single-notebook backup preserves the other notebook names and the current notebook selection.
 - **References:** References adds a numbered caption at the cursor, or inserts a link to an existing caption. Numbering follows caption order. Click a cross-reference to jump to its caption. A deleted caption displays Missing reference rather than a misleading number.
 - **Symbols:** Math Symbols, Biology Symbols, and Chemistry Symbols search their complete notation palettes. Math Symbols → Greek letters opens lowercase, uppercase, and variant choices; Ctrl Shift K opens it. Ctrl M inserts inline math, Ctrl Shift M display math, Tab visits boxes, and Escape returns to prose. Arrow keys can enter adjacent equations.
 - **Figures:** Figure layout changes the width, alignment, and caption of any inserted figure. Double-click a figure to reopen its model. Shared drafting Undo/Redo routes to pen/biology history or graph/chemistry inputs. Replot/rebuild after undoing input changes to refresh the preview.
@@ -125,3 +125,47 @@ The post-package step restores the bundled, unmodified Electron launcher rather 
 For an existing installation using the same Electron runtime, close Glass and run `npm run install:local`. This installer verifies the staged archive, retries temporary file locks, preserves the previous archive as `app.asar.previous`, refuses to replace a running app, and verifies the installed hash before reporting success. It refuses archive-only updates when the runtime differs; those require a full package installation. It never writes to the notebook data folder.
 
 `npm test` covers local persistence, validation, graph sampling, library storage, and notation compatibility. `node test/pdf-smoke.cjs` checks PDF generation, formatting, cancellation, error handling, and removal of legacy capabilities. Other smoke tests cover document editing, equation bounds, accents, matrices, subscripts, evaluation brackets, drawings, draft recovery, graph races, grammar, and the library.
+
+Chemistry LaTeX exports load `mhchem` version 4 so editable `\ce{...}` reactions and `\pu{...}` quantities have their required definitions. Compile the exported file with a TeX installation that includes the mhchem package.
+
+History opens a read-only document preview with a version list. Select Current version or any earlier saved version to view its title, formatting, equations, tables, and figures. Show changes compared with current displays prose/equation differences. Restore this version is a separate action; the current document is preserved in History first. Previewing makes no edits. Automatic history retains up to 50 versions captured after substantial edits, so it does not record every keystroke.
+
+
+## JavaScript coding notes
+
+Click **New note** or press **Ctrl N** to choose **Blank document**, **JavaScript coding note**, **MATLAB coding note**, or **Python coding note**. Click outside the dropdown or press Escape to close it without creating a note. Coding notes autosave and remain searchable, organized, backed up, and recoverable through History like other notes.
+
+Write standard JavaScript in the code block. Tab inserts two spaces; Shift Tab removes indentation. Select multiple lines to indent/unindent them together. **Run code** or **Ctrl Enter** runs all code blocks together and displays console output and returned values. Use `console.log`, `console.warn`, and `console.error`; await asynchronous work before your program finishes. Stop cancels execution, runaway programs stop after five seconds, and output is capped at 200 entries. The runner does not provide document/DOM access, Node.js APIs, external packages, or network requests. Running code never happens automatically on note open or export.
+
+**Export runnable HTML** saves a complete offline playground with an editable code area, Run/Stop buttons, output console, and Download JavaScript. Open the HTML file in a current browser; no Glass installation or server is needed. **Export JavaScript** saves a `.js` file wrapped in an async function so `await` and `return` continue to work. Run it with `node filename.js` in a Node.js installation, or include it as a browser script. Code is preserved as text; prose outside code blocks is not executed or included in source exports. PDF export remains available as a readable copy.
+
+
+### AI help with JavaScript
+
+In a coding note, AI helper offers **Explain this code**, **Find code bugs**, and **Suggest tests**. Current note, Selected text only, and Question only control the source context sent to the helper; Preview note material sent shows the exact material. **Include last console output** is optional and off by default; Question only excludes console output. Console output may describe an earlier run.
+
+Choose **Review code changes** to inspect proposed JavaScript replacements and accept or decline each one. An edit must match the current code uniquely, so outdated or ambiguous changes are rejected. Accepting suggestions saves them without executing them; use Run code when ready. AI assistance uses the existing signed-in Codex connection and can make mistakes, so review its suggestions.
+
+Use **Add code** if you remove the original code block or want another block. Stop also cancels a run that is still preparing to save. Unhandled promise rejections appear as errors instead of successful completion. The HTML playground supports the same multi-line Tab/Shift Tab indentation as Glass.
+
+
+## MATLAB-compatible coding notes
+
+Choose **New note → MATLAB coding note**. Write code directly on the paper, then use **Run code** or **Ctrl Enter**. Glass includes GNU Octave 11.3.0 as a separate portable runtime, so no separate Octave installation or online service is needed. This is MATLAB-compatible execution through GNU Octave, not the proprietary MathWorks MATLAB engine; MATLAB-specific toolboxes and some language behavior differ.
+
+The console shows printed output and errors, with up to five plot images after a successful run. **Stop** cancels active or queued execution. Runs have a 30-second time limit and a 200-line output limit. Each run starts a fresh process in a temporary folder; relative output files are temporary and are removed after the run. Native code can access local files and system APIs as your Windows account; choose explicit paths when saving files that should persist. Provide queued input lines through **Program input (optional)** before running. Live interactive prompts and interactive plot windows are not provided.
+
+**Export MATLAB (.m)** preserves the exact source from all code blocks. Open the file with MATLAB or GNU Octave to run it outside Glass. The JavaScript-only runnable HTML export is hidden for MATLAB notes. AI helper recognizes MATLAB notes, explains MATLAB/Octave differences, and supports the same reviewed code edits and optional console context. Notes, their language, and code remain part of autosave, history, search, and portable backups.
+
+The bundled runtime retains the original GNU Octave notices and component licenses. Source distributions are available from https://ftp.gnu.org/gnu/octave/windows/ and https://ftp.gnu.org/gnu/octave/.
+
+
+## Python coding notes
+
+Choose **New note → Python coding note**. Python code is written directly on the paper. Run code or Ctrl Enter uses bundled CPython 3.15.2; no separate Python installation is needed. Core standard-library modules are included. Third-party packages such as NumPy/Matplotlib, pip, and GUI tooling are not bundled.
+
+The console shows output and Python tracebacks. Add code creates another Python block; all blocks execute in order as one ordinary script. Indentation is preserved and Tab/Shift Tab work in the code editor. For input(), expand **Program input (optional)** and enter the input values in order, one per line. Stop cancels active and queued work. Native executions have a 30-second time limit and a 200-line output limit. Native code can access local files and system APIs; each run uses a temporary working directory whose contents are removed afterward, so use explicit paths for files that must persist.
+
+**Export Python (.py)** writes the exact source, without a JavaScript wrapper. Run it outside Glass using Python. The JavaScript-only HTML export is hidden for Python notes. AI helper recognizes Python and can explain errors, suggest tests, and propose reviewed code fixes; accepting an edit does not run it. Source, language, and program input are saved with the note and included in backups/history. Program input is not sent to AI automatically.
+
+Glass's existing JavaScript runtime is bundled through Electron. Java and a JVM are separate technologies and have not been added.

@@ -3,7 +3,8 @@
 Everything below runs locally except collaboration, which uses the configured encrypted sharing relay. Existing notes and PDF exports retain still images for interactive figures.
 
 - **Insert at the cursor:** type `/` at the start of a paragraph or after a space. Search for equations, tables, symbols, graphs, molecules, biology diagrams, or drawings. Ordinary slashes inside words and equations keep their usual meaning.
-- **Command search:** press **Ctrl K**, or choose **Insert / Commands**. Use Up/Down and Enter to choose an action; Escape closes it.
+- **Search all notes & files:** use the button below the notes search bar to search every notebook. Imported files are searchable after import as notes. Results exclude reference libraries, flashcards, and commands. Ctrl K no longer opens Search Glass.
+- **Insert at cursor:** choose the insertion button or type `/` at the start of a paragraph. Use Up/Down and Enter to choose an action; Escape closes it.
 - **Outline and folding:** choose **Outline** to jump between headings. Use the triangle beside a heading to fold its section. Folding is a local view setting; PDF exports still include every section.
 - **Focus:** choose **Focus mode** or press **Ctrl Shift F**. The sidebar and editing bars disappear. The small dock offers Insert / Commands and Exit focus. Selecting prose reveals nearby formatting controls, font-size adjustment, an equation action, and a flashcard action. Times New Roman stays the default.
 - **Equation sliders:** open **Draw → Math graphing → Equation sliders & linked equation**. Add sliders named a, b, etc.; set their bounds and step, then write an equation such as `y=a*sin(b*x)`. Changing a slider updates the plot. After inserting it, choose **Interact with graph** to adjust sliders in the note. **Save view** keeps the settings and updates the still image.
