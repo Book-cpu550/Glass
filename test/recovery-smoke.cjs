@@ -6,7 +6,7 @@ async function launch(){const app=await electron.launch({args:[path.resolve(__di
   const note=await page.evaluate(()=>active());
   await page.getByRole('textbox',{name:'Document editor'}).fill('Saved locally during recovery testing.');
   await page.keyboard.press('Control+s');await page.waitForFunction(()=>document.getElementById('save-state').textContent==='Saved locally');
-  await page.getByRole('button',{name:/New note\b/}).click();await page.waitForFunction(()=>document.getElementById('title').value==='Untitled note');
+  await page.getByRole('button',{name:/New note\b/}).click();await page.locator('#new-blank-note').click();await page.waitForFunction(()=>document.getElementById('title').value==='Untitled note');
   await page.getByRole('textbox',{name:'Note title',exact:true}).fill('Offline note');
   await page.getByRole('textbox',{name:'Document editor'}).fill('This can still be saved and deleted.');
   await page.keyboard.press('Control+s');

@@ -26,7 +26,7 @@ async function launch(){const app=await electron.launch({args:[path.resolve(__di
   await clickAtom('2',0,true);await page.keyboard.type('3');
   assert.match(await field().evaluate(f=>f.value),/\\int_3\^5/);
  }
- await page.getByRole('button',{name:/New note\b/}).click();await page.getByRole('textbox',{name:'Document editor'}).fill('An integral: ');
+ await page.getByRole('button',{name:/New note\b/}).click();await page.locator('#new-blank-note').click();await page.getByRole('textbox',{name:'Document editor'}).fill('An integral: ');
  await chooseSymbol(page,'math','Integral');
  await page.waitForFunction(()=>document.activeElement.tagName==='MATH-FIELD');
  await page.keyboard.type('2');await page.keyboard.press('Tab');await page.keyboard.type('7');await page.keyboard.press('Tab');await page.keyboard.type('x');

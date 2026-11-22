@@ -4,7 +4,7 @@ const root=fs.mkdtempSync(path.join(os.tmpdir(),'mathdesk-integrals-'));
 (async()=>{const app=await electron.launch({args:[path.resolve(__dirname,'..'),'--smoke-test'],env:{...process.env,MATHDESK_TEST_DATA:root}});try{
  const page=await app.firstWindow();await page.waitForSelector('#notes button');
  for(const [label,symbol,region]of [['Line integral','\\int','C'],['Line integral (vector)','\\int','C'],['Closed line integral','\\oint','C'],['Surface integral','\\iint','S'],['Surface flux','\\iint','S'],['Closed surface flux','\\oiint','S']]){
-  await page.getByRole('button',{name:/New note\b/}).click();await page.getByRole('textbox',{name:'Document editor'}).fill('The integral is ');
+  await page.getByRole('button',{name:/New note\b/}).click();await page.locator('#new-blank-note').click();await page.getByRole('textbox',{name:'Document editor'}).fill('The integral is ');
   await chooseSymbol(page,'math',label);await page.waitForFunction(()=>document.activeElement.tagName==='MATH-FIELD');
   await page.keyboard.type(region);await page.keyboard.press('Tab');await page.keyboard.type('f');
   const field=page.locator('math-field'),value=await field.evaluate(f=>f.value);assert.ok(value.includes(symbol),label+': '+value);assert.ok(value.includes('_'+region)||value.includes('_{'+region+'}'),label+': '+value);assert.ok(value.includes('f'));assert.ok(!value.includes('placeholder'),value);
