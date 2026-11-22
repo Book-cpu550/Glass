@@ -1,0 +1,6 @@
+GNU Octave 11.3.0 (unmodified upstream Windows binary distribution)
+Official project: https://octave.org/
+Binary and corresponding source distributions: https://ftp.gnu.org/gnu/octave/windows/
+Octave core source: https://ftp.gnu.org/gnu/octave/octave-11.3.0.tar.xz
+Octave is free software under GNU GPL version 3 or later. Original notices, licenses, README and component metadata are retained in this directory.
+Glass invokes Octave as a separate process. This runtime is GNU Octave, not MathWorks MATLAB. MATLAB is a trademark of The MathWorks, Inc.

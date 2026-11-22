@@ -1,0 +1,62 @@
+{
+  "version": "11.3.0",
+  "source": "https://ftp.gnu.org/gnu/octave/windows/octave-11.3.0-w64.7z",
+  "signature": "https://ftp.gnu.org/gnu/octave/windows/octave-11.3.0-w64.7z.sig",
+  "keyFingerprint": "dbd9c84e39fe1aae99f04446b05f05b75d36644b",
+  "bytes": 481127074,
+  "sha256": "fd3cf0e885467a15211b8ceded42800432a5462481324d49a896ef257e05d1a0",
+  "critical": [
+    {
+      "path": "mingw64/bin/gnuplot.exe",
+      "sha256": "e0a706efca9303d92156cb809c7c5c6665e9e7528f3b064112c5404a3dbfe098"
+    },
+    {
+      "path": "mingw64/bin/liboctave-13.dll",
+      "sha256": "e2c43b0c802683d1bb834a3e60e88e5475d0cd2ed01cfee2000d86757dc428fc"
+    },
+    {
+      "path": "mingw64/bin/liboctgui-14.dll",
+      "sha256": "3b04a62418341b21b6d853aea2c56da790a570012b7f3a8c8fcc54047db6a4bf"
+    },
+    {
+      "path": "mingw64/bin/liboctinterp-15.dll",
+      "sha256": "d48ead95797e7ed1ff536f7c9e578b9f901e9d061e2a63a4a9a33673ab002701"
+    },
+    {
+      "path": "mingw64/bin/liboctmex-1.dll",
+      "sha256": "7d21eb3a2c149eb23b8cccf0cf13dbd2fbf278da84ce5fdf3fba49b3e51e59d9"
+    },
+    {
+      "path": "mingw64/bin/octave-11.3.0.exe",
+      "sha256": "c25e33e840a25839d7b01c0ea354379fef1d5a98300e0e80aef29942f98e878a"
+    },
+    {
+      "path": "mingw64/bin/octave-cli-11.3.0.exe",
+      "sha256": "387ac823fb5b01b3407fb34edda6ab1cdba0c9619841a0f6dee323d05a850f2d"
+    },
+    {
+      "path": "mingw64/bin/octave-cli.exe",
+      "sha256": "387ac823fb5b01b3407fb34edda6ab1cdba0c9619841a0f6dee323d05a850f2d"
+    },
+    {
+      "path": "mingw64/bin/octave-config-11.3.0.exe",
+      "sha256": "52e14a147a3bbc8bb7b781e80c7a38dd72fecd081907b21f48ab6c7e9d43384b"
+    },
+    {
+      "path": "mingw64/bin/octave-config.exe",
+      "sha256": "52e14a147a3bbc8bb7b781e80c7a38dd72fecd081907b21f48ab6c7e9d43384b"
+    },
+    {
+      "path": "mingw64/bin/octave-gui.exe",
+      "sha256": "fdd0561a358c5f402c79f84cc214d198d00645b0a4d04e108a11fde15cf51b23"
+    },
+    {
+      "path": "mingw64/bin/octave-svgconvert.exe",
+      "sha256": "22903310a1acd8b0b39628575bea0beaaff112d01ffb9a1652e07f42091681bd"
+    },
+    {
+      "path": "mingw64/bin/octave.exe",
+      "sha256": "c25e33e840a25839d7b01c0ea354379fef1d5a98300e0e80aef29942f98e878a"
+    }
+  ]
+}
