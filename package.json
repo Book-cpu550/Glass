@@ -9,7 +9,7 @@
   "scripts": {
     "start": "electron .",
     "test": "node --test test/*.test.cjs",
-    "package": "electron-packager . Glass --platform=win32 --arch=x64 --out=release --overwrite --asar --ignore=release --ignore=test --ignore=package-lock.json --ignore=cloud-relay --ignore=\"^/runtimes\" --ignore=\"^/work\" --ignore=\"^/.git(?:/|$)\"",
+    "package": "electron-packager . Glass --platform=win32 --arch=x64 --out=release --overwrite --asar --ignore=release --ignore=test --ignore=package-lock.json --ignore=cloud-relay --ignore=\"^/runtimes\" --ignore=\"^/work(?:/|$)\" --ignore=\"^/.git(?:/|$)\"",
     "build": "node build-mathlive.cjs && esbuild rich-editor.source.js --bundle --format=iife --outfile=rich-editor.js",
     "prepackage": "node prepare-package.cjs && npm run build",
     "postpackage": "node finalize-package.cjs",
