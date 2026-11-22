@@ -22,12 +22,58 @@ jobs:
         run: npm ci
       - name: Install Electron runtime
         run: node node_modules/electron/install.js
+      - name: Fetch and verify pinned native runtimes
+        shell: pwsh
+        run: |
+          foreach ($directory in @('octave-11.3.0', 'python-3.15.2')) {
+            $target = Join-Path (Get-Location) "runtimes/$directory"
+            $manifest = Get-Content "$target/GLASS-RUNTIME.json" -Raw | ConvertFrom-Json
+            $archive = Join-Path $env:RUNNER_TEMP ([IO.Path]::GetFileName(([Uri]$manifest.source).AbsolutePath))
+            Invoke-WebRequest -Uri $manifest.source -OutFile $archive
+            if ((Get-Item $archive).Length -ne $manifest.bytes) { throw "Archive size mismatch: $directory" }
+            if ((Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $manifest.sha256) { throw "Archive checksum mismatch: $directory" }
+            if ($directory -like 'octave-*') {
+              $extract = Join-Path $env:RUNNER_TEMP 'glass-octave-extracted'
+              7z x $archive "-o$extract" -y -bsp0 | Out-Null
+              if ($LASTEXITCODE -ne 0) { throw 'Octave extraction failed' }
+              Get-ChildItem (Join-Path $extract 'octave-11.3.0-w64') -Force | Copy-Item -Destination $target -Recurse -Force
+            } else {
+              Expand-Archive -LiteralPath $archive -DestinationPath $target -Force
+            }
+          }
+          node -e "const fs=require('node:fs'),{verify}=require('./bundle-matlab-runtime.cjs');for(const n of ['octave-11.3.0','python-3.15.2']){const p='runtimes/'+n;if(!verify(p,JSON.parse(fs.readFileSync(p+'/GLASS-RUNTIME.json','utf8'))))throw Error('Runtime verification failed: '+n)}"
       - name: Run unit tests
         run: npm test
       - name: Package portable application
         run: npm run package
+      - name: Check packaged equation and PDF workflows
+        shell: pwsh
+        run: |
+          $env:MATHDESK_TEST_ASAR = (Resolve-Path release/Glass-win32-x64/resources/app.asar).Path
+          node test/pdf-doubleprime-smoke.cjs
+          if ($LASTEXITCODE -ne 0) { throw 'PDF regression check failed' }
+          (Get-Content test/ai-equation-preview-smoke.cjs -Raw).Replace("C:/Users/booke/Documents/Codex/2026-11-22/che/work/ai-equation-preview.png", (Join-Path $env:RUNNER_TEMP "ai-equation-preview.png").Replace("\", "/")) | Set-Content test/ai-equation-preview-smoke.cjs
+          node test/ai-equation-preview-smoke.cjs
+          if ($LASTEXITCODE -ne 0) { throw 'AI equation regression check failed' }
       - name: Build Windows installer
-        run: npm run installer
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force work | Out-Null
+          @'
+          const path=require('node:path');
+          const root=path.resolve(__dirname,'..'),version=require('../package.json').version;
+          const stub=path.join(root,'release','installer','Glass-Setup-'+version+'.exe');
+          const {WineVmManager}=require('app-builder-lib/out/vm/WineVm');
+          const {UninstallerReader}=require('app-builder-lib/out/targets/nsis/nsisUtil');
+          const original=WineVmManager.prototype.exec;
+          WineVmManager.prototype.exec=function(file,...args){
+            if(path.resolve(file)===stub)return UninstallerReader.exec(file,path.join(path.dirname(file),path.basename(file,'exe')+'__uninstaller.exe'));
+            return original.call(this,file,...args);
+          };
+          require('electron-builder').build({prepackaged:path.join(root,'release/Glass-win32-x64'),config:require('../installer-config.cjs'),targets:require('electron-builder').Platform.WINDOWS.createTarget(['nsis'],require('builder-util').Arch.x64),publish:'never'}).catch(error=>{console.error(error);process.exitCode=1});
+          '@ | Set-Content work/build-release-installer.cjs
+          node work/build-release-installer.cjs
+          if ($LASTEXITCODE -ne 0) { throw 'Installer build failed' }
       - name: Prepare downloads and checksums
         shell: pwsh
         run: |
@@ -36,7 +82,8 @@ jobs:
           Copy-Item LICENSE release/Glass-win32-x64/GLASS-LICENSE.txt
           Copy-Item THIRD_PARTY_NOTICES.md release/Glass-win32-x64/THIRD_PARTY_NOTICES.md
           Copy-Item "docs/RELEASE-v$version.md" release/Glass-win32-x64/ABOUT-GLASS.md
-          Compress-Archive -LiteralPath release/Glass-win32-x64 -DestinationPath "release/downloads/Glass-v$version-win32-x64.zip" -CompressionLevel Optimal
+          7z a -tzip -mx=5 -mmt=4 -bsp0 "release/downloads/Glass-v$version-win32-x64.zip" ./release/Glass-win32-x64 | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw "Portable ZIP build failed" }
           Copy-Item "release/installer/Glass-Setup-$version.exe" release/downloads/
           $checksums = Get-ChildItem release/downloads -File | Sort-Object Name | ForEach-Object { (Get-FileHash -LiteralPath $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant() + '  ' + $_.Name }
           [IO.File]::WriteAllText((Join-Path (Get-Location) 'release/downloads/SHA256SUMS.txt'), ($checksums -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
