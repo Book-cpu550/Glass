@@ -146,7 +146,7 @@ In a coding note, AI helper offers **Explain this code**, **Find code bugs**, an
 
 Choose **Review code changes** to inspect proposed JavaScript replacements and accept or decline each one. An edit must match the current code uniquely, so outdated or ambiguous changes are rejected. Accepting suggestions saves them without executing them; use Run code when ready. AI assistance uses the existing signed-in Codex connection and can make mistakes, so review its suggestions.
 
-Use **Add code** if you remove the original code block or want another block. Stop also cancels a run that is still preparing to save. Unhandled promise rejections appear as errors instead of successful completion. The HTML playground supports the same multi-line Tab/Shift Tab indentation as Glass.
+Coding notes automatically treat typing and pasted text as code, including after clearing the writing area. There is no Add code step. Stop also cancels a run that is still preparing to save. Unhandled promise rejections appear as errors instead of successful completion. The HTML playground supports the same multi-line Tab/Shift Tab indentation as Glass.
 
 
 ## MATLAB-compatible coding notes
@@ -164,8 +164,47 @@ The bundled runtime retains the original GNU Octave notices and component licens
 
 Choose **New note → Python coding note**. Python code is written directly on the paper. Run code or Ctrl Enter uses bundled CPython 3.15.2; no separate Python installation is needed. Core standard-library modules are included. Third-party packages such as NumPy/Matplotlib, pip, and GUI tooling are not bundled.
 
-The console shows output and Python tracebacks. Add code creates another Python block; all blocks execute in order as one ordinary script. Indentation is preserved and Tab/Shift Tab work in the code editor. For input(), expand **Program input (optional)** and enter the input values in order, one per line. Stop cancels active and queued work. Native executions have a 30-second time limit and a 200-line output limit. Native code can access local files and system APIs; each run uses a temporary working directory whose contents are removed afterward, so use explicit paths for files that must persist.
+The console shows output and Python tracebacks. Typing and pasted text automatically stay in Python code; existing blocks execute in order as one ordinary script. Indentation is preserved and Tab/Shift Tab work in the code editor. For input(), expand **Program input (optional)** and enter the input values in order, one per line. Stop cancels active and queued work. Native executions have a 30-second time limit and a 200-line output limit. Native code can access local files and system APIs; each run uses a temporary working directory whose contents are removed afterward, so use explicit paths for files that must persist.
 
 **Export Python (.py)** writes the exact source, without a JavaScript wrapper. Run it outside Glass using Python. The JavaScript-only HTML export is hidden for Python notes. AI helper recognizes Python and can explain errors, suggest tests, and propose reviewed code fixes; accepting an edit does not run it. Source, language, and program input are saved with the note and included in backups/history. Program input is not sent to AI automatically.
 
 Glass's existing JavaScript runtime is bundled through Electron. Java and a JVM are separate technologies and have not been added.
+
+
+## Named versions, comparison, and passage recovery
+
+Open **History** to see the current document, named versions, and automatic versions together. Select the version you want, enter a name, and choose **Save named version**. Selecting an existing named version lets you rename it. Named versions are separate from the last 50 automatic versions, remain after automatic history is pruned, and are included in notebook backups. Up to 100 named versions are retained per note. **Tools & export → Named versions & history** opens the same view.
+
+With an earlier version selected, **Compare side by side** shows formatted, read-only previews of the earlier and current documents. Changed text/equation blocks are highlighted. Formatting and figure changes can be inspected visually even when the text comparison finds no changes. On narrow windows the previews stack vertically.
+
+Select a passage in the earlier preview and choose **Copy selected passage** to put its text, formatting, and equation markup on the clipboard. **Add passage to current note** appends the selected content while keeping the rest of the current note. It is disabled when the current document is read-only. Ordinary Ctrl+C also remains available in the preview.
+
+**Restore this version** recovers the entire selected version. The previous current document remains in automatic history; when space is available, a named **Before restoring…** safety version is also retained. Open History and select that safety version to undo a restore. Shared documents recover into a new local copy, so collaborators’ work is not replaced. Archived notes remain available in the **Archived notes** tab.
+
+
+## Navigation and writing suggestions
+
+**Notes** returns to your documents; expand **Reference library** for the four subject libraries. **Filter notes** keeps advanced filters tucked away and shows how many are active. Search all notes & files remains directly below the note search. **Insert & science**, **Symbols**, **Study**, and **Manage note** group less frequent actions, while History, Grammar, and Insert at cursor remain visible.
+
+Writing suggestions underline possible spelling, grammar, and punctuation errors. Optional clarity and tone suggestions have purple underlines. Click an underline to see an explanation and replacement, accept it, dismiss it, or add an unfamiliar word to your personal dictionary. Nothing is silently rewritten. Turn off clarity/tone suggestions separately from the live review. Open **Grammar** to filter suggestions by category; **Apply visible** applies only that category. Ctrl Z undoes accepted changes. Code, equations, and their formatting are excluded from prose review. The offline checker uses spelling dictionaries and specific rules; Deep review with Codex remains available for broader sentence feedback.
+
+## Clearer coding notes
+
+JavaScript, Python, and MATLAB coding notes show line numbers and basic syntax colors directly on the paper. These are editor decorations and do not change saved code or exports. The footer shows the current line/column and includes **Go to line**. Tab/Shift Tab indent; Ctrl Enter runs the program. Expand the runtime summary above the code for supported APIs, packages, and execution limits. MATLAB syntax runs through bundled GNU Octave, rather than MathWorks MATLAB.
+
+When a runtime identifies a line in the program, the console offers **Go to line**. Run again after editing the source to refresh error links. Multiple code blocks execute in document order, separated by one blank line; gutter numbers match this combined program. Existing AI explanations, precise reviewed code changes, and optional console context remain available.
+
+
+## Rotating MATLAB output and console size
+
+Successful MATLAB-compatible runs with supported single-axis 3D geometry (including `surf`, `mesh`, `plot3`, and `scatter3`) open an interactive plot in the console. Drag to rotate, scroll to zoom, choose **Pan** to move, and use **Reset view** to restore the initial angle. Focus the plot and use arrow keys to rotate, plus/minus to zoom, or Home to reset. Axis labels and grid settings from the code are retained. **Image view** shows the original MATLAB-style image; **3D view** returns to the interactive geometry. Rotation is a local viewing action and does not edit the code. The camera is kept when switching notes during the current session.
+
+The console is larger by default. Drag its lower-right edge to change its height, or choose **Expand console** / **Shrink console**. Complex figures, multiple subplots, plots exceeding the interactive geometry limits (50,000 points), and graphics without supported geometry retain their original still images. Exact MATLAB styling remains available through Image view.
+
+## Account names in shared documents
+
+Shared documents automatically use your signed-in Glass username for your cursor and participant name. This name follows account changes and sign-out without disconnecting the document. While signed in, the sharing name is tied to your account username. Without an account, the default is Guest and you may enter a guest display name. Account usernames are unique on the sharing service and capitalization does not create a different username.
+
+## Code by default
+
+JavaScript, Python, and MATLAB coding notes treat the paper as code. Typing, multiline paste, deleting all content, and continuing onto blank lines retain code formatting and syntax colors. Enter carries the current line's indentation; Tab and Shift Tab adjust it. Literal characters such as `<`, `/`, and Markdown-looking text remain code. Existing non-code figures or equations are preserved. Normal document notes retain their ordinary formatting behavior.

@@ -53,7 +53,7 @@ class Notebook{
   return note;
  }
  restoreVersion(id,name){
-  const restored=this.getVersion(id,name);restored.id=id;restored.notebookId=this.read(id).notebookId||'personal';restored.updated=new Date().toISOString();return this.save(restored,{forceVersion:true});
+  const restored=this.getVersion(id,name),current=this.read(id);if(current.shared)throw Error('Restore a shared version as a new local copy to protect collaborators’ work.');delete restored.shared;restored.id=id;restored.notebookId=current.notebookId||'personal';restored.updated=new Date().toISOString();return this.save(restored,{forceVersion:true});
  }
 }
 module.exports={Notebook};

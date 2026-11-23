@@ -1,0 +1,11 @@
+(function(root){
+ const keywords={javascript:'async await break case catch class const continue debugger default delete do else export extends false finally for from function if import in instanceof let new null of return static super switch this throw true try typeof undefined var void while yield',python:'and as assert async await break class continue def del elif else except False finally for from global if import in is lambda None nonlocal not or pass raise return True try while with yield',matlab:'break case catch classdef continue else elseif end for function global if otherwise parfor persistent return spmd switch try while'};
+ function tokens(text,language='javascript'){
+  if(text.length>200000)return [];
+  const words=new Set((keywords[language]||keywords.javascript).split(' ')),result=[];
+  const pattern=language==='python'?/#[^\n]*|\x22\x22\x22[\s\S]*?(?:\x22\x22\x22|$)|'''[\s\S]*?(?:'''|$)|\x22(?:\\[\s\S]|[^\x22\\\n])*\x22?|'(?:\\[\s\S]|[^'\\\n])*'?|\b\d+(?:\.\d+)?\b|\b[A-Za-z_]\w*\b/g:language==='matlab'?/%\{[\s\S]*?(?:%\}|$)|%[^\n]*|\x22(?:\x22\x22|[^\x22\n])*\x22|(?<![\w)\]}.\x22'])'(?:''|[^'\n])*'|\b\d+(?:\.\d+)?\b|\b[A-Za-z_]\w*\b/g:/\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$)|\x22(?:\\[\s\S]|[^\x22\\\n])*\x22?|'(?:\\[\s\S]|[^'\\\n])*'?|`(?:\\[\s\S]|[^`\\])*`?|\b\d+(?:\.\d+)?\b|\b[A-Za-z_$][\w$]*\b/g;
+  for(const m of text.matchAll(pattern)){const v=m[0],kind=/^(\/\/|\/\*|#|%)/.test(v)?'comment':/^[\x22'`]/.test(v)?'string':/^\d/.test(v)?'number':words.has(v)?'keyword':null;if(kind)result.push({from:m.index,to:m.index+v.length,kind});}return result;
+ }
+ function linePosition(doc,line){if(!Number.isInteger(line)||line<1)return null;let next=1,found=null;doc.descendants((node,pos)=>{if(node.type.name!=='codeBlock')return;const rows=node.textContent.split('\n');if(found===null&&line>=next&&line<next+rows.length){let offset=0;for(let i=0;i<line-next;i++)offset+=rows[i].length+1;found={from:pos+1+offset,to:pos+1+offset+rows[line-next].length};}next+=rows.length+1;return false;});return found;}
+ const api={tokens,linePosition};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.GlassCodeTools=api;
+})(typeof globalThis!=='undefined'?globalThis:this);

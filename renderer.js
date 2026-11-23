@@ -31,7 +31,7 @@ function list(){
 function doc(){
  const note=active();if(documents.has(note.id))return documents.get(note.id);
  const host=document.createElement('div');host.className='document-host';
- const handle=RichDocument.mount(host,{codeMode:note.kind==='code',doc:note.doc,blocks:note.blocks,collaboration:window.GlassSharing?.forNote(note.id),onChange:(json,blocks)=>{note.doc=json;note.blocks=blocks;changed(note);},onSelection:()=>updateToolbar()});
+ const handle=RichDocument.mount(host,{codeMode:note.kind==='code',codeLanguage:note.codeLanguage||'javascript',doc:note.doc,blocks:note.blocks,collaboration:window.GlassSharing?.forNote(note.id),onChange:(json,blocks)=>{note.doc=json;note.blocks=blocks;changed(note);},onSelection:()=>updateToolbar()});
  handle.host=host;documents.set(note.id,handle);trimDocuments();note.doc=handle.editor.getJSON();note.blocks=handle.toBlocks();
  host.addEventListener('mousedown',event=>{if(!event.target.closest('math-field'))lastMath=null;});
  return handle;
@@ -53,7 +53,7 @@ async function flush(){
 function render(){trimDocuments();list();reading=false;lastMath=null;$('preview').textContent='Read view';$('title').readOnly=false;$('title').value=active().title;const handle=doc();handle.setReadOnly(false);$('editor').replaceChildren(handle.host);document.querySelector('.document-toolbar').inert=false;header();list();updateToolbar();$('save-state').textContent=saveErrors.has(current)?'Not saved · Ctrl+S to retry':dirtyNotes.has(current)?'Saving…':'Saved locally';$('save-state').title=saveErrors.get(current)||'';$('export-state').textContent='Local notebook · PDF export';}
 async function newNote(kind='document'){await flush();const now=new Date().toISOString(),coding=['code','matlab','python'].includes(kind),language=kind==='matlab'?'matlab':kind==='python'?'python':'javascript',note={id:uid(),notebookId:collection.activeId,folder:$('folder-filter')?.value||'',kind:coding?'code':undefined,codeLanguage:coding?language:undefined,title:coding?(language==='matlab'?'Untitled MATLAB note':language==='python'?'Untitled Python note':'Untitled code note'):'Untitled note',created:now,updated:now,blocks:[],doc:{type:'doc',content:coding?[{type:'codeBlock',attrs:{language},content:[{type:'text',text:language==='matlab'?"% Write MATLAB-compatible code here.\nx = [1 2 3];\ndisp(sum(x));":language==='python'?"# Write Python here.\nprint(\"Hello, Glass!\")":"// Write JavaScript here.\nconsole.log(\"Hello, Glass!\");"}]}]:[{type:'paragraph'}]}};notes.push(note);current=note.id;render();await flush();$('title').focus();$('title').select();}
 
-function toggleRead(){reading=!reading;if(reading)window.GlassWritingReview?.clear();else setTimeout(()=>window.GlassWritingReview?.review(),0);doc().setReadOnly(reading);$('title').readOnly=reading;document.querySelector('.document-toolbar').inert=reading;$('preview').textContent=reading?'Edit document':'Read view';window.GlassSharing?.refreshUI();window.GlassCoding?.refresh();}
+function toggleRead(){reading=!reading;if(reading)window.GlassWritingReview?.clear();else setTimeout(()=>window.GlassWritingReview?.review(),0);doc().setReadOnly(reading);$('title').readOnly=reading;document.querySelector('.document-toolbar').inert=reading;$('preview').textContent=reading?'Edit document':'Read view';window.GlassSharing?.refreshUI();window.GlassCoding?.refresh();window.GlassNavigation?.refreshPermissions();}
 let exportBusy=false;
 async function exportPDF(){
  if(exportBusy)return;exportBusy=true;$('pdf-export').disabled=true;$('pdf-export').textContent='Exporting…';$('export-state').textContent='Preparing PDF…';
@@ -164,7 +164,9 @@ document.addEventListener('paste',safely(async e=>{if([...e.clipboardData?.items
 let grammarBusy=false,grammarItems=[],grammarSnapshot='',grammarNoteId=null;
 function renderGrammar(){
  $('grammar-results').replaceChildren();
+ $('grammar-count').textContent=grammarItems.filter(item=>item.status==='pending').length+' suggestions to review';
  for(const [index,item]of grammarItems.entries()){
+  if($('grammar-category').value!=='all'&&$('grammar-category').value!==(item.category||item.kind||'grammar'))continue;
   const card=document.createElement('section');card.className='grammar-card '+item.status;
   const before=document.createElement('div');before.className='grammar-before';before.textContent=item.original;
   const after=document.createElement('div');after.className='grammar-after';after.textContent=item.replacement||'(Remove this text)';
@@ -174,8 +176,9 @@ function renderGrammar(){
    const apply=document.createElement('button');apply.textContent='Apply';apply.className='primary';apply.onclick=safely(()=>applyGrammar([index]));
    const ignore=document.createElement('button');ignore.textContent='Ignore';ignore.onclick=()=>{item.status='ignored';renderGrammar();};actions.append(apply,ignore);
   }else{const status=document.createElement('span');status.className='grammar-status';status.textContent=item.status==='applied'?'Applied':'Ignored';actions.append(status);}
-  card.append(before,after,why,actions);$('grammar-results').append(card);
+  const category=document.createElement('strong');category.className='writing-category '+(item.category||item.kind||'grammar');category.textContent=(item.category||item.kind||'grammar')+' · '+(item.kind==='style'?'Optional suggestion':'Correction');card.append(category,before,after,why,actions);$('grammar-results').append(card);
  }
+ $('grammar-all').textContent=$('grammar-category').value==='all'?'Apply all':'Apply visible';
  $('grammar-all').hidden=!grammarItems.some(item=>item.status==='pending')||grammarBusy;
 }
 async function applyGrammar(indexes){
@@ -210,7 +213,7 @@ $('grammar-check').onclick=safely(async()=>{
   const candidates=[];
   for(const suggestion of result.suggestions){
    const segment=segments.find(segment=>segment.id===suggestion.segmentId),offset=Number.isInteger(suggestion.offset)?suggestion.offset:segment?.text.indexOf(suggestion.original);
-   if(!segment||offset<0||(!Number.isInteger(suggestion.offset)&&segment.text.lastIndexOf(suggestion.original)!==offset)||suggestion.original===suggestion.replacement||suggestion.original.includes('[equation]')||suggestion.replacement.includes('[equation]')||suggestion.replacement.length>20000){skipped++;continue;}
+   if(!segment||offset<0||segment.text.slice(offset,offset+suggestion.original.length)!==suggestion.original||(!Number.isInteger(suggestion.offset)&&segment.text.lastIndexOf(suggestion.original)!==offset)||suggestion.original===suggestion.replacement||suggestion.original.includes('[equation]')||suggestion.replacement.includes('[equation]')||suggestion.replacement.length>20000){skipped++;continue;}
    candidates.push({...suggestion,from:segment.from+offset,to:segment.from+offset+suggestion.original.length,status:'pending'});
   }
   for(const item of candidates.sort((a,b)=>a.from-b.from)){if(grammarItems.length&&grammarItems.at(-1).to>item.from){skipped++;continue;}grammarItems.push(item);}
@@ -220,7 +223,8 @@ $('grammar-check').onclick=safely(async()=>{
  }catch(error){$('grammar-summary').textContent=error.message;toast(error.message,true);}
  finally{grammarBusy=false;$('grammar-check').disabled=false;$('grammar-check').textContent='Check again';$('grammar-stop').hidden=true;renderGrammar();}
 });
-$('grammar-all').onclick=safely(()=>applyGrammar(grammarItems.map((_,index)=>index)));
+$('grammar-category').onchange=renderGrammar;
+$('grammar-all').onclick=safely(()=>applyGrammar(grammarItems.flatMap((item,index)=>$('grammar-category').value==='all'||$('grammar-category').value===(item.category||item.kind||'grammar')?[index]:[])));
 $('grammar-stop').onclick=safely(()=>window.desk.cancelAI());
 $('grammar-close').onclick=()=>{if(grammarBusy){toast('Press Stop to end the grammar check first.');return;}$('grammar-dialog').close();};
 $('grammar-dialog').addEventListener('cancel',event=>{if(grammarBusy){event.preventDefault();toast('Press Stop to end the grammar check first.');}});
@@ -234,33 +238,57 @@ function renderHistoryChange(row,note,index,fallback){
   for(const child of node.content||[])visit(child);if(['paragraph','heading','listItem','tableRow'].includes(node.type))row.append(document.createElement('br'));
  };visit(source);
 }
-let historyOwner=null,historySelection=null,historyPreview=null,historyEpoch=0;
-function clearHistoryPreview(){historyEpoch++;historyPreview?.destroy();historyPreview=null;$('history-preview-document').replaceChildren();historySelection=null;$('history-restore').disabled=true;lastMath=null;}
+let historyOwner=null,historySelection=null,historyPreview=null,historyCurrentPreview=null,historyEpoch=0,historyListEpoch=0,historyEntries=new Map();
+function updateHistorySelection(){
+ const selected=historyPreview&&!historyPreview.editor.state.selection.empty;
+ $('history-copy-selection').disabled=!selected;
+ $('history-add-selection').disabled=!selected||!historySelection||historyOwner!==current||!doc().editor.isEditable;
+}
+function clearHistoryPreview(){historyEpoch++;historyPreview?.destroy();historyCurrentPreview?.destroy();historyPreview=null;historyCurrentPreview=null;$('history-preview-document').replaceChildren();$('history-current-document').replaceChildren();$('history-current-sheet').hidden=true;historySelection=null;$('history-restore').disabled=true;$('history-name-save').disabled=true;$('history-copy-selection').disabled=true;$('history-add-selection').disabled=true;lastMath=null;}
+function historyCompareLayout(){const visible=!!historySelection&&$('history-side-by-side').checked;$('history-current-sheet').hidden=!visible;$('history-comparison').classList.toggle('side-by-side',visible);}
+$('history-side-by-side').onchange=historyCompareLayout;
+function mountHistoryDocument(host,note,label){const view=RichDocument.mount(host,{doc:note.doc,blocks:note.blocks,codeMode:note.kind==='code',codeLanguage:note.codeLanguage||'javascript',onChange:()=>{}});view.setReadOnly(true);view.editor.view.dom.setAttribute('aria-label',label);return view;}
+function markHistoryBlocks(view,indices,style){view.editor.state.doc.forEach((node,position,index)=>{if(indices.has(index)){const element=view.editor.view.nodeDOM(position);if(element?.classList)element.classList.add(style);}});}
 async function previewHistory(name=null){
- const owner=historyOwner;clearHistoryPreview();const request=historyEpoch;$('history-preview-status').textContent='Loading preview…';$('history-preview-title').textContent='';$('history-changes').hidden=true;
- try{const note=name?await desk.getVersion({id:owner,name}):structuredClone(active());if(request!==historyEpoch||owner!==historyOwner||owner!==current)return;
-  historyPreview=RichDocument.mount($('history-preview-document'),{doc:note.doc,blocks:note.blocks,onChange:()=>{}});historyPreview.setReadOnly(true);historyPreview.editor.view.dom.setAttribute('aria-label','Historical document preview');
-  $('history-preview-title').textContent=note.title||'Untitled note';$('history-preview-date').textContent=name?new Date(Number(name.split('-')[0])).toLocaleString():'Current version';$('history-preview-status').textContent=name?'Read-only preview · your current document is unchanged.':'Latest saved document · select an earlier version to preview it.';
-  historySelection=name;$('history-restore').disabled=!name;for(const button of $('history-list').querySelectorAll('button'))button.setAttribute('aria-pressed',String(button.dataset.version===(name||'current')));
-  $('history-preview-scroll').scrollTop=0;const changes=$('history-changes-content');changes.replaceChildren();$('history-changes').open=false;if(name){const comparison=WorkspaceTools.diff(note,active());for(const change of comparison.changes.filter(c=>c.type!=='same')){const row=document.createElement('div');row.className='history-change-row '+change.type;const label=document.createElement('strong');label.className='history-change-label';label.textContent=change.type==='added'?'Added in current:':'Only in this version:';row.append(label);renderHistoryChange(row,change.type==='added'?active():note,change.index,change.text);changes.append(row);}if(!changes.childElementCount)changes.textContent=comparison.limited?'This document is too large for a text comparison. Review the preview.':'No prose or equation changes. Formatting and figures may differ.';$('history-changes').hidden=false;}
+ const owner=historyOwner;clearHistoryPreview();const request=historyEpoch;$('history-preview-status').textContent='Loading preview…';$('history-preview-title').textContent='';$('history-changes').hidden=true;$('history-version-name').value='';
+ try{const entry=historyEntries.get(name),note=name?(entry?.kind==='named'?await desk.checkpointGet({id:owner,key:entry.key}):await desk.getVersion({id:owner,name})):structuredClone(active());if(request!==historyEpoch||owner!==historyOwner||owner!==current)return;
+  historyPreview=mountHistoryDocument($('history-preview-document'),note,'Historical document preview');historyPreview.editor.on('selectionUpdate',updateHistorySelection);
+  $('history-preview-title').textContent=note.title||'Untitled note';$('history-preview-date').textContent=entry?.label||'Current version';$('history-left-label').textContent=entry?.kind==='named'?'Named version':name?'Earlier version':'Current version';$('history-preview-status').textContent=name?'Read-only preview. Select a passage to copy it or add it to your current note.':'Latest saved document. Save a named version before an important change.';
+  historySelection=name;$('history-restore').disabled=!name;$('history-restore').textContent=active().shared?'Restore as local copy':'Restore this version';$('history-name-save').disabled=false;$('history-name-save').textContent=entry?.kind==='named'?'Rename version':'Save named version';$('history-version-name').value=entry?.kind==='named'?entry.name:'';$('history-side-by-side').disabled=!name;
+  for(const button of $('history-list').querySelectorAll('button[data-version]'))button.setAttribute('aria-pressed',String(button.dataset.version===(name||'current')));
+  $('history-preview-scroll').scrollTop=0;const changes=$('history-changes-content');changes.replaceChildren();$('history-changes').open=false;
+  if(name){const latest=structuredClone(active());historyCurrentPreview=mountHistoryDocument($('history-current-document'),latest,'Current document comparison');$('history-current-title').textContent=latest.title||'Untitled note';const comparison=WorkspaceTools.diff(note,latest);const added=new Set(),removed=new Set();
+   for(const change of comparison.changes.filter(c=>c.type!=='same')){(change.type==='added'?added:removed).add(change.index);const row=document.createElement('div');row.className='history-change-row '+change.type;const label=document.createElement('strong');label.className='history-change-label';label.textContent=change.type==='added'?'Added in current:':'Only in this version:';row.append(label);renderHistoryChange(row,change.type==='added'?latest:note,change.index,change.text);changes.append(row);}
+   markHistoryBlocks(historyPreview,removed,'history-block-removed');markHistoryBlocks(historyCurrentPreview,added,'history-block-added');
+   if(!changes.childElementCount)changes.textContent=comparison.limited?'This document is too large for a text comparison. Review both previews.':'No prose or equation changes. Compare formatting and figures in the previews.';$('history-changes').hidden=false;
+  }
+  historyCompareLayout();updateHistorySelection();
  }catch(error){if(request!==historyEpoch)return;$('history-preview-status').textContent='Could not preview: '+error.message;}
 }
-async function showVersions(){
- clearHistoryPreview();historyOwner=current;const owner=historyOwner;$('history-dialog').classList.remove('archive-mode');$('versions-tab').setAttribute('aria-pressed','true');$('archive-tab').setAttribute('aria-pressed','false');$('history-list').replaceChildren();
- const versions=await desk.listVersions(owner);if(owner!==historyOwner)return;$('history-caption').textContent='Select a version to preview it without changing your note. Up to 50 earlier versions are captured after substantial editing; smaller edits still autosave. Restoring keeps the current version in History.';
- const add=(name,label)=>{const button=document.createElement('button');button.type='button';button.className='history-version';button.dataset.version=name||'current';button.textContent=label;button.onclick=safely(()=>previewHistory(name));$('history-list').append(button);};add(null,'Current version');
- for(const [index,version]of versions.entries())add(version.name,'Version '+(versions.length-index)+' · '+new Date(version.date).toLocaleString());
- if(!versions.length){const message=document.createElement('p');message.textContent='No earlier versions yet. History appears after substantial editing; all smaller edits are still saved locally.';$('history-list').append(message);}await previewHistory();
+async function showVersions(select=null){
+ clearHistoryPreview();const listing=++historyListEpoch;historyOwner=current;const owner=historyOwner;$('history-dialog').classList.remove('archive-mode');$('versions-tab').setAttribute('aria-pressed','true');$('archive-tab').setAttribute('aria-pressed','false');$('history-list').replaceChildren();
+ const [versions,named]=await Promise.all([desk.listVersions(owner),desk.checkpointList(owner)]);if(listing!==historyListEpoch||owner!==historyOwner||owner!==current)return;historyEntries=new Map();$('history-caption').textContent='Named versions are kept separately from the last 50 automatic versions and travel with notebook backups. Previews never change your note. Restoring preserves the previous current version.';
+ const add=(name,label,entry)=>{if(name)historyEntries.set(name,entry);const button=document.createElement('button');button.type='button';button.className='history-version';button.dataset.version=name||'current';button.textContent=label;button.onclick=safely(()=>previewHistory(name));$('history-list').append(button);};add(null,'Current version');
+ if(named.length){const heading=document.createElement('h3');heading.textContent='Named versions';$('history-list').append(heading);for(const item of named){const label=item.label+' · '+new Date(item.created).toLocaleString();add('checkpoint:'+item.id,label,{kind:'named',key:item.id,name:item.label,label});}}
+ const heading=document.createElement('h3');heading.textContent='Automatic versions';$('history-list').append(heading);for(const [index,version]of versions.entries()){const label='Version '+(versions.length-index)+' · '+new Date(version.date).toLocaleString();add(version.name,label,{kind:'automatic',label});}
+ if(!versions.length){const message=document.createElement('p');message.textContent='No automatic versions yet. Smaller edits still autosave; save a named version whenever you need one.';$('history-list').append(message);}await previewHistory(historyEntries.has(select)?select:null);
 }
-$('history-restore').onclick=safely(async()=>{const id=historyOwner,name=historySelection;if(!name||id!==current)throw Error('Select a version of the current document first.');$('history-restore').disabled=true;try{await flush();const restored=await desk.restoreVersion({id,name});documents.get(id)?.destroy();documents.delete(id);notes[notes.findIndex(n=>n.id===id)]=restored;render();$('history-dialog').close();toast('Earlier version restored. The previous version is in History.');}finally{if($('history-dialog').open)$('history-restore').disabled=!historySelection;}});
-$('history-dialog').addEventListener('close',()=>{clearHistoryPreview();historyOwner=null;});
+$('history-name-save').onclick=safely(async()=>{const owner=historyOwner,selection=historySelection,entry=historyEntries.get(selection),label=$('history-version-name').value.trim();if(owner!==current)throw Error('Reopen History for the current note.');if(!label)throw Error('Enter a name for this version.');$('history-name-save').disabled=true;try{await flush();if(owner!==current||owner!==historyOwner)throw Error('The current note changed. Reopen History.');const result=entry?.kind==='named'?await desk.checkpointRename({id:owner,key:entry.key,label}):await desk.checkpointCreate({id:owner,label,version:selection||undefined});if(owner!==current||owner!==historyOwner)return;await showVersions('checkpoint:'+result.id);$('history-preview-status').textContent=entry?.kind==='named'?'Version renamed locally.':'Named version saved locally; automatic-history pruning will not remove it.';}finally{if(historyOwner===owner&&historyPreview)$('history-name-save').disabled=false;}});
+$('history-version-name').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();$('history-name-save').click();}});
+function selectedHistoryPassage(){if(!historyPreview||historyOwner!==current||historyPreview.editor.state.selection.empty)throw Error('Select a passage in the version preview first.');const slice=historyPreview.editor.state.selection.content(),serialized=historyPreview.editor.view.serializeForClipboard(slice);let content=slice.content.toJSON()||[];if(content.every(n=>['text','inlineMath','hardBreak','crossReference'].includes(n.type)))content=[{type:'paragraph',content}];return {content,text:WorkspaceTools.text({type:'doc',content}),html:DOMPurify.sanitize(serialized.dom.innerHTML)};}
+for(const id of ['history-copy-selection','history-add-selection'])$(id).onmousedown=event=>event.preventDefault();
+$('history-copy-selection').onclick=safely(async()=>{const passage=selectedHistoryPassage();await desk.copyHistorySelection({text:passage.text,html:passage.html});$('history-preview-status').textContent='Selected passage copied with formatting and equation markup. Your note is unchanged.';});
+$('history-add-selection').onclick=safely(async()=>{if(!historySelection||!doc().editor.isEditable)throw Error('Open an earlier version and switch your current note to Edit document first.');const passage=selectedHistoryPassage();if(!DocTools.validDocument({type:'doc',content:[...doc().editor.getJSON().content,...passage.content]}))throw Error('This passage would exceed note limits. Copy it instead.');doc().editor.schema.nodeFromJSON({type:'doc',content:passage.content}).check();if(!doc().editor.commands.insertContentAt(doc().editor.state.doc.content.size,passage.content))throw Error('This passage could not be inserted. Copy it instead.');await flush();$('history-dialog').close();toast('Selected passage added at the end of your current note. The rest of the note is unchanged.');});
+$('history-restore').onclick=safely(async()=>{const id=historyOwner,name=historySelection,entry=historyEntries.get(name);if(!name||id!==current)throw Error('Select a version of the current document first.');$('history-restore').disabled=true;try{await flush();if(id!==current||id!==historyOwner)throw Error('The current note changed. Reopen History.');if(active().shared){const saved=entry?.kind==='named'?await desk.checkpointGet({id,key:entry.key}):await desk.getVersion({id,name});const now=new Date().toISOString(),copy={...saved,id:uid(),title:(saved.title||'Untitled note')+' — recovered copy',created:now,updated:now,notebookId:collection.activeId};delete copy.shared;notes.push(copy);current=copy.id;render();await flush();}else{const restored=entry?.kind==='named'?await desk.checkpointRestore({id,key:entry.key}):await desk.restoreVersion({id,name});documents.get(id)?.destroy();documents.delete(id);notes[notes.findIndex(n=>n.id===id)]=restored;render();}$('history-dialog').close();toast('Version recovered. The previous current document remains recoverable.');}finally{if($('history-dialog').open)$('history-restore').disabled=!historySelection;}});
+$('history-dialog').addEventListener('close',()=>{historyListEpoch++;clearHistoryPreview();historyOwner=null;});
 async function showArchives(){
- clearHistoryPreview();historyOwner=null;$('history-dialog').classList.add('archive-mode');$('versions-tab').setAttribute('aria-pressed','false');$('archive-tab').setAttribute('aria-pressed','true');
- $('history-list').replaceChildren();$('history-caption').textContent='Restore an archived document to your notebook.';const archived=await window.desk.listArchive();
+ const listing=++historyListEpoch;clearHistoryPreview();historyOwner=null;$('history-dialog').classList.add('archive-mode');$('versions-tab').setAttribute('aria-pressed','false');$('archive-tab').setAttribute('aria-pressed','true');
+ $('history-list').replaceChildren();$('history-caption').textContent='Restore an archived document to your notebook.';const archived=await window.desk.listArchive();if(listing!==historyListEpoch||historyOwner!==null)return;
  for(const note of archived){const row=document.createElement('div');row.className='history-row';const label=document.createElement('span');label.textContent=note.title||'Untitled note';const restore=document.createElement('button');restore.textContent='Restore';restore.onclick=safely(async()=>{const restored=await window.desk.restoreArchive(note.id);restored.notebookId=collection.activeId;await desk.save(restored);notes.push(restored);current=restored.id;render();$('history-dialog').close();toast('Archived note restored.');});row.append(label,restore);$('history-list').append(row);}
  if(!archived.length)$('history-list').textContent='No archived notes.';
 }
-$('history-open').onclick=safely(async()=>{await flush();await showVersions();$('history-dialog').showModal();});$('history-close').onclick=()=>$('history-dialog').close();$('versions-tab').onclick=safely(showVersions);$('archive-tab').onclick=safely(showArchives);
+async function openHistory(){const owner=current;await flush();if(owner!==current)return;await showVersions();if(owner===current&&historyOwner===owner&&historyPreview)$('history-dialog').showModal();}
+$('history-open').onclick=safely(openHistory);$('history-close').onclick=()=>$('history-dialog').close();$('versions-tab').onclick=safely(()=>showVersions());$('archive-tab').onclick=safely(showArchives);
 window.addEventListener('beforeunload',event=>{if(closing)return;event.preventDefault();Promise.all([window.MathdeskDrawing?.flushDraft(),window.GlassBiologyTools?.flush(),window.GlassSharing?.flush(),window.GlassCitationsUI?.flushDraft()]).then(()=>flush()).then(()=>{closing=true;window.close();}).catch(error=>toast('Could not save: '+error.message,true));});
 (async()=>{
  const data=await window.desk.load();notes=data.notes;collection=data.collection||collection;notebookControls();
@@ -268,4 +296,3 @@ window.addEventListener('beforeunload',event=>{if(closing)return;event.preventDe
  if(!notes.length){const now=new Date().toISOString();notes=[{id:uid(),notebookId:collection.activeId,title:'A space to think',created:now,updated:now,blocks:[{type:'text',value:'Welcome to your notebook. Write freely on this page, just as you would in a document.\n\nSelect text to change its font, size, or formatting. Times New Roman is the default.'},{type:'math',value:'\\int_0^1 x^2\\,dx=\\frac{1}{3}'},{type:'text',value:'Typing the word integral in a sentence leaves it as text. Press Ctrl M only when you want an editable equation, then press Tab to keep writing.\n\nUse Export PDF to save a shareable copy with your text, equations, and drawings.'}]}];}
  const selected=collection.notebooks.find(n=>n.id===collection.activeId)?.lastNoteId;current=notebookNotes().find(n=>n.id===selected)?.id||[...notebookNotes()].sort((a,b)=>Number(!!b.pinned)-Number(!!a.pinned)||noteRank(a)-noteRank(b)||b.updated.localeCompare(a.updated))[0]?.id;if(current){await ensureNote(current);render();await flush();}else await newNote();
 })().catch(error=>toast('Could not load notebook: '+error.message,true));
-

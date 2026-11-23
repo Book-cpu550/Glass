@@ -29,6 +29,44 @@
     mod
   ));
 
+  // code-tools.js
+  var require_code_tools = __commonJS({
+    "code-tools.js"(exports, module) {
+      (function(root) {
+        const keywords = { javascript: "async await break case catch class const continue debugger default delete do else export extends false finally for from function if import in instanceof let new null of return static super switch this throw true try typeof undefined var void while yield", python: "and as assert async await break class continue def del elif else except False finally for from global if import in is lambda None nonlocal not or pass raise return True try while with yield", matlab: "break case catch classdef continue else elseif end for function global if otherwise parfor persistent return spmd switch try while" };
+        function tokens(text2, language = "javascript") {
+          if (text2.length > 2e5) return [];
+          const words = new Set((keywords[language] || keywords.javascript).split(" ")), result = [];
+          const pattern = language === "python" ? /#[^\n]*|\x22\x22\x22[\s\S]*?(?:\x22\x22\x22|$)|'''[\s\S]*?(?:'''|$)|\x22(?:\\[\s\S]|[^\x22\\\n])*\x22?|'(?:\\[\s\S]|[^'\\\n])*'?|\b\d+(?:\.\d+)?\b|\b[A-Za-z_]\w*\b/g : language === "matlab" ? /%\{[\s\S]*?(?:%\}|$)|%[^\n]*|\x22(?:\x22\x22|[^\x22\n])*\x22|(?<![\w)\]}.\x22'])'(?:''|[^'\n])*'|\b\d+(?:\.\d+)?\b|\b[A-Za-z_]\w*\b/g : /\/\/[^\n]*|\/\*[\s\S]*?(?:\*\/|$)|\x22(?:\\[\s\S]|[^\x22\\\n])*\x22?|'(?:\\[\s\S]|[^'\\\n])*'?|`(?:\\[\s\S]|[^`\\])*`?|\b\d+(?:\.\d+)?\b|\b[A-Za-z_$][\w$]*\b/g;
+          for (const m of text2.matchAll(pattern)) {
+            const v = m[0], kind = /^(\/\/|\/\*|#|%)/.test(v) ? "comment" : /^[\x22'`]/.test(v) ? "string" : /^\d/.test(v) ? "number" : words.has(v) ? "keyword" : null;
+            if (kind) result.push({ from: m.index, to: m.index + v.length, kind });
+          }
+          return result;
+        }
+        function linePosition(doc4, line) {
+          if (!Number.isInteger(line) || line < 1) return null;
+          let next = 1, found2 = null;
+          doc4.descendants((node, pos) => {
+            if (node.type.name !== "codeBlock") return;
+            const rows = node.textContent.split("\n");
+            if (found2 === null && line >= next && line < next + rows.length) {
+              let offset = 0;
+              for (let i2 = 0; i2 < line - next; i2++) offset += rows[i2].length + 1;
+              found2 = { from: pos + 1 + offset, to: pos + 1 + offset + rows[line - next].length };
+            }
+            next += rows.length + 1;
+            return false;
+          });
+          return found2;
+        }
+        const api = { tokens, linePosition };
+        if (typeof module !== "undefined" && module.exports) module.exports = api;
+        else root.GlassCodeTools = api;
+      })(typeof globalThis !== "undefined" ? globalThis : exports);
+    }
+  });
+
   // text-markdown.cjs
   var require_text_markdown = __commonJS({
     "text-markdown.cjs"(exports, module) {
@@ -728,7 +766,7 @@
     appropriate side of the fragment—i.e. if the fragment is an
     empty paragraph node, `openStart` and `openEnd` can't be greater
     than 1.
-    
+
     It is not necessary for the content of open nodes to conform to
     the schema's content constraints, though it should be a valid
     start/end/middle for such a node, depending on which sides are
@@ -5195,7 +5233,7 @@
     context](https://prosemirror.net/docs/ref/#model.NodeSpec.definingAsContext), or including an
     open parent node from the slice that _is_ marked as [defining
     its content](https://prosemirror.net/docs/ref/#model.NodeSpec.definingForContent).
-    
+
     This is the method, for example, to handle paste. The similar
     [`replace`](https://prosemirror.net/docs/ref/#transform.Transform.replace) method is a more
     primitive tool which will _not_ move the start and end of its given
@@ -10855,8 +10893,8 @@
     document. This will consume (modify) the `decorations` array, so
     you must make a copy if you want need to preserve that.
     */
-    static create(doc4, decorations) {
-      return decorations.length ? buildTree(decorations, doc4, 0, noSpec) : empty;
+    static create(doc4, decorations2) {
+      return decorations2.length ? buildTree(decorations2, doc4, 0, noSpec) : empty;
     }
     /**
     Find all decorations in this set which touch the given range
@@ -10923,18 +10961,18 @@
     access to the current document to create the appropriate tree
     structure.
     */
-    add(doc4, decorations) {
-      if (!decorations.length)
+    add(doc4, decorations2) {
+      if (!decorations2.length)
         return this;
       if (this == empty)
-        return _DecorationSet.create(doc4, decorations);
-      return this.addInner(doc4, decorations, 0);
+        return _DecorationSet.create(doc4, decorations2);
+      return this.addInner(doc4, decorations2, 0);
     }
-    addInner(doc4, decorations, offset) {
+    addInner(doc4, decorations2, offset) {
       let children, childIndex = 0;
       doc4.forEach((childNode, childOffset) => {
         let baseOffset = childOffset + offset, found2;
-        if (!(found2 = takeSpansForNode(decorations, childNode, baseOffset)))
+        if (!(found2 = takeSpansForNode(decorations2, childNode, baseOffset)))
           return;
         if (!children)
           children = this.children.slice();
@@ -10946,7 +10984,7 @@
           children.splice(childIndex, 0, childOffset, childOffset + childNode.nodeSize, buildTree(found2, childNode, baseOffset + 1, noSpec));
         childIndex += 3;
       });
-      let local = moveSpans(childIndex ? withoutNulls(decorations) : decorations, -offset).sort(byPos);
+      let local = moveSpans(childIndex ? withoutNulls(decorations2) : decorations2, -offset).sort(byPos);
       if (local.length) {
         let cur = new FragmentCursor(doc4.content);
         for (let i2 = 0; i2 < local.length; i2++)
@@ -10959,20 +10997,20 @@
     Create a new set that contains the decorations in this set, minus
     the ones in the given array.
     */
-    remove(decorations) {
-      if (decorations.length == 0 || this == empty)
+    remove(decorations2) {
+      if (decorations2.length == 0 || this == empty)
         return this;
-      return this.removeInner(decorations, 0);
+      return this.removeInner(decorations2, 0);
     }
-    removeInner(decorations, offset) {
+    removeInner(decorations2, offset) {
       let children = this.children, local = this.local;
       for (let i2 = 0; i2 < children.length; i2 += 3) {
         let found2;
         let from3 = children[i2] + offset, to = children[i2 + 1] + offset;
-        for (let j = 0, span; j < decorations.length; j++)
-          if (span = decorations[j]) {
+        for (let j = 0, span; j < decorations2.length; j++)
+          if (span = decorations2[j]) {
             if (span.from > from3 && span.to < to) {
-              decorations[j] = null;
+              decorations2[j] = null;
               (found2 || (found2 = [])).push(span);
             }
           }
@@ -10989,8 +11027,8 @@
         }
       }
       if (local.length) {
-        for (let i2 = 0, span; i2 < decorations.length; i2++)
-          if (span = decorations[i2]) {
+        for (let i2 = 0, span; i2 < decorations2.length; i2++)
+          if (span = decorations2[i2]) {
             for (let j = 0; j < local.length; j++)
               if (local[j].eq(span, offset)) {
                 if (local == this.local)
@@ -11200,8 +11238,8 @@
         }
       }
     if (mustRebuild) {
-      let decorations = mapAndGatherRemainingDecorations(children, oldChildren, newLocal, mapping, offset, oldOffset, options);
-      let built = buildTree(decorations, node, 0, options);
+      let decorations2 = mapAndGatherRemainingDecorations(children, oldChildren, newLocal, mapping, offset, oldOffset, options);
+      let built = buildTree(decorations2, node, 0, options);
       newLocal = built.local;
       for (let i2 = 0; i2 < children.length; i2 += 3)
         if (children[i2 + 1] < 0) {
@@ -11227,12 +11265,12 @@
     }
     return result;
   }
-  function mapAndGatherRemainingDecorations(children, oldChildren, decorations, mapping, offset, oldOffset, options) {
+  function mapAndGatherRemainingDecorations(children, oldChildren, decorations2, mapping, offset, oldOffset, options) {
     function gather(set, oldOffset2) {
       for (let i2 = 0; i2 < set.local.length; i2++) {
         let mapped = set.local[i2].map(mapping, offset, oldOffset2);
         if (mapped)
-          decorations.push(mapped);
+          decorations2.push(mapped);
         else if (options.onRemove)
           options.onRemove(set.local[i2].spec);
       }
@@ -11242,7 +11280,7 @@
     for (let i2 = 0; i2 < children.length; i2 += 3)
       if (children[i2 + 1] == -1)
         gather(children[i2 + 2], oldChildren[i2] + oldOffset + 1);
-    return decorations;
+    return decorations2;
   }
   function takeSpansForNode(spans, node, offset) {
     if (node.isLeaf)
@@ -12192,7 +12230,7 @@
     possible to the content before the position. When positive,
     prefer positions close to the content after the position. When
     zero, prefer as shallow a position as possible.
-    
+
     Note that you should **not** mutate the editor's internal DOM,
     only inspect it (and even that is usually not necessary).
     */
@@ -12203,7 +12241,7 @@
     Find the DOM node that represents the document node after the
     given position. May return `null` when the position doesn't point
     in front of a node or if the node is inside an opaque node view.
-    
+
     This is intended to be able to call things like
     `getBoundingClientRect` on that DOM node. Do **not** mutate the
     editor DOM directly, or add styling this way, since that will be
@@ -12219,7 +12257,7 @@
     document structure directly, rather than poking around in the
     DOM, but sometimes—for example when interpreting an event
     target—you don't have a choice.)
-    
+
     The `bias` parameter can be used to influence which side of a DOM
     node to use when the position is inside a leaf node.
     */
@@ -15575,10 +15613,10 @@
   function isWidgetDecoration(decoration) {
     return decoration.kind === "widget";
   }
-  function decorationsToPMDecorations(decorations, extensionName) {
+  function decorationsToPMDecorations(decorations2, extensionName) {
     const pmDecorations = [];
     const widgetKeys = /* @__PURE__ */ new Set();
-    for (const decoration of decorations) {
+    for (const decoration of decorations2) {
       if (decoration.kind === "widget") {
         if (isWidgetDecoration(decoration)) widgetKeys.add(decoration.key);
       }
@@ -15589,8 +15627,8 @@
       widgetKeys
     };
   }
-  function buildDecorationSet(doc4, decorations, extensionName) {
-    const { decorations: pmDecorations, widgetKeys } = decorationsToPMDecorations(decorations, extensionName);
+  function buildDecorationSet(doc4, decorations2, extensionName) {
+    const { decorations: pmDecorations, widgetKeys } = decorationsToPMDecorations(decorations2, extensionName);
     return {
       set: DecorationSet.create(doc4, pmDecorations),
       widgetKeys
@@ -15601,8 +15639,8 @@
     if (position < to) return true;
     return position === to && to === docSize;
   }
-  function filterOutOfRangeDecorations({ decorations, from: from3, to, docSize, extensionName, warnedExtensions }) {
-    return decorations.filter((decoration) => {
+  function filterOutOfRangeDecorations({ decorations: decorations2, from: from3, to, docSize, extensionName, warnedExtensions }) {
+    return decorations2.filter((decoration) => {
       if (rangeOwnsPosition({
         position: decoration.anchor,
         from: from3,
@@ -15950,12 +15988,12 @@
     * @returns The decoration set and widget keys
     */
     buildFullSet(name, spec, state) {
-      const decorations = this.runCreate(name, "create", () => spec.create({
+      const decorations2 = this.runCreate(name, "create", () => spec.create({
         editor: this.editor,
         state,
         view: this.mountedView
       }));
-      return buildDecorationSet(state.doc, decorations, name);
+      return buildDecorationSet(state.doc, decorations2, name);
     }
     /**
     * Runs a decoration callback and swallows anything it throws. These run inside
@@ -16841,13 +16879,13 @@ ${indentedChild}`;
         if (!addNodeView) return [];
         const nodeViewResult = addNodeView();
         if (!nodeViewResult) return [];
-        const nodeview = (node, view, getPos, decorations, innerDecorations) => {
+        const nodeview = (node, view, getPos, decorations2, innerDecorations) => {
           const HTMLAttributes = getRenderedAttributes(node, extensionAttributes);
           return nodeViewResult({
             node,
             view,
             getPos,
-            decorations,
+            decorations: decorations2,
             innerDecorations,
             editor,
             extension,
@@ -18232,6 +18270,97 @@ img.ProseMirror-separator {
     });
   }
 
+  // code-editor.source.js
+  var import_code_tools = __toESM(require_code_tools());
+  function decorations(doc4) {
+    const entries = [];
+    let line = 1;
+    doc4.descendants((node, pos) => {
+      if (node.type.name !== "codeBlock") return;
+      const text2 = node.textContent;
+      for (const token of import_code_tools.default.tokens(text2, node.attrs.language)) entries.push(Decoration.inline(pos + 1 + token.from, pos + 1 + token.to, { "class": "code-token-" + token.kind }));
+      let offset = 0;
+      for (const row of text2.split("\n")) {
+        const number = line++;
+        if (number > 1e4) {
+          offset += row.length + 1;
+          continue;
+        }
+        entries.push(Decoration.widget(pos + 1 + offset, () => {
+          const mark = document.createElement("span");
+          mark.className = "code-line-number";
+          mark.textContent = number;
+          mark.contentEditable = "false";
+          mark.setAttribute("aria-hidden", "true");
+          return mark;
+        }, { side: -1, key: "line-" + number }));
+        offset += row.length + 1;
+      }
+      line++;
+      return false;
+    });
+    return DecorationSet.create(doc4, entries);
+  }
+  var CodeEditor = Extension.create({
+    name: "glassCodeEditor",
+    priority: 1100,
+    addOptions() {
+      return { language: "javascript" };
+    },
+    addKeyboardShortcuts() {
+      return {
+        "Mod-Enter": () => true,
+        ArrowUp: () => {
+          const s = this.editor.state.selection;
+          return s.empty && s.$from.parent.type.name === "codeBlock" && s.$from.parentOffset === 0 && s.$from.before() === 0;
+        },
+        Enter: () => {
+          const editor = this.editor, s = editor.state.selection;
+          if (s.$from.parent.type.name !== "codeBlock" || !s.$from.sameParent(s.$to)) return false;
+          const before = s.$from.parent.textContent.slice(0, s.$from.parentOffset), line = before.slice(before.lastIndexOf("\n") + 1), indent = line.match(/^[ \t]*/)[0];
+          if (s.empty && indent && line.trim() === "" && s.$from.parent.textContent.slice(s.$from.parentOffset).split("\n")[0].trim() === "") {
+            const shorter = indent.replace(/ {1,2}$|\t$/, "");
+            return editor.commands.command(({ tr: tr2, dispatch }) => {
+              if (dispatch) dispatch(tr2.insertText("\n" + shorter, s.from - line.length, s.to));
+              return true;
+            });
+          }
+          return editor.commands.insertContent({ type: "text", text: "\n" + indent });
+        }
+      };
+    },
+    addProseMirrorPlugins() {
+      const editor = this.editor, language = this.options.language;
+      return [new Plugin({
+        state: { init: (_, state) => decorations(state.doc), apply: (tr2, old) => tr2.docChanged ? decorations(tr2.doc) : old },
+        props: { decorations(state) {
+          return this.getState(state);
+        }, handlePaste(view, event) {
+          if (!editor.isEditable) return false;
+          const text2 = event.clipboardData?.getData("text/plain");
+          if (!text2) return false;
+          event.preventDefault();
+          view.dispatch(view.state.tr.insertText(text2.replace(/\r\n?/g, "\n")).setMeta("paste", true).setMeta("uiEvent", "paste"));
+          return true;
+        } },
+        appendTransaction(transactions, oldState, state) {
+          if (!editor.isEditable || !transactions.some((tr3) => tr3.docChanged || tr3.selectionSet)) return null;
+          const selection = state.selection, node = selection.$from.parent;
+          if (!["paragraph", "heading"].includes(node.type.name) || !selection.$from.sameParent(selection.$to)) return null;
+          let protectedContent = false;
+          node.forEach((child) => {
+            if (!child.isText && child.type.name !== "hardBreak") protectedContent = true;
+          });
+          if (protectedContent) return null;
+          const text2 = node.textBetween(0, node.content.size, "\n", "\n"), position = selection.$from.before(), block = state.schema.nodes.codeBlock.create({ language }, text2 ? state.schema.text(text2) : null), tr2 = state.tr.replaceWith(position, position + node.nodeSize, block);
+          tr2.setSelection(TextSelection.create(tr2.doc, position + 1 + Math.min(selection.$from.parentOffset, text2.length), position + 1 + Math.min(selection.$to.parentOffset, text2.length)));
+          if (!transactions.some((t) => t.docChanged)) tr2.setMeta("addToHistory", false);
+          return tr2;
+        }
+      })];
+    }
+  });
+
   // productivity-editor.source.js
   var key = new PluginKey("glassSections");
   var Sections = Extension.create({ name: "glassSections", addGlobalAttributes() {
@@ -18256,11 +18385,11 @@ img.ProseMirror-separator {
     } }, props: { decorations(state) {
       const folded = key.getState(state), nodes = [];
       state.doc.forEach((node, pos) => nodes.push({ node, pos }));
-      const decorations = [];
+      const decorations2 = [];
       for (let i2 = 0; i2 < nodes.length; i2++) {
         const { node, pos } = nodes[i2];
         if (node.type.name !== "heading") continue;
-        decorations.push(Decoration.widget(pos + 1, (view) => {
+        decorations2.push(Decoration.widget(pos + 1, (view) => {
           const b = document.createElement("button");
           b.type = "button";
           b.className = "section-fold";
@@ -18274,10 +18403,10 @@ img.ProseMirror-separator {
         if (folded.has(pos)) for (let j = i2 + 1; j < nodes.length; j++) {
           const n = nodes[j];
           if (n.node.type.name === "heading" && n.node.attrs.level <= node.attrs.level) break;
-          decorations.push(Decoration.node(n.pos, n.pos + n.node.nodeSize, { class: "section-folded" }));
+          decorations2.push(Decoration.node(n.pos, n.pos + n.node.nodeSize, { class: "section-folded" }));
         }
       }
-      return DecorationSet.create(state.doc, decorations);
+      return DecorationSet.create(state.doc, decorations2);
     } } })];
   } });
 
@@ -27785,7 +27914,7 @@ ${err.toString()}`);
     const ystate = getMappableSyncState(state);
     if (ystate == null || ystate.doc == null) return DecorationSet.create(state.doc, []);
     const y = ystate.doc;
-    const decorations = [];
+    const decorations2 = [];
     if (ystate.snapshot != null || ystate.prevSnapshot != null || ystate.binding.mapping.size === 0) return DecorationSet.create(state.doc, []);
     awareness.getStates().forEach((aw, clientId) => {
       if (!awarenessFilter(y.clientID, clientId, aw)) return;
@@ -27801,20 +27930,20 @@ ${err.toString()}`);
           const maxsize = max(state.doc.content.size - 1, 0);
           anchor = min(anchor, maxsize);
           head = min(head, maxsize);
-          decorations.push(Decoration.widget(head, () => createCursor(user, clientId), {
+          decorations2.push(Decoration.widget(head, () => createCursor(user, clientId), {
             key: clientId + "",
             side: 10
           }));
           const from3 = min(anchor, head);
           const to = max(anchor, head);
-          decorations.push(Decoration.inline(from3, to, createSelection(user, clientId), {
+          decorations2.push(Decoration.inline(from3, to, createSelection(user, clientId), {
             inclusiveEnd: true,
             inclusiveStart: false
           }));
         }
       }
     });
-    return DecorationSet.create(state.doc, decorations);
+    return DecorationSet.create(state.doc, decorations2);
   };
   var isSameSelection = (cursor, selection) => cursor != null && compareRelativePositions(createRelativePositionFromJSON(cursor.anchor), createRelativePositionFromJSON(selection.anchor)) && compareRelativePositions(createRelativePositionFromJSON(cursor.head), createRelativePositionFromJSON(selection.head));
   var yCursorPlugin = (awareness, { awarenessStateFilter = defaultAwarenessStateFilter, cursorBuilder = defaultCursorBuilder, selectionBuilder = defaultSelectionBuilder, getSelection: getSelection2 = (state) => state.selection } = {}, cursorStateField = "cursor") => {
@@ -33965,7 +34094,7 @@ ${prefix}
         props: { decorations: ({ doc: doc4, selection }) => {
           const { isEditable, isFocused } = this.editor;
           const { anchor } = selection;
-          const decorations = [];
+          const decorations2 = [];
           if (!isEditable || !isFocused) return DecorationSet.create(doc4, []);
           let maxLevels = 0;
           if (this.options.mode === "deepest") doc4.descendants((node, pos) => {
@@ -33979,9 +34108,9 @@ ${prefix}
             if (!(anchor >= pos && anchor <= pos + node.nodeSize - 1)) return false;
             currentLevel += 1;
             if (this.options.mode === "deepest" && maxLevels - currentLevel > 0 || this.options.mode === "shallowest" && currentLevel > 1) return this.options.mode === "deepest";
-            decorations.push(Decoration.node(pos, pos + node.nodeSize, { class: this.options.className }));
+            decorations2.push(Decoration.node(pos, pos + node.nodeSize, { class: this.options.className }));
           });
-          return DecorationSet.create(doc4, decorations);
+          return DecorationSet.create(doc4, decorations2);
         } }
       })];
     }
@@ -34022,13 +34151,13 @@ ${prefix}
   }
   function scanRangeForDecorations({ editor, options, dataAttribute, doc: doc4, selection, from: from3, to }) {
     const { anchor } = selection;
-    const decorations = [];
+    const decorations2 = [];
     const isEmptyDoc = editor.isEmpty;
     doc4.nodesBetween(from3, to, (node, pos) => {
       const hasAnchor = anchor >= pos && anchor <= pos + node.nodeSize;
       const isEmpty3 = !node.isLeaf && isNodeEmpty(node);
       if (!node.type.isTextblock) return options.includeChildren;
-      if ((hasAnchor || !options.showOnlyCurrent) && isEmpty3) decorations.push(createPlaceholderDecoration({
+      if ((hasAnchor || !options.showOnlyCurrent) && isEmpty3) decorations2.push(createPlaceholderDecoration({
         editor,
         isEmptyDoc,
         dataAttribute,
@@ -34048,12 +34177,12 @@ ${prefix}
       }));
       return options.includeChildren;
     });
-    return decorations;
+    return decorations2;
   }
   function buildPlaceholderDecorations({ editor, options, dataAttribute, doc: doc4, selection }) {
     if (!(editor.isEditable || !options.showOnlyWhenEditable)) return null;
     const { anchor } = selection;
-    const decorations = [];
+    const decorations2 = [];
     const isEmptyDoc = editor.isEmpty;
     if (options.showOnlyCurrent && !options.includeChildren) {
       const resolved = doc4.resolve(anchor);
@@ -34061,7 +34190,7 @@ ${prefix}
       const nodeStart = resolved.depth > 0 ? resolved.before(1) : anchor;
       if (node && node.type.isTextblock && isNodeEmpty(node)) {
         const hasAnchor = anchor >= nodeStart && anchor <= nodeStart + node.nodeSize;
-        decorations.push(createPlaceholderDecoration({
+        decorations2.push(createPlaceholderDecoration({
           editor,
           isEmptyDoc,
           dataAttribute,
@@ -34080,7 +34209,7 @@ ${prefix}
           pos: nodeStart
         }));
       }
-    } else decorations.push(...scanRangeForDecorations({
+    } else decorations2.push(...scanRangeForDecorations({
       editor,
       options,
       dataAttribute,
@@ -34089,7 +34218,7 @@ ${prefix}
       from: 0,
       to: doc4.content.size
     }));
-    return DecorationSet.create(doc4, decorations);
+    return DecorationSet.create(doc4, decorations2);
   }
   function resolveTopLevelRange(doc4, pos) {
     const resolved = doc4.resolve(pos);
@@ -34170,8 +34299,8 @@ ${prefix}
       to: Math.max(clampedFrom, Math.min(to, doc4.content.size))
     };
   }
-  function updateDecorationsInRanges({ decorations, ranges, editor, options, dataAttribute, doc: doc4, selection }) {
-    let next = decorations;
+  function updateDecorationsInRanges({ decorations: decorations2, ranges, editor, options, dataAttribute, doc: doc4, selection }) {
+    let next = decorations2;
     for (const range of ranges) {
       const { from: from3, to } = clampRange(range.from, range.to, doc4);
       const existing = next.find(from3, to).filter((decoration) => decoration.from >= from3 && decoration.to <= to);
@@ -34192,14 +34321,14 @@ ${prefix}
   function createPlaceholderStateField({ editor, options, dataAttribute }) {
     return {
       init(_config, state) {
-        const decorations = buildPlaceholderDecorations({
+        const decorations2 = buildPlaceholderDecorations({
           editor,
           options,
           dataAttribute,
           doc: state.doc,
           selection: state.selection
         });
-        return decorations !== null && decorations !== void 0 ? decorations : DecorationSet.empty;
+        return decorations2 !== null && decorations2 !== void 0 ? decorations2 : DecorationSet.empty;
       },
       apply(tr2, prev, oldState, newState) {
         if (!tr2.docChanged && !tr2.selectionSet) return prev;
@@ -34763,7 +34892,7 @@ ${prefix}
   }, addProseMirrorPlugins() {
     return [new Plugin({ key: key2, state: { init: () => DecorationSet.empty, apply(tr2, old) {
       const review = tr2.getMeta(key2);
-      if (review) return DecorationSet.create(tr2.doc, review.filter((s) => s.from >= 0 && s.to <= tr2.doc.content.size && s.to > s.from).map((s, i2) => Decoration.inline(s.from, s.to, { class: "grammar-underline " + (s.kind === "spelling" ? "spelling" : "grammar"), "data-review-index": String(i2), tabindex: "0", role: "button", "aria-label": s.explanation || "Review suggestion" })));
+      if (review) return DecorationSet.create(tr2.doc, review.filter((s) => s.from >= 0 && s.to <= tr2.doc.content.size && s.to > s.from).map((s, i2) => Decoration.inline(s.from, s.to, { class: "grammar-underline " + (s.kind === "spelling" ? "spelling" : s.kind === "style" ? "style" : "grammar"), "data-review-index": String(i2), tabindex: "0", role: "button", "aria-label": s.explanation || "Review suggestion" })));
       return tr2.docChanged ? DecorationSet.empty : old;
     } }, props: { decorations(state) {
       return this.getState(state);
@@ -36468,7 +36597,7 @@ ${prefix}
     return Array(n).fill(0);
   }
   function handleDecorations(state, cell2) {
-    const decorations = [];
+    const decorations2 = [];
     const $cell = state.doc.resolve(cell2);
     const table = $cell.node(-1);
     if (!table) return DecorationSet.empty;
@@ -36483,11 +36612,11 @@ ${prefix}
         const pos = start + cellPos + table.nodeAt(cellPos).nodeSize - 1;
         const dom = document.createElement("div");
         dom.className = "column-resize-handle";
-        if ((_columnResizingPlugin = columnResizingPluginKey.getState(state)) === null || _columnResizingPlugin === void 0 ? void 0 : _columnResizingPlugin.dragging) decorations.push(Decoration.node(start + cellPos, start + cellPos + table.nodeAt(cellPos).nodeSize, { class: "column-resize-dragging" }));
-        decorations.push(Decoration.widget(pos, dom));
+        if ((_columnResizingPlugin = columnResizingPluginKey.getState(state)) === null || _columnResizingPlugin === void 0 ? void 0 : _columnResizingPlugin.dragging) decorations2.push(Decoration.node(start + cellPos, start + cellPos + table.nodeAt(cellPos).nodeSize, { class: "column-resize-dragging" }));
+        decorations2.push(Decoration.widget(pos, dom));
       }
     }
-    return DecorationSet.create(state.doc, decorations);
+    return DecorationSet.create(state.doc, decorations2);
   }
   function tableEditing({ allowTableNodeSelection = false } = {}) {
     return new Plugin({
@@ -36897,15 +37026,15 @@ ${prefix}
       });
     }).join("") || "<p></p>";
   }
-  function mount(parent, { doc: doc4, blocks, onChange, onSelection, collaboration, codeMode = false }) {
+  function mount(parent, { doc: doc4, blocks, onChange, onSelection, collaboration, codeMode = false, codeLanguage = "javascript" }) {
     const extensions = [
-      src_default2.configure({ codeBlock: { exitOnTripleEnter: !codeMode }, ...collaboration ? { undoRedo: false } : {}, link: { openOnClick: false, autolink: false } }),
+      src_default2.configure({ codeBlock: { exitOnTripleEnter: !codeMode, exitOnArrowDown: !codeMode }, ...codeMode ? { trailingNode: false } : {}, ...collaboration ? { undoRedo: false } : {}, link: { openOnClick: false, autolink: false } }),
       TextStyle,
       FontFamily,
       FontSize,
       Subscript,
       src_default3.configure({ types: ["heading", "paragraph"] }),
-      src_default4.configure({ placeholder: "Start writing. Press Ctrl M when you want an equation." }),
+      src_default4.configure({ placeholder: codeMode ? "Write " + codeLanguage + " code\u2026" : "Start writing. Press Ctrl M when you want an equation.", includeChildren: codeMode }),
       InlineMath,
       DisplayMath,
       Drawing,
@@ -36916,6 +37045,7 @@ ${prefix}
       Sections,
       ...TableExtensions
     ];
+    if (codeMode) extensions.push(CodeEditor.configure({ language: codeLanguage }));
     if (collaboration) extensions.push(src_default.configure({ document: collaboration.document }), cursorExtension(collaboration));
     serializationSchema = getSchema(extensions);
     if (doc4) {
@@ -36925,6 +37055,8 @@ ${prefix}
     const editor = new Editor({
       element: parent,
       extensions,
+      enableInputRules: !codeMode,
+      enablePasteRules: !codeMode,
       editable: collaboration?.role !== "view",
       content: collaboration ? void 0 : doc4 || fromBlocks(blocks),
       editorProps: { handleKeyDown(view, event) {

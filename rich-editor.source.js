@@ -1,3 +1,4 @@
+import {CodeEditor} from './code-editor.source.js';
 import {Sections} from './productivity-editor.source.js';
 import Collaboration from '@tiptap/extension-collaboration';
 import {Shared,cursorExtension} from './sharing-editor.source.js';
@@ -105,13 +106,14 @@ function fromBlocks(blocks){
     return html.replace(new RegExp(prefix+'(\\d+)ENDTOKEN','g'),(_,i)=>{const item=math[Number(i)];return `<span data-type="inlineMath" data-latex="${escape(item.latex)}"></span>`;});
   }).join('')||'<p></p>';
 }
-function mount(parent,{doc,blocks,onChange,onSelection,collaboration,codeMode=false}){
+function mount(parent,{doc,blocks,onChange,onSelection,collaboration,codeMode=false,codeLanguage='javascript'}){
   const extensions=[
-    StarterKit.configure({codeBlock:{exitOnTripleEnter:!codeMode},...(collaboration?{undoRedo:false}:{}),link:{openOnClick:false,autolink:false}}),TextStyle,FontFamily,FontSize,Subscript,TextAlign.configure({types:['heading','paragraph']}),Placeholder.configure({placeholder:'Start writing. Press Ctrl M when you want an equation.'}),InlineMath,DisplayMath,Drawing,ReferenceLabel,CrossReference,PageBreak,ScienceTools,Sections,...TableExtensions,
+    StarterKit.configure({codeBlock:{exitOnTripleEnter:!codeMode,exitOnArrowDown:!codeMode},...(codeMode?{trailingNode:false}:{}),...(collaboration?{undoRedo:false}:{}),link:{openOnClick:false,autolink:false}}),TextStyle,FontFamily,FontSize,Subscript,TextAlign.configure({types:['heading','paragraph']}),Placeholder.configure({placeholder:codeMode?'Write '+codeLanguage+' code…':'Start writing. Press Ctrl M when you want an equation.',includeChildren:codeMode}),InlineMath,DisplayMath,Drawing,ReferenceLabel,CrossReference,PageBreak,ScienceTools,Sections,...TableExtensions,
   ];
+  if(codeMode)extensions.push(CodeEditor.configure({language:codeLanguage}));
   if(collaboration)extensions.push(Collaboration.configure({document:collaboration.document}),cursorExtension(collaboration));
   serializationSchema=getSchema(extensions);if(doc){const parsed=serializationSchema.nodeFromJSON(doc);parsed.check();}
-  const editor=new Editor({element:parent,extensions,editable:collaboration?.role!=='view',content:collaboration?undefined:doc||fromBlocks(blocks),editorProps:{handleKeyDown(view,event){if(!view.state.selection.empty||!['ArrowLeft','ArrowRight'].includes(event.key))return false;const selection=view.state.selection,backward=event.key==='ArrowLeft',node=backward?selection.$from.nodeBefore:selection.$from.nodeAfter;if(!['inlineMath','displayMath'].includes(node?.type.name))return false;const position=backward?selection.from-node.nodeSize:selection.from;const field=[...parent.querySelectorAll('math-field')].find(f=>f.mathdeskGetPos?.()===position);if(!field)return false;event.preventDefault();field.focus();field.executeCommand(backward?'moveToMathfieldEnd':'moveToMathfieldStart');return true;},attributes:{'aria-label':'Document editor',role:'textbox','aria-multiline':'true',spellcheck:'false'}},
+  const editor=new Editor({element:parent,extensions,enableInputRules:!codeMode,enablePasteRules:!codeMode,editable:collaboration?.role!=='view',content:collaboration?undefined:doc||fromBlocks(blocks),editorProps:{handleKeyDown(view,event){if(!view.state.selection.empty||!['ArrowLeft','ArrowRight'].includes(event.key))return false;const selection=view.state.selection,backward=event.key==='ArrowLeft',node=backward?selection.$from.nodeBefore:selection.$from.nodeAfter;if(!['inlineMath','displayMath'].includes(node?.type.name))return false;const position=backward?selection.from-node.nodeSize:selection.from;const field=[...parent.querySelectorAll('math-field')].find(f=>f.mathdeskGetPos?.()===position);if(!field)return false;event.preventDefault();field.focus();field.executeCommand(backward?'moveToMathfieldEnd':'moveToMathfieldStart');return true;},attributes:{'aria-label':'Document editor',role:'textbox','aria-multiline':'true',spellcheck:'false'}},
   onUpdate:({editor})=>onChange(editor.getJSON(),toBlocks(editor.getJSON())),onSelectionUpdate:()=>onSelection?.(),onTransaction:()=>onSelection?.()});
   function insertMath(latex='\\placeholder{}',display=false){
     latex=latex.replace(/#(?:0|\?)/g,'\\placeholder{}');
