@@ -37,13 +37,66 @@
   const x=[],y=[],text=[],step=.8*Math.min((c.max-c.min)/(n-1),(c.yMax-c.yMin)/(n-1));for(const p of points){if(!p.magnitude)continue;const factor=step/(c.normalize?p.magnitude:largest),dx=p.values[0]*factor,dy=p.values[1]*factor,tipX=p.x+dx,tipY=p.y+dy,head=.24,side=.13,label='('+p.x.toPrecision(3)+', '+p.y.toPrecision(3)+')<br>F = ('+p.values.map(v=>v.toPrecision(3)).join(', ')+')<br>|F| = '+p.magnitude.toPrecision(3);x.push(p.x,tipX,null,tipX-head*dx+side*dy,tipX,tipX-head*dx-side*dy,null);y.push(p.y,tipY,null,tipY-head*dy-side*dx,tipY,tipY-head*dy+side*dx,null);for(let i=0;i<7;i++)text.push(label);}
   if(!x.length)return {type:'scatter',mode:'markers',x:points.map(p=>p.x),y:points.map(p=>p.y),marker:{size:3,color},name:expression,meta,hovertemplate:'Zero vector<extra></extra>'};return {type:'scatter',mode:'lines',x,y,text,hoverinfo:'text',line:{color,width:1.5},connectgaps:false,name:expression,meta};
  }
+
+ // Sample zero sets directly, retaining every branch within the chosen bounds.
+ function implicit(source,dimension){
+  if(typeof source!=='string'||source.length>500)throw Error('Keep each equation under 500 characters.');
+  const sides=source.split('=');if(sides.length>2||sides.some(s=>!s.trim()))throw Error('Use one equation, for example x^2 + y^2 = 9.');
+  const vars=dimension===3?['x','y','z']:['x','y'],left=compile(sides[0],vars),right=compile(sides[1]||'0',vars);
+  return scope=>{const a=left(scope),b=right(scope);return a===null||b===null?null:a-b;};
+ }
+ function implicitSample(c,expression,index){
+  const dimension=c.mode==='implicit3d'?3:2,n=dimension===3?(c.quality==='high'?45:33):(c.quality==='high'?321:201),f=implicit(expression,dimension),points=[],values=[],colors=['#3478a6','#c16c40','#6c60aa','#3f8c73','#a65076','#83802f','#368b99','#965c42'];
+  let finite=0,nonzero=0;
+  for(let iz=0;iz<(dimension===3?n:1);iz++)for(let iy=0;iy<n;iy++)for(let ix=0;ix<n;ix++){
+   const p={x:c.min+(c.max-c.min)*ix/(n-1),y:c.yMin+(c.yMax-c.yMin)*iy/(n-1),z:dimension===3?c.zMin+(c.zMax-c.zMin)*iz/(n-1):0},v=f(p);points.push(p);values.push(v);if(v!==null){finite++;if(v!==0)nonzero++;}
+  }
+  if(!finite)throw Error('No real values in these bounds.');if(!nonzero)throw Error('This equation is true throughout the sampled region and does not define a single curve or surface.');
+  const cache=new Map(),vertices=[],seen=new Set(),faces=[],segments=[];
+  function edge(a,b){
+   const va=values[a],vb=values[b],key=va===0?'v'+a:vb===0?'v'+b:a<b?a+':'+b:b+':'+a;
+   if(cache.has(key))return cache.get(key);let point=null;
+   if(va===0)point=points[a];else if(vb===0)point=points[b];else{
+    let lo=0,hi=1,vl=va,t=va/(va-vb);const pa=points[a],pb=points[b],tolerance=Math.max(Math.abs(va),Math.abs(vb))*1e-7;
+    for(let k=0;k<30;k++){
+     const p={x:pa.x+(pb.x-pa.x)*t,y:pa.y+(pb.y-pa.y)*t,z:pa.z+(pb.z-pa.z)*t},v=f(p);
+     if(v===null)break;if(Math.abs(v)<=tolerance){point=p;break;}
+     if((v>0)===(vl>0)){lo=t;vl=v;}else hi=t;t=(lo+hi)/2;
+    }
+   }
+   const id=point?vertices.push(point)-1:null;cache.set(key,id);return id;
+  }
+  function primitive(ids,direction){
+   if(ids.some(v=>v===null)||new Set(ids).size!==ids.length)return;
+   const key=ids.slice().sort((a,b)=>a-b).join(':');if(seen.has(key))return;
+   if(ids.length===3){const [a,b,c]=ids.map(i=>vertices[i]),u=[b.x-a.x,b.y-a.y,b.z-a.z],v=[c.x-a.x,c.y-a.y,c.z-a.z];if(Math.hypot(u[1]*v[2]-u[2]*v[1],u[2]*v[0]-u[0]*v[2],u[0]*v[1]-u[1]*v[0])===0)return;}
+   if(direction&&ids.length===3){const [a,b,c]=ids.map(i=>vertices[i]),u=[b.x-a.x,b.y-a.y,b.z-a.z],v=[c.x-a.x,c.y-a.y,c.z-a.z];if((u[1]*v[2]-u[2]*v[1])*direction.x+(u[2]*v[0]-u[0]*v[2])*direction.y+(u[0]*v[1]-u[1]*v[0])*direction.z<0)ids=[ids[0],ids[2],ids[1]];}seen.add(key);(dimension===3?faces:segments).push(ids);if(seen.size>160000)throw Error('Too much detail. Reduce the bounds or choose standard sampling.');
+  }
+  function cell(ids){
+   if(ids.some(i=>values[i]===null))return;const inside=ids.filter(i=>values[i]<=0),outside=ids.filter(i=>values[i]>0);if(!inside.length||!outside.length)return;
+   const direction={};for(const axis of ['x','y','z'])direction[axis]=outside.reduce((sum,i)=>sum+points[i][axis],0)/outside.length-inside.reduce((sum,i)=>sum+points[i][axis],0)/inside.length;
+   if(dimension===2){const cut=[];for(const a of inside)for(const b of outside)cut.push(edge(a,b));primitive(cut);}
+   else if(inside.length===1||outside.length===1){const one=inside.length===1?inside[0]:outside[0],other=inside.length===1?outside:inside;primitive(other.map(v=>edge(one,v)),direction);}
+   else{const [a,b]=inside,[d,e]=outside,ad=edge(a,d),bd=edge(b,d),be=edge(b,e),ae=edge(a,e);primitive([ad,bd,be],direction);primitive([ad,be,ae],direction);}
+  }
+  for(let iz=0;iz<(dimension===3?n-1:1);iz++)for(let iy=0;iy<n-1;iy++)for(let ix=0;ix<n-1;ix++){
+   const a=iz*n*n+iy*n+ix,b=a+1,d=a+n,c=d+1;
+   if(dimension===2){cell([a,b,c]);cell([a,c,d]);}
+   else{const e=a+n*n,g=c+n*n,h=d+n*n,j=b+n*n;for(const t of [[a,b,c,g],[a,c,d,g],[a,d,h,g],[a,h,e,g],[a,e,j,g],[a,j,b,g]])cell(t);}
+  }
+  if(!seen.size)throw Error('No curve or surface found in these bounds. Try wider bounds or fine sampling.');
+  const common={name:expression,meta:{kind:'implicit',dimension,samples:values.length},connectgaps:false};
+  if(dimension===2){const x=[],y=[];for(const pair of segments){for(const id of pair){x.push(vertices[id].x);y.push(vertices[id].y);}x.push(null);y.push(null);}return {...common,type:'scatter',mode:'lines',x,y,line:{color:colors[index%colors.length],width:3}};}
+  return {...common,type:'mesh3d',x:vertices.map(p=>p.x),y:vertices.map(p=>p.y),z:vertices.map(p=>p.z),i:faces.map(t=>t[0]),j:faces.map(t=>t[1]),k:faces.map(t=>t[2]),color:colors[index%colors.length],opacity:c.multiple?.75:1,flatshading:false,showscale:false};
+ }
+
  function sample(input){const tools=typeof module!=='undefined'&&module.exports?require('./interactive-tools.js'):root.InteractiveTools;let {mode,equations,min,max,yMin,yMax,zMin,zMax,quality,normalize=false,physics}=tools.resolve(input);
   if(mode==='physics')return (typeof module!=='undefined'&&module.exports?require('./physics-graphs.js'):root.PhysicsGraphs).sample(physics);
   if(typeof equations!=='string'||equations.length>10000)throw Error('Enter up to eight equations.');if(min===null||max===null||min===undefined||max===undefined||String(min).trim()===''||String(max).trim()==='')throw Error('Enter both range endpoints.');min=Number(min);max=Number(max);if(!Number.isFinite(min)||!Number.isFinite(max)||min>=max||max-min>100000)throw Error('Enter a finite increasing range (width at most 100000).');
-  yMin=yMin===undefined?min:yMin;yMax=yMax===undefined?max:yMax;if(['surface','vector','vector3d'].includes(mode)&&(yMin===null||yMax===null||String(yMin).trim()===''||String(yMax).trim()===''||![Number(yMin),Number(yMax)].every(Number.isFinite)||Number(yMin)>=Number(yMax)||Number(yMax)-Number(yMin)>100000))throw Error('Enter a finite increasing Y range (width at most 100000).');yMin=Number(yMin);yMax=Number(yMax);
-  zMin=zMin===undefined?min:zMin;zMax=zMax===undefined?max:zMax;if(mode==='vector3d'&&(zMin===null||zMax===null||String(zMin).trim()===''||String(zMax).trim()===''||![Number(zMin),Number(zMax)].every(Number.isFinite)||Number(zMin)>=Number(zMax)||Number(zMax)-Number(zMin)>100000))throw Error('Enter a finite increasing Z range (width at most 100000).');zMin=Number(zMin);zMax=Number(zMax);
-  const expressions=equations.split('\n').map(s=>s.trim()).filter(Boolean);if(!expressions.length||expressions.length>8)throw Error('Enter one to eight equations, one per line.');if(!['cartesian','polar','surface','vector','vector3d'].includes(mode))throw Error('Choose a graph mode.');
-  return expressions.map((expression,index)=>{try{if(mode==='vector'||mode==='vector3d')return vectorSample({mode,min,max,yMin,yMax,zMin,zMax,quality,normalize},expression,index);const f=compile(expression,mode==='surface'?['x','y']:mode==='polar'?['theta','t']:['x']);
+  yMin=yMin===undefined?min:yMin;yMax=yMax===undefined?max:yMax;if(['surface','vector','vector3d','implicit2d','implicit3d'].includes(mode)&&(yMin===null||yMax===null||String(yMin).trim()===''||String(yMax).trim()===''||![Number(yMin),Number(yMax)].every(Number.isFinite)||Number(yMin)>=Number(yMax)||Number(yMax)-Number(yMin)>100000))throw Error('Enter a finite increasing Y range (width at most 100000).');yMin=Number(yMin);yMax=Number(yMax);
+  zMin=zMin===undefined?min:zMin;zMax=zMax===undefined?max:zMax;if(['vector3d','implicit3d'].includes(mode)&&(zMin===null||zMax===null||String(zMin).trim()===''||String(zMax).trim()===''||![Number(zMin),Number(zMax)].every(Number.isFinite)||Number(zMin)>=Number(zMax)||Number(zMax)-Number(zMin)>100000))throw Error('Enter a finite increasing Z range (width at most 100000).');zMin=Number(zMin);zMax=Number(zMax);
+  const expressions=equations.split('\n').map(s=>s.trim()).filter(Boolean);if(!expressions.length||expressions.length>8)throw Error('Enter one to eight equations, one per line.');if(!['cartesian','polar','surface','vector','vector3d','implicit2d','implicit3d'].includes(mode))throw Error('Choose a graph mode.');
+  return expressions.map((expression,index)=>{try{if(mode==='implicit2d'||mode==='implicit3d')return implicitSample({mode,min,max,yMin,yMax,zMin,zMax,quality,multiple:expressions.length>1},expression,index);if(mode==='vector'||mode==='vector3d')return vectorSample({mode,min,max,yMin,yMax,zMin,zMax,quality,normalize},expression,index);const f=compile(expression,mode==='surface'?['x','y']:mode==='polar'?['theta','t']:['x']);
    if(mode==='surface'){const n=quality==='high'?101:65,axis=Array.from({length:n},(_,i)=>min+(max-min)*i/(n-1)),yAxis=Array.from({length:n},(_,i)=>yMin+(yMax-yMin)*i/(n-1)),z=yAxis.map(y=>axis.map(x=>f({x,y})));if(!z.some(row=>row.some(v=>v!==null)))throw Error('No real values in this range.');return {type:'surface',x:axis,y:yAxis,z,name:expression,showscale:false,opacity:expressions.length>1?.8:1};}
    const n=quality==='high'?2401:1201,x=[],y=[];for(let i=0;i<n;i++){const t=min+(max-min)*i/(n-1),v=f({x:t,theta:t,t});x.push(mode==='polar'&&v!==null?v*Math.cos(t):t);y.push(mode==='polar'&&v!==null?v*Math.sin(t):v);}if(!y.some(v=>v!==null))throw Error('No real values in this range.');
    // Split steep jumps to avoid drawing across common asymptotes.
@@ -51,5 +104,14 @@
    return {type:'scatter',mode:'lines',x,y,name:expression,connectgaps:false,line:{width:3}};
   }catch(error){throw Error('Equation '+(index+1)+': '+error.message);}});
  }
- const api={compile,sample,vector};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.GraphTools=api;
+ function inferMode(input){
+  if(!['cartesian','surface'].includes(input.mode))return input.mode;
+  const tools=typeof module!=='undefined'&&module.exports?require('./interactive-tools.js'):root.InteractiveTools,c=tools.resolve(input),lines=c.equations.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(input.mode==='cartesian'){
+   if(lines.some(s=>/\bz\b/i.test(s)))return 'implicit3d';
+   if(lines.some(s=>{const p=s.split('=');return p.length===2?!/^y$/i.test(p[0].trim())||/\by\b/i.test(p[1]):/\by\b/i.test(s);}))return 'implicit2d';
+  }else if(lines.some(s=>{const p=s.split('=');return p.length===2?!/^z$/i.test(p[0].trim())||/\bz\b/i.test(p[1]):/\bz\b/i.test(s);}))return 'implicit3d';
+  return input.mode;
+ }
+ const api={compile,sample,vector,implicit,inferMode};if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.GraphTools=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

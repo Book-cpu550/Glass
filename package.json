@@ -1,7 +1,7 @@
 {
   "name": "glass",
   "productName": "Glass",
-  "version": "4.2.5",
+  "version": "4.2.6",
   "description": "A local math and science notebook with editable equations, chemistry, graphs and PDF export",
   "main": "main.cjs",
   "author": "Glass contributors",
